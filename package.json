@@ -1,0 +1,21 @@
+{
+  "name": "auspicious-situation-type",
+  "productName": "auspicious-situation-type",
+  "description": "My Electron application description",
+  "keywords": [],
+  "main": "./main.js",
+  "version": "1.0.3",
+  "author": "jankovar",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "2.0.8"
+  },
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "node-cmd": "^3.0.0",
+    "shelljs": "^0.8.3"
+  }
+}

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - STL</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				color: #fff;
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display:block;
+
+			}
+
+			a { color: skyblue }
+			.button { background:#999; color:#eee; padding:0.2em 0.5em; cursor:pointer }
+			.highlight { background:orange; color:#fff; }
+
+			span {
+				display: inline-block;
+				width: 60px;
+				text-align: center;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div id="info">
+			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> -
+			STL loader test by <a href="https://github.com/aleeper" target="_blank" rel="noopener">aleeper</a>. PR2 head from <a href="http://www.ros.org/wiki/pr2_description">www.ros.org</a>
+		</div>
+
+
+		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+		<script src="build/three.js"></script>
+
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/controls/ObjectControls.js"></script>
+		<script src="js/loaders/STLLoader.js"></script>
+		<script src="js/loaders/XYZLoader.js"></script>
+
+		<script src="js/WebGL.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+
+
+		<script>
+
+			if ( WEBGL.isWebGLAvailable() === false ) {
+
+				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+
+			}
+
+
+			var camera, scene, renderer, control; var model;
+
+			var container, stats;
+			var cameraTarget, renderer;
+
+			init();
+			animate();
+
+			function init() {
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0xffffff );
+				//renderer.setSize( 800, 500 );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				//camera = new THREE.PerspectiveCamera( 30, 800 / 500, 1, 2000 );
+				camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera.position.set( 260, 280, 360 );
+				camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+
+				control = new THREE.OrbitControls( camera, renderer.domElement );
+				control.rotateSpeed = 1;
+				control.noZoom = false;
+				control.zoomSpeed = 1.2;
+				control.staticMoving = true;
+				//control.minPolarAngle = Math.PI / 3;
+				//control.maxPolarAngle = Math.PI / 3;
+
+				scene = new THREE.Scene();
+
+				var light = new THREE.DirectionalLight( 0xffffff, 1 );
+				light.position.set( 0, 800, 1000 );
+				scene.add( light );
+
+				var light = new THREE.DirectionalLight( 0xffffff, 1 );
+				light.position.set( 0, 800, -1000 );
+				scene.add( light );
+
+				var light = new THREE.DirectionalLight( 0xffffff, 1 );
+				light.position.set( 550, 800, 0 );
+				scene.add( light );
+
+				var light = new THREE.DirectionalLight( 0xffffff, 1 );
+				light.position.set( -550, 800, 0 );
+				scene.add( light );
+
+				var light = new THREE.AmbientLight( 0x222222 );
+				scene.add( light );
+
+
+				// world
+
+				var Texture = new THREE.ImageUtils.loadTexture( 'textures/grid.png' );
+				Texture.wrapS = Texture.wrapT = THREE.RepeatWrapping;
+				Texture.repeat.set( 1, 1 );	Texture.offset.set( 0, 0 );
+
+				var x_plate = 200;
+				var y_plate = 200;
+				var Material = new THREE.MeshBasicMaterial( { map: Texture, side: THREE.DoubleSide } );
+				var Geometry = new THREE.PlaneGeometry( x_plate, y_plate, 1, 1 );
+
+				var checkerboard = new THREE.Mesh( Geometry, Material );
+				checkerboard.position.y = - 0.1;
+				checkerboard.rotation.x =  Math.PI / 2;
+				//checkerboard.position.x =  -x_plate / 2;
+				//checkerboard.position.z =  y_plate / 2;
+				scene.add( checkerboard );
+
+
+				ObjectControl1 = new ObjectControls( camera, renderer.domElement );
+				ObjectControl1.projectionMap = checkerboard; ObjectControl1.fixed.y = true;
+
+
+				var object3D = new THREE.Object3D;
+				var mesh = new THREE.Mesh( geometry, material );
+				object3D.add( mesh );
+				var mesh = new THREE.Mesh( geometry, material );
+				mesh.position.y = h; mesh.rotation.x = Math.PI / 2; mesh.rotation.z = Math.PI / 2;
+				object3D.add( mesh );
+				object3D.position.set( 25, h / 2, 175 );
+				scene.add( object3D );  ObjectControl1.attach( object3D );
+
+
+				ObjectControl2 = new ObjectControls( camera, renderer.domElement );
+				ObjectControl2.projectionMap = checkerboard; ObjectControl2.fixed.y = true;
+				ObjectControl2.move = function() {
+
+					this.container.style.cursor = 'move'
+					this.focused.position.x = 25 + 50 * Math.round( ( this.focused.position.x - 25 ) / 50 );
+					this.focused.position.z = 25 + 50 * Math.round( ( this.focused.position.z - 25 ) / 50 );
+
+				}
+
+				ObjectControl2.mouseup = function() {
+
+					var x = ( this.focused.position.x - 25 ) / 50;
+					var z = ( this.focused.position.z - 25 ) / 50;
+
+					var sum = Math.abs( ( x + z ) % 2 );
+					if ( sum == 0 ) { this.returnPrevious() }
+					this.container.style.cursor = 'auto';
+
+				}
+
+				ObjectControl2.onclick = function() {
+
+					console.log( this.focused.name );
+					if ( this.focusedpart != null ) console.log( this.focusedpart.name )
+						else  console.log( 'this.focusedpart is null' );
+
+				}
+
+				var radius = 10, h = 10, segments = 36;					////----->> some weird model
+				var geometry = new THREE.CylinderGeometry( radius, radius, h, segments );
+				var material = new THREE.MeshPhongMaterial( { color: 0x00BAFF } );
+
+				var checker = new THREE.Mesh( geometry, material ); checker.name = 'checker';
+
+				checker.position.set( -80, (h / 2) - 0.9, 80 );
+				scene.add( checker ); ObjectControl1.attach( checker );
+
+				var mesh_pos;
+
+				var loader = new THREE.STLLoader();
+				loader.load( './models/stl/something_from_mk3.stl', function ( geometry ) {
+
+					var material = new THREE.MeshPhongMaterial( { color: 0x00BAFF, specular: 0x111111, shininess: 200 } );
+					var mesh = new THREE.Mesh( geometry, material );
+
+
+					//mesh.position.set( 0, - 0.25, 0.6 );
+					mesh.rotation.set( 0, 0, 0 );
+					mesh.scale.set( 1, 1, 1 );
+
+					mesh.castShadow = true;
+					mesh.receiveShadow = true;
+
+					var box = new THREE.Box3().setFromObject( mesh );
+
+					console.log("height: " + (box.max.z + Math.abs(box.min.z)));
+					console.log(box);
+					console.log(mesh.position);
+					//console.log((box.max.z + Math.abs(box.min.z))/2);
+
+					mesh.position.set( 0, 0, 0 );
+					scene.add( mesh ); ObjectControl1.attach( mesh );
+
+					if ( mesh instanceof THREE.Mesh ) {
+	                   mesh_pos = mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
+	            	}
+
+				} );
+
+				ObjectControl5 = new ObjectControls( camera, renderer.domElement );
+				ObjectControl5.displacing = false; ObjectControl5.attach( checkerboard );
+
+				ObjectControl5.mouseover = function () {
+					control.enabled = true;		///------>>>> zoom pad disable !!!///
+
+					ObjectControl1.onclick = function() {
+
+						//console.log("mouse_click --> drag");
+						control.enabled = false;
+
+						mesh_pos.material.color.setHex( 0x008EB4 );
+
+						ObjectControl1.mouseup = function() {
+							control.enabled = true;
+
+							mesh_pos.material.color.setHex( 0x00BAFF );
+
+							console.log("x: " + mesh_pos.position.x);
+							console.log("y: " + mesh_pos.position.z);
+
+							//console.log("mouse_click --> up");
+						}
+
+					}
+				}
+
+				ObjectControl5.mouseout = function () {
+					control.enabled = true;
+				}
+			}
+
+			function animate() {
+
+					requestAnimationFrame(animate);
+					render();
+
+			}
+
+
+			function render() {
+
+					ObjectControl1.update();
+					ObjectControl2.update();
+					//ObjectControl3.update();
+					//ObjectControl4.update();
+					ObjectControl5.update();
+
+					control.update();
+					renderer.render(scene, camera);
+
+			}
+
+		</script>
+	</body>
+</html>
