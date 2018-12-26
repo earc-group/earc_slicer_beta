@@ -10,13 +10,20 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
+  mainWindow = new BrowserWindow({
+      width: 1300,
+      height: 640,
+      minWidth: 600,
+      minHeight: 400,
+      //icon: path.join('img/icons/png/64x64.png'),
+      icon: path.join(__dirname, 'assets/icons/png/64x64.png')
+  })
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

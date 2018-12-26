@@ -47233,7 +47233,7 @@
 
 	function Projector() {
 
-		console.error( 'THREE.Projector has been moved to /examples/js/renderers/Projector.js.' );
+		//console.error( 'THREE.Projector has been moved to /examples/js/renderers/Projector.js.' );
 
 		this.projectVector = function ( vector, camera ) {
 
@@ -47244,7 +47244,7 @@
 
 		this.unprojectVector = function ( vector, camera ) {
 
-			console.warn( 'THREE.Projector: .unprojectVector() is now vector.unproject().' );
+			//console.warn( 'THREE.Projector: .unprojectVector() is now vector.unproject().' ); // --> // WARNINGS
 			vector.unproject( camera );
 
 		};

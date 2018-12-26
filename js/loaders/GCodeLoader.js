@@ -46,10 +46,10 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 	var currentLayer = undefined;
 
-	var pathMaterial = new THREE.LineBasicMaterial( { color: 0xFF0000 } );
+	var pathMaterial = new THREE.LineBasicMaterial( { color: 0xE89C2A } );
 	pathMaterial.name = 'path';
 
-	var extrudingMaterial = new THREE.LineBasicMaterial( { color: 0x00FF00 } );
+	var extrudingMaterial = new THREE.LineBasicMaterial( { color: 0x00E9E9 } );
 	extrudingMaterial.name = 'extruded';
 
 	function newLayer( line ) {
@@ -170,7 +170,7 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 		} else {
 
-			console.warn( 'THREE.GCodeLoader: Command not supported:' + cmd );
+			//console.warn( 'THREE.GCodeLoader: Command not supported:' + cmd );
 
 		}
 
