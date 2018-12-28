@@ -11,7 +11,7 @@
     "build": "electron-builder"
   },
   "devDependencies": {
-    "electron": "2.0.8"
+    "electron": "^4.0.0-nightly.20181006"
   },
   "dependencies": {
     "child_process": "^1.0.2",
