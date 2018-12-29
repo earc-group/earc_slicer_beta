@@ -1,17 +1,17 @@
 {
-  "name": "auspicious-situation-type",
-  "productName": "auspicious-situation-type",
-  "description": "My Electron application description",
+  "name": "earc slicer",
+  "productName": "earc slicer",
+  "description": "3D printing software by earc",
   "keywords": [],
   "main": "./main.js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "jankovar",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder"
   },
   "devDependencies": {
-    "electron": "^3.0.0"
+    "electron": "^4.0.0"
   },
   "dependencies": {
     "child_process": "^1.0.2",

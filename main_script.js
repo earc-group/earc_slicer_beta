@@ -438,11 +438,13 @@ function init() {
     $(document).on('click', '#back_to_models', function(){
 
         var gcode_view = scene.getObjectByName( "gcode_view", true );
-        gcode_view.visible = false;
+        //gcode_view.visible = false;
+        scene.remove( gcode_view ); // remove gcode view from scene
+        animate();
 
         var object = scene.getObjectByName(loaded_models.model[0].name);
         //object.visible = true;
-        console.log(object);
+        //console.log(object);
 
         setTimeout(function(){
 
@@ -452,11 +454,11 @@ function init() {
             }
 
         }, 100);
-        $("#back_to_gcode").show();
+        $("#slice_btn").show();
         $("#back_to_models").hide();
     });
 
-    $(document).on('click', '#back_to_gcode', function(){
+    $(document).on('click', '#slice_btn', function(){
 
         for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
             var object = scene.getObjectByName( loaded_models.model[i].name, true );
@@ -466,61 +468,65 @@ function init() {
         setTimeout(function(){
             var gcode_view = scene.getObjectByName( "gcode_view", true );
             gcode_view.visible = true;
-        }, 100);
-        $("#back_to_gcode").hide();
+        }, 1000);
+        $("#slice_btn").hide();
         $("#back_to_models").show();
     })
 
     $(".loading_screen_slice").hide();
 
     $(document).on('click','#slice_btn', function(){
-        console.log(">> start slicing");
+        if($("#model_li").length !== 0){    // check if models exist
+            console.log(">> start slicing");
 
-        function show_div_load_slice(){    // Animated loading / slicing screen
-        	$(".loading_screen_slice").show();
-            function show_div_load_slice(){
-            	$(".loading_screen_slice").addClass("show");
-            	$(".loading_screen_slice").removeClass("hide");
-            }
-            setTimeout(show_div_load_slice, 500);
-        }
-        setTimeout(show_div_load_slice, 100);
-
-        exportASCII();  // export stl with right rotation
-
-        var path_to_file = "output/output.stl"; // get prepared stl file
-
-        setTimeout(function(){      // send comand to slicer core
-            cmd.get(
-                'perl slicer_core/slic3r.pl -o output/output.gcode output/output.stl ',
-                function(err, data, stderr){
-                    console.log(data);
-
-                    if (data !== null) {
-                      console.log(">> Done");       // script if sucess
-                      //alert("Done!");
-                      setTimeout(function(){
-                          show_gcode();
-                          $("#back_to_gcode").hide();
-                          $("#back_to_models").show();
-
-                          function show_div_load_slice(){
-                          	$(".loading_screen_slice").addClass("hide");
-                            $(".loading_screen_slice").removeClass("show");
-                              function show_div_load_slice(){
-                              	$(".loading_screen_slice").hide();
-                              }
-                              setTimeout(show_div_load_slice, 600);
-                          }
-                          setTimeout(show_div_load_slice, 200);
-
-                      }, 500);
-                    }
+            function show_div_load_slice(){    // Animated loading / slicing screen
+            	$(".loading_screen_slice").show();
+                function show_div_load_slice(){
+                	$(".loading_screen_slice").addClass("show");
+                	$(".loading_screen_slice").removeClass("hide");
                 }
-            );
-        }, 1000);
+                setTimeout(show_div_load_slice, 500);
+            }
+            setTimeout(show_div_load_slice, 100);
 
-        console.log(">> working ...");
+            exportASCII();  // export stl with right rotation
+
+            var path_to_file = "output/output.stl"; // get prepared stl file
+
+            setTimeout(function(){      // send comand to slicer core
+                cmd.get(
+                    'perl slicer_core/slic3r.pl -o output/output.gcode output/output.stl ',
+                    function(err, data, stderr){
+                        console.log(data);
+
+                        if (data !== null) {
+                          console.log(">> Done");       // script if sucess
+                          //alert("Done!");
+                          setTimeout(function(){
+                              show_gcode();
+                              $("#slice_btn").hide();
+                              $("#back_to_models").show();
+
+                              function show_div_load_slice(){
+                              	$(".loading_screen_slice").addClass("hide");
+                                $(".loading_screen_slice").removeClass("show");
+                                  function show_div_load_slice(){
+                                  	$(".loading_screen_slice").hide();
+                                  }
+                                  setTimeout(show_div_load_slice, 600);
+                              }
+                              setTimeout(show_div_load_slice, 200);
+
+                          }, 500);
+                        }
+                    }
+                );
+            }, 1000);
+
+            console.log(">> working ...");
+        } else {
+            console.log(">> no models");
+        }
 
     });
 
@@ -544,7 +550,7 @@ function init() {
 
             var cloneObject = addObject.clone();            // group delete original --> clone object same name
             cloneObject.name = loaded_models.model[i].name;
-            scene.add(cloneObject);
+            scene.add(cloneObject); ObjectControl1.attach( cloneObject );
                                                             // set rotation and position for cloned object
             cloneObject.rotation.set((cloneObject.rotation.x - (Math.PI / 2)), cloneObject.rotation.y, cloneObject.rotation.z);
             cloneObject.position.set(addObject.position.x, addObject.position.y, addObject.position.z);
@@ -612,7 +618,7 @@ function rotation_set(){     // --> set rotation of model
     var rot_y = $("#rot_y").val();
     var rot_z = $("#rot_z").val();
 
-    console.log("rot_x_y_z: " + rot_x +"-"+ rot_y +"-"+ rot_z);
+    //console.log("rot_x_y_z: " + rot_x +"-"+ rot_y +"-"+ rot_z);
 
     selected_object_obj.rotation.x = (270 + parseInt(rot_x)) * (Math.PI / 180);
     selected_object_obj.rotation.y = rot_y * (Math.PI / 180);
@@ -866,8 +872,8 @@ function clone_object(objname){
 
     var box = new THREE.Box3().setFromObject( get_obj_clone );
 
-    console.log(Math.abs(box.max.x - box.min.x));
-    console.log(Math.abs(box.max.z - box.min.z));
+    //console.log(Math.abs(box.max.x - box.min.x));
+    //console.log(Math.abs(box.max.z - box.min.z));
 
     cloneObject.position.x = get_obj_clone.position.x + (Math.abs(box.max.x - box.min.x) / 2) + 10;
     cloneObject.position.z = get_obj_clone.position.z + (Math.abs(box.max.z - box.min.z) / 2) + 10;
@@ -878,10 +884,6 @@ function clone_object(objname){
     loaded_models.model.push({ name: new_file_name, path: clone_path });
 
     $("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + new_file_name + "</p><div class='cross_icon del_model_btn' id='" + new_file_name + "'></div></li>");
-
-    console.log("item_selected_ctx");
-    console.log(item_selected_ctx);
-    console.log(hover_over_element);
 
     console.log("clone object path: " + model_obj.path);
     console.log(loaded_models.model);
@@ -1017,21 +1019,18 @@ window.addEventListener('contextmenu', (e) => {
     hover_over_element = $(e.target).attr('id');
 
     if(hover_over_element == "side_bar"){
-        e.preventDefault()
-        menu_1.popup({ window: remote.getCurrentWindow() })
+        //menu_1.popup({ window: remote.getCurrentWindow() })
     } else if(hover_over_element == "canvas"){
 
     } else if(hover_over_element == "model_li_p"){
-        e.preventDefault()
         model_li_menu.popup({ window: remote.getCurrentWindow() })
-
         hover_over_element = "";
     } else {
-        e.preventDefault()
-        menu_1.popup({ window: remote.getCurrentWindow() })
+        //menu_1.popup({ window: remote.getCurrentWindow() })
     }
 
-    console.log(hover_over_element);
+    //console.log(hover_over_element);
+    e.preventDefault()
 
 }, false)
 
@@ -1041,19 +1040,3 @@ $("canvas").hover(function() {      // no right click on canvas 3D view
 }, function() {
     hover_over_element = "";
 });
-
-
-
-
-/*
-
-$( ".top_bar" ).mouseover(function() {
-    console.log("mouseover");
-
-    window.addEventListener('contextmenu', (e) => {
-      e.preventDefault()
-      menu_1.popup({ window: remote.getCurrentWindow() })
-    }, false)
-
-});
-*/

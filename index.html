@@ -38,67 +38,72 @@
                         <button id="rotate_object_manual" class="icon_btn"></button>
                     </div>
 
+					<p class="top_text_beta">
+                        // earc slicer - beta v1.2 //
+                    </p>
+
     		    </div>
 
                 <div class="side_bar" id="side_bar">
 
 					<div class="logo_top"></div>
 
-					<br /><br /><br /><br />
+					<br /><br /><br />
 
-                    <p>
-                        // earc slicer - beta //<br /><br />
-                    </p>
+                    <div class="models_scroll_box">
+						<p class="p_hl">models:</p>
+						<ol id="model_list_div"></ol>
+					</div>
 
-                    <input type="file" id="fileUpload" accept="model/stl">
+					<!--
+					<hr class="side_bar_hr" />
+					-->
+					<input type="file" id="fileUpload" name="fileUpload" accept="model/stl" class="import_input">
+					<label for="fileUpload" class="label_import_btn button">import file</label>
 
-                    <hr class="side_bar_hr" />
+					<div class="easy_settings">
+						<p class="p_hl">settings:</p>
 
-                    <ol id="model_list_div"></ol>
+						<div class="rotation_menu_manual">
+	                        <p>rotaton:</p><br />
+	                        <p>x: <input type="text" id="rot_x" name="rot_x" class="rotation_inp"></p>
+	                        <p>y: <input type="text" id="rot_y" name="rot_y" class="rotation_inp"></p>
+	                        <p>z: <input type="text" id="rot_z" name="rot_z" class="rotation_inp"></p>
+	                        <br />
+	                        <button id="set_rotation" class="button">set rotation</button>
+	                    </div>
 
-                    <br />
-                    <br />
-                    <br />
-                    <br />
-                    <br />
+	                    <div class="scale_menu_manual">
+	                        <p>scale:</p>
+	                        <br />
+	                        <button id="unify_scale" class="icon_btn unify_scale"></button>
+	                        <div class="no_unify_scale_div">
+	                            <p>x: <input type="text" id="scale_x" name="scale_x" class="scale_inp"></p>
+	                            <p>y: <input type="text" id="scale_z" name="scale_z" class="scale_inp"></p>
+	                            <p>z: <input type="text" id="scale_y" name="scale_y" class="scale_inp"></p>
+	                        </div>
+	                        <div class="unify_scale_div">
+	                            <p><input type="text" id="scale_unify" name="scale_unify" class="scale_inp"></p>
+	                        </div>
+	                        <br />
+	                        <button id="set_scale" class="button">set scale</button>
+	                    </div>
 
-                    <div class="rotation_menu_manual">
-                        <p>rotaton:</p>
-                        <p>x: <input type="text" id="rot_x" name="rot_x" class="rotation_inp"></p>
-                        <p>y: <input type="text" id="rot_z" name="rot_z" class="rotation_inp"></p>
-                        <p>z: <input type="text" id="rot_y" name="rot_y" class="rotation_inp"></p>
-                        <br />
-                        <button id="set_rotation" class="button">set rotation</button>
-                    </div>
+					</div>
 
-                    <div class="scale_menu_manual">
-                        <p>scale:</p>
-                        <br />
-                        <button id="unify_scale" class="icon_btn unify_scale"></button>
-                        <div class="no_unify_scale_div">
-                            <p>x: <input type="text" id="scale_x" name="scale_x" class="scale_inp"></p>
-                            <p>y: <input type="text" id="scale_z" name="scale_z" class="scale_inp"></p>
-                            <p>z: <input type="text" id="scale_y" name="scale_y" class="scale_inp"></p>
-                        </div>
-                        <div class="unify_scale_div">
-                            <p><input type="text" id="scale_unify" name="scale_unify" class="scale_inp"></p>
-                        </div>
-                        <br />
-                        <button id="set_scale" class="button">set scale</button>
-                    </div>
+                    <!--
+					<button id="show_gcode" class="button">show gcode</button>
+                    <br />
+                    <br />-->
 
-                    <br />
-                    <br />
-                    <button id="show_gcode" class="button">show gcode</button>
-                    <br />
-                    <br />
                     <button id="slice_btn" class="button">slice</button>
+                    <button id="manual_btn" class="button w">manual</button>
                     <br />
                     <!--
                     <button id="exp_stl" class="button">exp_stl</button>
                     -->
-                    <button id="back_to_models" class="button"> <-- back </button>
-                    <button id="back_to_gcode" class="button"> gcode --> </button>
+                    <button id="back_to_models" class="button"> <- back </button>
+                    <button id="back_to_gcode" class="button"> gcode -> </button>
 
                 </div>
     		</div>
@@ -121,11 +126,8 @@
 
         </div>
 
-        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-        <script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.js"></script>
-        <!--          <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>         -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="js/ajax.jquery.min.js"></script>
 
 		<script src="build/three.js"></script>
 

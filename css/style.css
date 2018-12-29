@@ -1,6 +1,26 @@
 @import url("https://fonts.googleapis.com/css?family=Lato:100");
-@import url("https://fonts.googleapis.com/css?family=Roboto:100,300");
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600|Source+Sans+Pro:200,300,400");
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100;
+  src: local("Roboto Thin"), local("Roboto-Thin"), url("../assets/fonts/Roboto-Thin.ttf") format("ttf");
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: local("Roboto Light"), local("Roboto-Light"), url("../assets/fonts/Roboto-Light.ttf") format("ttf");
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local("Roboto Regular"), local("Roboto-Regular"), url("../assets/fonts/Roboto-Regular.ttf") format("ttf");
+}
+
 body {
   font-family: Monospace;
   background-color: #fff;
@@ -32,7 +52,7 @@ p {
   border: 0px;
   border-radius: 36px;
   font-family: 'Roboto', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   cursor: pointer;
   padding: 0.2em 0.5em;
   font-size: 1.1em;
@@ -41,7 +61,8 @@ p {
 }
 
 .button:hover {
-  filter: brightness(120%);
+  filter: brightness(112%);
+  -webkit-filter: brightness(112%);
   box-shadow: 0px 6px 18px rgba(0, 186, 255, 0.3);
 }
 
@@ -56,9 +77,59 @@ p {
   -webkit-focus-ring-color: none 0px;
 }
 
+.button.w {
+  background: #fff;
+  border: 1px solid #00BAFF;
+  color: #00BAFF;
+  font-size: 1em;
+}
+
+.button.w:hover {
+  filter: brightness(100%);
+  -webkit-filter: brightness(100%);
+  box-shadow: 0px 6px 18px rgba(0, 186, 255, 0.3);
+}
+
 #slice_btn {
-  position: relative;
-  bottom: 0px;
+  position: absolute;
+  top: calc(100vh - 45px);
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  margin-left: 23%;
+}
+
+#back_to_models {
+  position: absolute;
+  top: calc(100vh - 45px);
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  z-index: 20;
+  margin-left: 23%;
+}
+
+#back_to_gcode {
+  position: absolute;
+  top: calc(100vh - 45px);
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  z-index: 20;
+  margin-left: 23%;
+}
+
+#manual_btn {
+  position: absolute;
+  top: calc(100vh - 45px);
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  margin-left: -23%;
 }
 
 #show_gcode {
@@ -136,10 +207,10 @@ span {
   background-image: url("../assets/img/earc_slicer_logo.png");
   background-size: contain;
   background-repeat: no-repeat;
-  width: 20vw;
-  height: 6vw;
+  width: 15vw;
+  height: 5vw;
   position: absolute;
-  top: 10px;
+  top: 3px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -236,7 +307,7 @@ span {
   width: 200px;
   height: 40px;
   background-color: #fff;
-  top: calc(2vh + 41px);
+  top: calc(1vh + 41px);
   left: 278px;
   border: solid 1px #00BAFF;
   border-top: none;
@@ -258,6 +329,7 @@ span {
 .rotation_menu_manual.active {
   opacity: 1;
   display: block;
+  margin-top: 36px;
 }
 
 .scale_menu_manual {
@@ -269,6 +341,7 @@ span {
 .scale_menu_manual.active {
   opacity: 1;
   display: block;
+  margin-top: 36px;
 }
 
 .top_tool_bar {
@@ -289,6 +362,7 @@ span {
   position: relative;
   width: 95%;
   left: -38px;
+  padding-top: 4px;
 }
 
 #model_list_div li {
@@ -302,7 +376,7 @@ span {
   height: auto;
   padding: 4px;
   border: 1px solid #ccc;
-  margin-bottom: 0px;
+  margin-bottom: -1px;
   list-style-type: none;
   text-align: left;
   word-wrap: break-word;
@@ -320,7 +394,7 @@ span {
   border-color: #00BAFF;
   color: #00BAFF;
   z-index: 20;
-  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.11);
 }
 
 .model_menu_li p {
@@ -347,10 +421,60 @@ span {
   user-select: none;
 }
 
+.models_scroll_box {
+  position: relative;
+  width: 100%;
+  top: -11px;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  height: 30vh;
+  max-height: 30vh;
+  word-wrap: break-word;
+  margin-bottom: 20px;
+  overflow-y: auto;
+}
+
+.top_text_beta {
+  position: relative;
+  float: right;
+  right: 20px;
+  margin-top: -3px;
+}
+
 .cross_icon {
   background-image: url("../assets/img/cross_icon.svg");
   background-repeat: no-repeat;
   background-size: contain;
+}
+
+.import_input {
+  display: none;
+}
+
+.label_import_btn {
+  width: 20vw;
+  display: block;
+  padding-left: 4px;
+  padding-right: 4px;
+  margin-top: -19px;
+}
+
+.easy_settings {
+  position: absolute;
+  width: 85%;
+  top: 48vh;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  height: 43vh;
+  word-wrap: break-word;
+  margin-bottom: 20px;
+  overflow-y: auto;
+}
+
+.p_hl {
+  float: left;
+  text-align: left;
+  color: #ccc;
 }
 
 .loading_screen_slice {

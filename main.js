@@ -17,10 +17,11 @@ function createWindow () {
   mainWindow = new BrowserWindow({
       width: 1300,
       height: 640,
-      minWidth: 600,
-      minHeight: 400,
+      minWidth: 1024,
+      minHeight: 560,
       //icon: path.join('img/icons/png/64x64.png'),
-      icon: path.join(__dirname, 'assets/icons/png/64x64.png')
+      //icon: path.join(__dirname, 'assets/icons/png/64x64.png')
+      icon: path.join('assets/icons/png/64x64.png')
   })
 
   // and load the index.html of the app.
@@ -44,17 +45,8 @@ function createWindow () {
 app.on('ready', function() {
     createWindow()
 
-    const ctxMenu = new Menu()
-    ctxMenu.append(new MenuItem({
-        label: 'Hello'
-    }))
-
     /*
-    win.webContents.on('context-menu', function(e, params){
-        ctxMenu.popup(win, params.x, params.y)
-    })    */
-
-    mainWindow.webContents.on('context-menu', function (e, params) {
+mainWindow.webContents.on('context-menu', function (e, params) {
         const template = [
             {
                 label:   'Edit',
@@ -78,7 +70,8 @@ app.on('ready', function() {
             }
         ];
         Menu.buildFromTemplate(template).popup({});
-    });
+    });*/
+
 
 })
 
