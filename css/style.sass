@@ -21,6 +21,10 @@ canvas
 button:focus
     outline: 0
 
+p
+    -webkit-margin-after: 0em
+    -webkit-margin-before: 0em
+
 .button
     color: #fff
     background: linear-gradient(-90deg, #00FFFF, #00BAFF)
@@ -89,14 +93,14 @@ span
     visibility: hidden
 
 .side_bar
-    width: 26vw
+    width: 24vw
     height: 100vw
     top: 0px
     left: 0px
     position: fixed
     z-index: 99
     padding: 20px
-    border-image: linear-gradient(to bottom, #00FFFF, #40449F)
+    border-image: linear-gradient(to bottom, #00FFFF 20%, #40449F 100%)
     border-image-slice: 1
     border-width: 2px
     border-right: 2px solid
@@ -115,15 +119,19 @@ span
     margin-top: 10px
 
 .logo_top
-    background-image: url("assets/img/earc_slicer_logo.png")
-    width: 14vw
-    height: 5vw
-    position: absolute
+    background-image: url("../assets/img/earc_slicer_logo.png")
     background-size: contain
+    background-repeat: no-repeat
+    width: 20vw
+    height: 6vw
+    position: absolute
+    top: 10px
+    left: 50%
+    transform: translateX(-50%)
 
 .top_bar
     width: 75vw
-    height: 2vh
+    height: 1vh
     top: 0px
     right: 0px
     position: fixed
@@ -134,7 +142,7 @@ span
     //box-shadow: 0px 0px 24px rgba(#000, .14)
 
 .icon_btn
-    height: 30px
+    height: 25px
     width: 30px
     border: none
     cursor: pointer
@@ -225,7 +233,7 @@ span
 
 .top_tool_bar
     position: relative
-    left: 100px
+    left: 80px
     height: 100%
     width: auto
     text-align: left
@@ -236,11 +244,59 @@ span
 
 #model_list_div
     text-align: left
+    position: relative
+    width: 95%
+    left: -38px
     & li
         list-style-type: none
         text-align: left
-        max-width: 90%
         word-wrap: break-word
+
+.model_menu_li
+    position: relative
+    height: auto
+    padding: 4px
+    border: 1px solid #ccc
+    margin-bottom: 0px
+    list-style-type: none
+    text-align: left
+    word-wrap: break-word
+    width: 100%
+    color: #aaa
+    z-index: 10
+    font-family: Roboto, sans-serif
+    font-size: 15px
+    background-color: #fff
+    cursor: pointer
+    transition: all .4s
+    &:hover
+        border-color: #00BAFF
+        color: #00BAFF
+        z-index: 20
+        box-shadow: 0px 4px 14px rgba(#000, .12)
+    & p
+        width: calc(100% - 20px)
+
+.del_model_btn
+    position: absolute
+    height: 16px
+    width: 16px
+    float: right
+    right: 5px
+    top: 50%
+    cursor: pointer
+    transform: translateY(-50%)
+    transition: all .4s
+    &:hover
+        filter: brightness(60%)
+
+#model_li_p
+    user-select: none
+
+.cross_icon
+    background-image: url('../assets/img/cross_icon.svg')
+    background-repeat: no-repeat
+    background-size: contain
 
 // --------> slicing animaton -> start
 
@@ -278,17 +334,17 @@ span
   &.one
     left: 0%
     top: 0%
-    animation: rotate-one 1s linear infinite
+    animation: rotate-one .6s linear infinite
     border-bottom: 3px solid #EFEFFA
   &.two
     right: 0%
     top: 0%
-    animation: rotate-two 1s linear infinite
+    animation: rotate-two .6s linear infinite
     border-right: 3px solid #EFEFFA
   &.three
     right: 0%
     bottom: 0%
-    animation: rotate-three 1s linear infinite
+    animation: rotate-three .6s linear infinite
     border-top: 3px solid #EFEFFA
 
 @keyframes rotate-one
@@ -349,17 +405,17 @@ span
   &.one
     left: 0%
     top: 0%
-    animation: rotate-one 1s linear infinite
+    animation: rotate-one .6s linear infinite
     border-bottom: 3px solid #EFEFFA
   &.two
     right: 0%
     top: 0%
-    animation: rotate-two 1s linear infinite
+    animation: rotate-two .6s linear infinite
     border-right: 3px solid #EFEFFA
   &.three
     right: 0%
     bottom: 0%
-    animation: rotate-three 1s linear infinite
+    animation: rotate-three .6s linear infinite
     border-top: 3px solid #EFEFFA
 
 @keyframes rotate-one

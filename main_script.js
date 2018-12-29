@@ -4,8 +4,21 @@ var camera, scene, renderer, control; var model;
 var cameraTarget, selected_object, exporter, container, stats;
 var selected_object_obj, saveString, gcode_view;
 
+var hover_over_element = "";
+
 var cmd = require('node-cmd');
 const fs = require('fs');
+
+var loaded_models = {};
+loaded_models.model = [];
+
+/*
+var o = {
+  model: [
+    { attribute: "value" },
+    { attribute: "value" }
+  ]
+};    */
 
 init();
 animate();
@@ -157,55 +170,7 @@ function init() {
 	}
 
     var h;
-
-	/*
-    var radius = 10, h = 10, segments = 36;					////----->> some weird model
-	var geometry = new THREE.CylinderGeometry( radius, radius, h, segments );
-	var material = new THREE.MeshPhongMaterial( { color: 0x00BAFF } );
-
-	var checker = new THREE.Mesh( geometry, material ); checker.name = 'checker';
-
-	checker.position.set( -80, h / 2, 80 );
-	scene.add( checker ); ObjectControl1.attach( checker );
-    */
-
 	var mesh_pos, mesh_box;
-
-	/*
-var loader = new THREE.STLLoader();
-	loader.load( './models/stl/something_from_mk3.stl', function ( geometry ) {
-
-		var material = new THREE.MeshPhongMaterial( { color: 0x00BAFF, specular: 0x111111, shininess: 200 } );
-		var mesh = new THREE.Mesh( geometry, material );
-
-        mesh.name = "something_from_mk3";
-
-		//mesh.position.set( 0, - 0.25, 0.6 );
-		mesh.rotation.set( 0, 0, 0 );
-		mesh.scale.set( 1, 1, 1 );
-
-		mesh.castShadow = true;
-		mesh.receiveShadow = true;
-
-        mesh.position.set( -60, 0, -60 );
-
-		var box = new THREE.Box3().setFromObject( mesh );
-
-        var helper = new THREE.Box3Helper( box, 0xffff00 );
-        scene.add( helper );
-
-        console.log(helper.position);
-
-		scene.add( mesh ); ObjectControl1.attach( mesh );
-
-		if ( mesh instanceof THREE.Mesh ) {
-           mesh_pos = mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
-    	}
-
-        console.log("x: " + mesh_pos.position.x);
-        console.log("y: " + mesh_pos.position.z);
-
-	} );*/
 
     $('#fileUpload').on('change', function() {
         var file = this.files[0];
@@ -213,18 +178,32 @@ var loader = new THREE.STLLoader();
         var file_path = file.path;
         console.log(file.path);
 
-        load_stl_model(file.path, file.name);
+        var ext = file.name.slice((file.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        if(ext == "stl"){
+            console.log("ext --> ." + ext + " -> OK");
+            load_stl_model(file.path, file.name);
+        } /*
+        else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+            console.log("ext --> ." + ext + " -> OK");
+            load_obj_model(f.path, f.name);
+        } */
+
+        else {
+            console.log("ERROR --> Unsupported File --> ." + ext);
+            alert("Unsupported File --> ." + ext + "  (only .stl)");
+        }
 
     });
 
     function load_stl_model(model_file_path, model_file_name){
 
-        //var file = this.files[0];
-
         var file_path = model_file_path;
-        console.log(model_file_path);
 
-        $("#model_list_div").append("<li id='model_li' class='" + model_file_path + "'>" + model_file_name + "</li>");
+        $("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + model_file_name + "</p><div class='cross_icon del_model_btn' id='" + model_file_name + "'></div></li>");
+
+        loaded_models.model.push({ name: model_file_name, path: file_path });   // add object to array with properties
+
+        console.log(loaded_models);
 
         var loader = new THREE.STLLoader();
 		loader.load( file_path, function ( geometry ) {
@@ -235,7 +214,8 @@ var loader = new THREE.STLLoader();
             model_file_name == "gcode_view" ? model_file_name = "gcode_model" : model_file_name = model_file_name;
             mesh.name = model_file_name;
 
-            selected_object = mesh.namey;
+            console.log(model_file_name);
+            selected_object = model_file_name;
 
 			mesh.rotation.set( Math.PI*1.5, 0, 0 );
 			mesh.scale.set( 1, 1, 1 );
@@ -275,11 +255,69 @@ var loader = new THREE.STLLoader();
 
 		} );
 
-        console.log($("#model_list_div").val());
-        var column1RelArray = $('#model_list_div li').map(function(){
-            return $(this).text();
-        });
-        console.log(column1RelArray);
+    }
+
+    function load_obj_model(model_file_path, model_file_name){      // EXPERIMENTAL --> disabled
+
+        $("#model_list_div").append("<li id='model_li' class=''>" + model_file_name + "</li>");
+
+        loaded_models.model.push({ name: model_file_name, path: file_path });   // add object to array with properties
+
+        console.log(loaded_models);
+
+
+        var loader = new THREE.OBJLoader()
+            loader.load( file_path, function ( mesh ) {
+
+                var color = new THREE.Color( 0x00BAFF );
+                mesh.traverse( function ( child ) {
+                    if ( child.isMesh ) child.material.color = color;
+                } );
+
+                model_file_name == "gcode_view" ? model_file_name = "gcode_model" : model_file_name = model_file_name;
+                mesh.name = model_file_name;
+
+                console.log(model_file_name);
+                selected_object = model_file_name;
+
+    			mesh.rotation.set( Math.PI*1.5, 0, 0 );
+    			mesh.scale.set( 1, 1, 1 );
+
+    			mesh.castShadow = true;
+    			mesh.receiveShadow = true;
+
+
+    			var box = new THREE.Box3().setFromObject( mesh );
+
+                console.log("---> - height: " + box.min.y);
+                console.log("---> + height: " + box.max.y);
+
+                if(box.min.y < 0){
+                    mesh.position.set( 0, -(box.min.y), 0 );
+                } else if(box.min.y > 0){
+                    mesh.position.set( 0, -(box.min.y), 0 );
+                } else {
+                    mesh.position.set( 0, 0, 0 );
+                }
+
+                console.log("------ ");
+                console.log("---> pos: " + mesh.position.y);
+
+                var box = new THREE.Box3().setFromObject( mesh );
+
+                var helper = new THREE.Box3Helper( box, 0xffff00 );
+                //scene.add( helper );
+                //console.log(helper.position);
+
+    			scene.add( mesh ); ObjectControl1.attach( mesh );
+
+    			if ( mesh instanceof THREE.Mesh ) {
+                   mesh_pos = mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
+            	}
+
+                selected_object_obj = mesh_pos;
+
+        } );
 
     }
 
@@ -348,7 +386,22 @@ var loader = new THREE.STLLoader();
             for (let f of e.dataTransfer.files) {
                 console.log('File(s) you dragged here: ', f.path);
                 //$('#fileUpload').val(f.path);
-                load_stl_model(f.path, f.name);
+
+                var ext = f.name.slice((f.name.lastIndexOf(".") - 1 >>> 0) + 2);
+                if(ext == "stl"){
+                    console.log("ext --> ." + ext + " -> OK");
+                    load_stl_model(f.path, f.name);
+                } /*
+                else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+                    console.log("ext --> ." + ext + " -> OK");
+                    load_obj_model(f.path, f.name);
+                } */
+
+                else {
+                    console.log("ERROR --> Unsupported File --> ." + ext);
+                    alert("Unsupported File --> ." + ext + "  (only .stl)");
+                }
+
             }
 
             return false;
@@ -360,7 +413,7 @@ var loader = new THREE.STLLoader();
 
     $(document).on('click','#show_gcode', function(){       // ---------->> load gcode <<------
         show_gcode();
-    })
+    });
 
     function show_gcode(){       // ---------->> load and show gcode <<------
 
@@ -384,42 +437,30 @@ var loader = new THREE.STLLoader();
 
     $(document).on('click', '#back_to_models', function(){
 
-        var models_list_array = [];
-        $('#model_list_div li').each(function(i, elem) {
-            models_list_array.push($(elem).text());
-        });
-
         var gcode_view = scene.getObjectByName( "gcode_view", true );
         gcode_view.visible = false;
 
+        var object = scene.getObjectByName(loaded_models.model[0].name);
+        //object.visible = true;
+        console.log(object);
+
         setTimeout(function(){
-            for(var i = 0; i < models_list_array.length; i++){
-                var object_in_array = scene.getObjectByName(models_list_array[i]);
-                object_in_array.traverse ( function (child) {
-                    if (child instanceof THREE.Mesh) {
-                        child.visible = true;
-                    }
-                });
+
+            for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
+                var object = scene.getObjectByName( loaded_models.model[i].name, true );
+                object.visible = true;
             }
+
         }, 100);
         $("#back_to_gcode").show();
         $("#back_to_models").hide();
-    })
+    });
 
     $(document).on('click', '#back_to_gcode', function(){
 
-        var models_list_array = [];
-        $('#model_list_div li').each(function(i, elem) {
-            models_list_array.push($(elem).text());
-        });
-
-        for(var i = 0; i < models_list_array.length; i++){
-            var object_in_array = scene.getObjectByName(models_list_array[i]);
-            object_in_array.traverse ( function (child) {
-                if (child instanceof THREE.Mesh) {
-                    child.visible = false;
-                }
-            });
+        for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
+            var object = scene.getObjectByName( loaded_models.model[i].name, true );
+            object.visible = false;
         }
 
         setTimeout(function(){
@@ -447,42 +488,11 @@ var loader = new THREE.STLLoader();
 
         exportASCII();  // export stl with right rotation
 
-        var models_list_array = [];
-        $('#model_list_div li').each(function(i, elem) {
-            models_list_array.push($(elem).text());
-        });
-
-        var models_path_list_array = [];
-        $('#model_list_div li').each(function(i, elem) {
-            models_path_list_array.push($(elem).attr('class'));
-        });
-
-        console.log(models_list_array);
-        console.log(models_path_list_array);
-        console.log(models_path_list_array[0]);
-
-        var selectedObject = scene.getObjectByName(models_list_array[0]);
-
-        var mesh_move_x = 100 + selectedObject.position.x;
-        var mesh_move_y = 100 + (-selectedObject.position.z);
-
-        console.log("slicing position:");
-        console.log("x: " + mesh_move_x);
-        console.log("y: " + mesh_move_y);
-
-        var paths_for_command = "";
-
-        for(var i = 0; i < models_path_list_array.length; i++){
-            var path_to_file = models_path_list_array[i];
-            path_to_file = path_to_file.split(" ").join("\\ ").toLowerCase();
-            paths_for_command = paths_for_command + " " + path_to_file;
-        }
-
-        path_to_file = "output/output.stl";
+        var path_to_file = "output/output.stl"; // get prepared stl file
 
         setTimeout(function(){      // send comand to slicer core
             cmd.get(
-                'perl slicer_core/slic3r.pl --merge --print-center ' + mesh_move_x + ',' + mesh_move_y + ' -o output/output.gcode ' + paths_for_command + ' ',
+                'perl slicer_core/slic3r.pl -o output/output.gcode output/output.stl ',
                 function(err, data, stderr){
                     console.log(data);
 
@@ -512,47 +522,40 @@ var loader = new THREE.STLLoader();
 
         console.log(">> working ...");
 
-    })
+    });
 
-    function exportASCII() {
+    function exportASCII() {    // export stl with right rotation
 
-        //var selectedObject = scene.getObjectByName(selectedObject);
+        console.log("object.model --> export ");
 
-        var models_list_array = [];
-        $('#model_list_div li').each(function(i, elem) {
-            models_list_array.push($(elem).text());
-        });
-
-        for(var i = 0; i < models_list_array.length; i++){
-            var object_in_array = scene.getObjectByName(models_list_array[i]);
-            object_in_array.traverse ( function (child) {
-                if (child instanceof THREE.Mesh) {
-                    child.visible = false;
-                }
-            });
+        for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
+            var object = scene.getObjectByName( loaded_models.model[i].name, true );
+            object.visible = false;
         }
 
-        var selectedObject = scene.getObjectByName(models_list_array[0]);
+        var group = new THREE.Group();      // create group from objects for export
+        for(var i = 0; i < loaded_models.model.length; i++){
+            var addObject = scene.getObjectByName(loaded_models.model[i].name);
 
-        //get_pos_x = (selectedObject.position.x) - (Math.PI * 1.5);
-        get_pos_x = selectedObject.rotation.x + (Math.PI / 2);
-        get_pos_y = selectedObject.rotation.y;
-        get_pos_z = selectedObject.rotation.z;
-        selectedObject.rotation.set( get_pos_x, get_pos_y, get_pos_z );
-        console.log( get_pos_x +"-"+ get_pos_y +"-"+ get_pos_z );
+            selected_object_obj = scene.getObjectByName(loaded_models.model[i].name);
+            selected_object = loaded_models.model[i].name;
+            $("#rot_x").val($("#rot_x").val() + 90);        // set rotaion dimestions for slicer_core
+            rotation_set();
 
-        setTimeout(function(){
-            var result = exporter.parse( selectedObject );
+            var cloneObject = addObject.clone();            // group delete original --> clone object same name
+            cloneObject.name = loaded_models.model[i].name;
+            scene.add(cloneObject);
+                                                            // set rotation and position for cloned object
+            cloneObject.rotation.set((cloneObject.rotation.x - (Math.PI / 2)), cloneObject.rotation.y, cloneObject.rotation.z);
+            cloneObject.position.set(addObject.position.x, addObject.position.y, addObject.position.z);
+
+            group.add( addObject );
+        }
+
+        setTimeout(function(){      // export objects to one stl output
+            var result = exporter.parse( group );
             saveString( result, 'output/output.stl' );
         }, 200);
-
-        setTimeout(function(){
-            get_pos_x = selectedObject.rotation.x - (Math.PI / 2);
-            get_pos_y = selectedObject.rotation.y;
-            get_pos_z = selectedObject.rotation.z;
-            selectedObject.rotation.set( get_pos_x, get_pos_y, get_pos_z );
-            //console.log( get_pos_x +"-"+ get_pos_y +"-"+ get_pos_z );
-        }, 1000);
 
     }
 
@@ -561,7 +564,7 @@ var loader = new THREE.STLLoader();
         var data = text;
         fs.writeFile(filename, data, (err) => {
             if (err) throw err;
-            console.log('The file has been saved!');
+            //console.log('The file has been saved!');
         });
 	}
 
@@ -569,14 +572,14 @@ var loader = new THREE.STLLoader();
 	ObjectControl5.displacing = false; ObjectControl5.attach( checkerboard );
 
 	ObjectControl5.mouseover = function () {
-		control.enabled = true;		///------>>>> zoom pad disable !!!///
+		control.enabled = true;		///------>> zoom pad disable
 
 		ObjectControl1.onclick = function() {
 
 			//console.log("mouse_click --> drag");
 			control.enabled = false;
 
-			mesh_pos.material.color.setHex( 0x008EB4 );
+			//mesh_pos.material.color.setHex( 0x008EB4 );    // issue with .obj
 
 			ObjectControl1.mouseup = function() {
 				control.enabled = true;
@@ -585,12 +588,12 @@ var loader = new THREE.STLLoader();
                 selected_object_obj = this.focused;
                 console.log( "selected: " + selected_object );
 
-                this.focused.material.color.setHex( 0x00BAFF );
+                //this.focused.material.color.setHex( 0x00BAFF );   // issue with .obj
 
-                //delete3DOBJ(this.focused.name);
+                //delete_obj(this.focused.name);
 
-				var mesh_move_x = 100 + mesh_pos.position.x;
-				var mesh_move_y = 100 + mesh_pos.position.z;
+				var mesh_move_x = 100 + selected_object_obj.position.x;
+				var mesh_move_y = 100 + selected_object_obj.position.z;
 				console.log("x: " + mesh_move_x);
 				console.log("y: " + mesh_move_y);
 				//console.log(mesh_pos.position);
@@ -730,8 +733,15 @@ function scale_set(){     // --> set scale of model
     })
 
     $(document).on('click','#delete_object', function(){
-        delete3DOBJ(selected_object);
+        delete_obj(selected_object);
     })
+
+    $(document).on('click','.del_model_btn', function(){
+        var object_to_delete = $(this).attr("id");
+        delete_obj(object_to_delete);
+    })
+
+
 
     $(document).on('click','#set_scale', function(){     // --> set scale of model
         scale_set();
@@ -742,7 +752,7 @@ function scale_set(){     // --> set scale of model
     })
 
     $('html').keyup(function(e){if(e.keyCode == 46)
-        delete3DOBJ(selected_object);
+        delete_obj(selected_object);
     })
 
     $(document).on('click','#set_floor', function(){
@@ -758,11 +768,20 @@ function scale_set(){     // --> set scale of model
 	}
 }
 
-function delete3DOBJ(objName){
+function delete_obj(objName){
   var selectedObject = scene.getObjectByName(objName);
   scene.remove( selectedObject );
 
   $('#model_list_div li:contains("' + objName + '")').remove();
+
+
+  var index_item = loaded_models.model.findIndex(x => x.name == objName);
+  //console.log(index);
+  loaded_models.model.splice(index_item, 1);
+
+  console.log("object deleted");
+  console.log(loaded_models);
+
   animate();
 }
 
@@ -786,7 +805,7 @@ function set_floor_00(objName){
   var helper = new THREE.Box3Helper( box, 0xffff00 );
   //scene.add( helper );
 
-  console.log(helper.position);
+  //console.log(helper.position);
 
   animate();
 
@@ -810,7 +829,7 @@ function set_floor(objName){
   var helper = new THREE.Box3Helper( box, 0xffff00 );
   //scene.add( helper );
 
-  console.log(helper.position);
+  //console.log(helper.position);
 
   animate();
 
@@ -818,21 +837,56 @@ function set_floor(objName){
 
 function animate() {
 
-		requestAnimationFrame(animate);
-		render();
+	requestAnimationFrame(animate);
+	render();
 
 }
 
 function render() {
 
-		ObjectControl1.update();
-		ObjectControl2.update();
-		//ObjectControl3.update();
-		//ObjectControl4.update();
-		ObjectControl5.update();
+	ObjectControl1.update();
+	ObjectControl2.update();
+	//ObjectControl3.update();
+	//ObjectControl4.update();
+	ObjectControl5.update();
 
-		control.update();
-		renderer.render(scene, camera);
+	control.update();
+	renderer.render(scene, camera);
+
+}
+
+var hover_over_element = "";
+
+function clone_object(objname){
+
+    var get_obj_clone = scene.getObjectByName(objname);
+    var cloneObject = get_obj_clone.clone();
+    var new_file_name = "(cp)" + objname
+    cloneObject.name = new_file_name;
+
+    var box = new THREE.Box3().setFromObject( get_obj_clone );
+
+    console.log(Math.abs(box.max.x - box.min.x));
+    console.log(Math.abs(box.max.z - box.min.z));
+
+    cloneObject.position.x = get_obj_clone.position.x + (Math.abs(box.max.x - box.min.x) / 2) + 10;
+    cloneObject.position.z = get_obj_clone.position.z + (Math.abs(box.max.z - box.min.z) / 2) + 10;
+
+    var model_obj = loaded_models.model.find(x => x.name == objname);   // get obj path
+    var clone_path = model_obj.path;
+
+    loaded_models.model.push({ name: new_file_name, path: clone_path });
+
+    $("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + new_file_name + "</p><div class='cross_icon del_model_btn' id='" + new_file_name + "'></div></li>");
+
+    console.log("item_selected_ctx");
+    console.log(item_selected_ctx);
+    console.log(hover_over_element);
+
+    console.log("clone object path: " + model_obj.path);
+    console.log(loaded_models.model);
+
+    scene.add(cloneObject); ObjectControl1.attach(cloneObject);
 
 }
 
@@ -852,6 +906,10 @@ $(document).on('click','#scale_object', function(){
     $(".scale_menu_manual").toggleClass("active");
 })
 
+$(document).on('click','#model_li_p', function(){
+    selected_object = $(this).text();
+})
+
 $(".no_unify_scale_div").hide();
 
 $(document).on('click','#unify_scale', function(){
@@ -866,8 +924,6 @@ $(document).on('click','#unify_scale', function(){
     }
 })
 
-
-
 var shell = require('shelljs');
 shell.ls('*.js');
 
@@ -879,19 +935,24 @@ function execute(command, callback) {
     });
 };
 
-// call the function
+// call the function --> test if core work OK?
 execute('perl slicer_core/slic3r.pl --version', (output) => {
-    console.log(output);
+    console.log("slicer_core respond test --> v:" + output);
+    if(output == ""){
+        alert("slicer_core --> is not responding");
+        console.error("ERROR: slicer_core --> is not responding");
+        console.log("check folder slicer_core if is correctly installed.");
+        console.log("check perl instalation");
+        console.log("Slicing will not work!");
+        console.log("----------------------");
+    }
 });
-
-
 
 /*
 Vue.component('todo-item', {
     props: ['todo'],
     template: '<li>{{ todo.text }}</li>'
 })*/
-
 
 /*
 var app = new Vue({
@@ -911,6 +972,7 @@ data: {
 
 
 })*/
+
 jQuery(document).ready(function($) {
 
     $(document).ready(function(){
@@ -925,3 +987,73 @@ jQuery(document).ready(function($) {
     })
 
 });
+
+
+// context menu
+const { remote } = require('electron')
+const { Menu, MenuItem } = remote
+
+var item_selected_ctx = "";
+
+const menu_1 = new Menu()
+menu_1.append(new MenuItem({ label: 'MenuItem1', click() { console.log('item 1 clicked') } }))
+menu_1.append(new MenuItem({ type: 'separator' }))
+menu_1.append(new MenuItem({ label: 'MenuItem2', type: 'checkbox', checked: true }))
+
+const model_li_menu = new Menu()
+model_li_menu.append(new MenuItem({ label: 'duplicate', click() {
+    console.log('clone obj');
+    clone_object(item_selected_ctx);
+} }))
+model_li_menu.append(new MenuItem({ label: 'remove', click() {
+    delete_obj(item_selected_ctx);
+    alert(item_selected_ctx);
+    console.log('removed');
+} }))
+
+window.addEventListener('contextmenu', (e) => {
+
+    item_selected_ctx = $(e.target).text();
+    hover_over_element = $(e.target).attr('id');
+
+    if(hover_over_element == "side_bar"){
+        e.preventDefault()
+        menu_1.popup({ window: remote.getCurrentWindow() })
+    } else if(hover_over_element == "canvas"){
+
+    } else if(hover_over_element == "model_li_p"){
+        e.preventDefault()
+        model_li_menu.popup({ window: remote.getCurrentWindow() })
+
+        hover_over_element = "";
+    } else {
+        e.preventDefault()
+        menu_1.popup({ window: remote.getCurrentWindow() })
+    }
+
+    console.log(hover_over_element);
+
+}, false)
+
+
+$("canvas").hover(function() {      // no right click on canvas 3D view
+    hover_over_element = "canvas";
+}, function() {
+    hover_over_element = "";
+});
+
+
+
+
+/*
+
+$( ".top_bar" ).mouseover(function() {
+    console.log("mouseover");
+
+    window.addEventListener('contextmenu', (e) => {
+      e.preventDefault()
+      menu_1.popup({ window: remote.getCurrentWindow() })
+    }, false)
+
+});
+*/

@@ -1,7 +1,11 @@
 // Modules to control application life and create native browser window
+const electron = require("electron");
 const {app, BrowserWindow} = require('electron')
 const path = require('path')
 const url = require('url')
+
+const Menu = electron.Menu
+const MenuItem = electron.MenuItem
 
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -37,7 +41,46 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', function() {
+    createWindow()
+
+    const ctxMenu = new Menu()
+    ctxMenu.append(new MenuItem({
+        label: 'Hello'
+    }))
+
+    /*
+    win.webContents.on('context-menu', function(e, params){
+        ctxMenu.popup(win, params.x, params.y)
+    })    */
+
+    mainWindow.webContents.on('context-menu', function (e, params) {
+        const template = [
+            {
+                label:   'Edit',
+                submenu: [
+                    {role: 'undo'},
+                    {role: 'redo'},
+                    {type: 'separator'},
+                    {role: 'cut'},
+                    {role: 'copy'},
+                    {role: 'paste'},
+                    {role: 'pasteandmatchstyle'},
+                    {role: 'delete'},
+                    {role: 'selectall',}
+                ],
+            },
+            {
+                label: "click",
+                click: function(){
+                    console.log("clicked");
+                }
+            }
+        ];
+        Menu.buildFromTemplate(template).popup({});
+    });
+
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {

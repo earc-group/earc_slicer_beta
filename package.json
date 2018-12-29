@@ -11,11 +11,13 @@
     "build": "electron-builder"
   },
   "devDependencies": {
-    "electron": "^4.0.0-nightly.20181006"
+    "electron": "^3.0.0"
   },
   "dependencies": {
     "child_process": "^1.0.2",
+    "electron-context-menu": "^0.10.1",
     "node-cmd": "^3.0.0",
-    "shelljs": "^0.8.3"
+    "shelljs": "^0.8.3",
+    "underscore": "^1.9.1"
   }
 }
