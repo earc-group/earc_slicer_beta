@@ -8,6 +8,7 @@ var hover_over_element = "";
 
 var cmd = require('node-cmd');
 const fs = require('fs');
+const { ipcRenderer } = require('electron');
 
 var loaded_models = {};
 loaded_models.model = [];
@@ -1040,3 +1041,27 @@ $("canvas").hover(function() {      // no right click on canvas 3D view
 }, function() {
     hover_over_element = "";
 });
+
+
+$(document).ready(function(){
+    ipcRenderer.on('import_model_fc', function (ev, data) {
+        console.log('>> import model');
+        //$( "#import_label" ).trigger( "click" );
+        //$("#fileUpload").click();
+        //$("#import_label").click();
+        $('#a_input_click').trigger('click');
+        $('#a_input_click').click();
+        $('#import_label').trigger('click');
+        $('#fileUpload').trigger('click');
+        //document.getElementById("fileUpload").click();
+    })
+});
+
+function performClick(elemId) {
+   var elem = document.getElementById(elemId);
+   if(elem && document.createEvent) {
+      var evt = document.createEvent("MouseEvents");
+      evt.initEvent("click", true, false);
+      elem.dispatchEvent(evt);
+   }
+}

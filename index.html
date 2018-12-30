@@ -58,8 +58,11 @@
 					<!--
 					<hr class="side_bar_hr" />
 					-->
-					<input type="file" id="fileUpload" name="fileUpload" accept="model/stl" class="import_input">
-					<label for="fileUpload" class="label_import_btn button">import file</label>
+					<form id="upload_form">
+						<input type="file" id="fileUpload" name="fileUpload" accept="model/stl" class="import_input">
+						<label for="fileUpload" class="label_import_btn button" id="import_label">import file</label>
+						<a href="#" onclick="performClick('fileUpload');" id="a_input_click">Open file dialog</a>
+					</form>
 
 					<div class="easy_settings">
 						<p class="p_hl">settings:</p>

@@ -7,6 +7,11 @@ const url = require('url')
 const Menu = electron.Menu
 const MenuItem = electron.MenuItem
 
+const join = require('path').join;
+const ipcMain = require('electron');
+
+// Replace '..' with 'about-window'
+const openAboutWindow = require('about-window').default;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -23,6 +28,7 @@ function createWindow () {
       //icon: path.join(__dirname, 'assets/icons/png/64x64.png')
       icon: path.join('assets/icons/png/64x64.png')
   })
+
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
@@ -46,32 +52,141 @@ app.on('ready', function() {
     createWindow()
 
     /*
-mainWindow.webContents.on('context-menu', function (e, params) {
-        const template = [
-            {
-                label:   'Edit',
-                submenu: [
-                    {role: 'undo'},
-                    {role: 'redo'},
-                    {type: 'separator'},
-                    {role: 'cut'},
-                    {role: 'copy'},
-                    {role: 'paste'},
-                    {role: 'pasteandmatchstyle'},
-                    {role: 'delete'},
-                    {role: 'selectall',}
-                ],
-            },
-            {
-                label: "click",
-                click: function(){
-                    console.log("clicked");
-                }
-            }
-        ];
-        Menu.buildFromTemplate(template).popup({});
-    });*/
+const menu = Menu.buildFromTemplate([
+           {
+               label: 'slicer',
+               submenu: [
+                   {
+                       label: 'About earc slicer',
+                       click: () =>
+                           openAboutWindow({
+                               icon_path: join(__dirname, 'assets/icons/png/512x512.png'),
+                               copyright: 'Copyright (c) 2018 (beta)',
+                               package_json_dir: __dirname,
+                               open_devtools: process.env.NODE_ENV !== 'production',
+                           }),
+                   },
+               ],
+           },
+       ]);
+    Menu.setApplicationMenu(menu);*/
 
+
+
+    const { app, Menu } = require('electron')
+
+    const template = [
+      /*
+ {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'delete' },
+          { role: 'selectall' }
+        ]
+      }, */
+
+
+      {
+        label: 'File',
+        submenu: [
+          {
+            label: "import model",
+            accelerator: "Command+o",
+            click: function (menuItem, currentWindow) {
+                currentWindow.webContents.send('import_model_fc')
+            }
+          },
+          //{ role: 'forcereload' },
+          { role: 'toggledevtools' },
+          { type: 'separator' },
+          { role: 'togglefullscreen' }
+        ]
+      },
+      {
+        label: 'View',
+        submenu: [
+          { role: 'reload' },
+          //{ role: 'forcereload' },
+          { role: 'toggledevtools' },
+          { type: 'separator' },
+          { role: 'togglefullscreen' }
+        ]
+      },
+      {
+        role: 'window',
+        submenu: [
+          { role: 'minimize' },
+          { role: 'close' }
+        ]
+      },
+      {
+        role: 'help',
+
+        submenu: [
+          {
+            label: 'Learn More',
+            //click () { require('electron').shell.openExternal('https://earc.cz') }
+          }
+
+        ]
+      }
+    ]
+
+    if (process.platform === 'darwin') {
+      template.unshift({
+        label: app.getName(),
+        submenu: [
+          {
+              label: 'About earc slicer',
+              click: () =>
+                  openAboutWindow({
+                      icon_path: join(__dirname, 'assets/icons/png/512x512.png'),
+                      copyright: 'Copyright (c) 2018 (beta)',
+                      package_json_dir: __dirname,
+                      //open_devtools: process.env.NODE_ENV !== 'production',
+                  }),
+          },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { role: 'hide' },
+          { role: 'hideothers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit' }
+        ]
+      })
+
+      // Edit menu
+      template[1].submenu.push(
+        { type: 'separator' },
+        {
+          label: 'Speech',
+          submenu: [
+            { role: 'startspeaking' },
+            { role: 'stopspeaking' }
+          ]
+        }
+      )
+
+      // Window menu
+      template[3].submenu = [
+        { role: 'close' },
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'front' }
+      ]
+    }
+
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
 
 })
 
