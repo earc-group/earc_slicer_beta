@@ -1203,10 +1203,10 @@ $("canvas").hover(function() {      // no right click on canvas 3D view
 
 $("#flat-slider")
     .slider({
-        max: 25,
+        max: 10,
         min: 0,
-        range: "min",
-        value: 20,
+        //range: "min",
+        value: 6,
         orientation: "horizontal"
     })
     .slider("pips", {
