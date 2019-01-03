@@ -28,8 +28,10 @@ var o = {
   ]
 };    */
 
-init();
-animate();
+setTimeout(function(){
+    init();
+    animate();
+}, 400);
 
 function init() {
 
