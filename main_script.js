@@ -552,10 +552,9 @@ function init() {
                             }
                         }
                     );
-                } else if(os.type() == "Linux"){    // linux slicer core
-                    console.warn(">> Linux slicer core is not finished");
+                } else if(os.type() == "Window_NT"){    // windows slicer core
                     cmd.get(
-                        'perl slicer_core/linux/slic3r.pl -o output/output.gcode output/output.stl ',
+                        './slicer_core/win/Slic3r-console.exe -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -580,9 +579,10 @@ function init() {
                             }
                         }
                     );
-                } else if(os.type() == "Window_NT"){    // windows slicer core
+                } else if(os.type() == "Linux"){    // linux slicer core
+                    console.warn(">> Linux slicer core is not finished");
                     cmd.get(
-                        './slicer_core/win/Slic3r-console.exe -o output/output.gcode output/output.stl ',
+                        'perl slicer_core/linux/slic3r.pl -o output/output.gcode output/output.stl ',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -1045,6 +1045,49 @@ execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
         console.log("----------------------");
     }
 });
+
+if(os.type() == "Darwin"){
+    console.log("platform: mac os");
+    execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
+        console.log("slicer_core respond test --> v:" + output);
+        if(output == ""){
+            alert("slicer_core --> is not responding");
+            console.error("ERROR: slicer_core --> is not responding");
+            console.log("check folder slicer_core if is correctly installed.");
+            console.log("check perl instalation");
+            console.log("Slicing will not work!");
+            console.log("----------------------");
+        }
+    });
+} else if(os.type() == "Window_NT"){
+    console.log("platform: windows");
+    execute('./slicer_core/win/Slic3r-console.exe --version', (output) => {
+        console.log("slicer_core respond test --> v:" + output);
+        if(output == ""){
+            alert("slicer_core --> is not responding");
+            console.error("ERROR: slicer_core --> is not responding");
+            console.log("check folder slicer_core if is correctly installed.");
+            console.log("check perl instalation");
+            console.log("Slicing will not work!");
+            console.log("----------------------");
+        }
+    });
+} else if (os.type() == "Linux"){
+    console.log("platform: Linux");
+    execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
+        console.log("slicer_core respond test --> v:" + output);
+        if(output == ""){
+            alert("slicer_core --> is not responding");
+            console.error("ERROR: slicer_core --> is not responding");
+            console.log("check folder slicer_core if is correctly installed.");
+            console.log("check perl instalation");
+            console.log("Slicing will not work!");
+            console.log("----------------------");
+        }
+    });
+} else {
+    console.warn(">> core-error: unknown platform");
+}
 
 /*
 Vue.component('todo-item', {
