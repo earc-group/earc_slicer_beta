@@ -102,10 +102,13 @@ const menu = Menu.buildFromTemplate([
                 currentWindow.webContents.send('import_model_fc')
             }
           },
-          //{ role: 'forcereload' },
-          { role: 'toggledevtools' },
-          { type: 'separator' },
-          { role: 'togglefullscreen' }
+          {
+            label: "slice model",
+            accelerator: "Command+s",
+            click: function (menuItem, currentWindow) {
+                currentWindow.webContents.send('slice_fc_menu')
+            }
+          },
         ]
       },
       {
@@ -131,7 +134,7 @@ const menu = Menu.buildFromTemplate([
         submenu: [
           {
             label: 'Learn More',
-            //click () { require('electron').shell.openExternal('https://earc.cz') }
+            click () { require('electron').shell.openExternal('https://earc.cz') }
           }
 
         ]

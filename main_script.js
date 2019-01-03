@@ -9,6 +9,7 @@ var hover_over_element = "";
 var cmd = require('node-cmd');
 const fs = require('fs');
 const { ipcRenderer } = require('electron');
+const { dialog } = require('electron').remote;
 
 var loaded_models = {};
 loaded_models.model = [];
@@ -193,6 +194,33 @@ function init() {
             console.log("ERROR --> Unsupported File --> ." + ext);
             alert("Unsupported File --> ." + ext + "  (only .stl)");
         }
+
+    });
+
+    ipcRenderer.on('import_model_fc', function (ev, data) {
+        console.log('>> import model');
+        var file_path = dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] })[0];
+        console.log(file_path);
+
+            var file_name = file_path.split('/');
+            file_name = file_name[file_name.length-1];
+
+            console.log(file_name);
+
+            var ext = file_name.slice((file_name.lastIndexOf(".") - 1 >>> 0) + 2);
+            if(ext == "stl"){
+                console.log("ext --> ." + ext + " -> OK");
+                load_stl_model(file_path, file_name);
+            } /*
+            else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+                console.log("ext --> ." + ext + " -> OK");
+                load_obj_model(f.path, f.name);
+            } */
+
+            else {
+                console.log("ERROR --> Unsupported File --> ." + ext);
+                alert("Unsupported File --> ." + ext + "  (only .stl)");
+            }
 
     });
 
@@ -472,7 +500,75 @@ function init() {
         }, 1000);
         $("#slice_btn").hide();
         $("#back_to_models").show();
-    })
+    });
+
+    ipcRenderer.on('slice_fc_menu', function () {
+
+        for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
+            var object = scene.getObjectByName( loaded_models.model[i].name, true );
+            object.visible = false;
+        }
+
+        setTimeout(function(){
+            var gcode_view = scene.getObjectByName( "gcode_view", true );
+            gcode_view.visible = true;
+        }, 1000);
+        $("#slice_btn").hide();
+        $("#back_to_models").show();
+
+        if($("#model_li").length !== 0){    // check if models exist
+            console.log(">> start slicing");
+
+            function show_div_load_slice(){    // Animated loading / slicing screen
+            	$(".loading_screen_slice").show();
+                function show_div_load_slice(){
+                	$(".loading_screen_slice").addClass("show");
+                	$(".loading_screen_slice").removeClass("hide");
+                }
+                setTimeout(show_div_load_slice, 500);
+            }
+            setTimeout(show_div_load_slice, 100);
+
+            exportASCII();  // export stl with right rotation
+
+            var path_to_file = "output/output.stl"; // get prepared stl file
+
+            setTimeout(function(){      // send comand to slicer core
+                cmd.get(
+                    'perl slicer_core/slic3r.pl -o output/output.gcode output/output.stl ',
+                    function(err, data, stderr){
+                        console.log(data);
+
+                        if (data !== null) {
+                          console.log(">> Done");       // script if sucess
+                          //alert("Done!");
+                          setTimeout(function(){
+                              show_gcode();
+                              $("#slice_btn").hide();
+                              $("#back_to_models").show();
+
+                              function show_div_load_slice(){
+                              	$(".loading_screen_slice").addClass("hide");
+                                $(".loading_screen_slice").removeClass("show");
+                                  function show_div_load_slice(){
+                                  	$(".loading_screen_slice").hide();
+                                  }
+                                  setTimeout(show_div_load_slice, 600);
+                              }
+                              setTimeout(show_div_load_slice, 200);
+
+                          }, 500);
+                        }
+                    }
+                );
+            }, 1000);
+
+            console.log(">> working ...");
+        } else {
+            console.log(">> no models");
+        }
+
+    });
 
     $(".loading_screen_slice").hide();
 
@@ -726,7 +822,9 @@ function scale_set(){     // --> set scale of model
     })
 
     $(document).on('click','#rotate_object_x', function(){     // --> set rotation of model     //ERROR: ----> Not Wokr +90 deg!!
-        var rotaion_deg = Math.round((Math.abs(selected_object_obj.rotation.x - 270))/ (Math.PI / 180)) + 90;
+        //var rotaion_deg = Math.round((Math.abs(selected_object_obj.rotation.x - 270))/ (Math.PI / 180)) + 90;
+        var rotaion_deg = Math.round(Math.abs(selected_object_obj.rotation.x - (Math.PI * 1.5)) / (Math.PI / 180)) + 90;
+        //var rotaion_deg = Math.round(selected_object_obj.rotation.x / (Math.PI / 180)) + 90;
         rotaion_deg > 360 ? rotaion_deg = 0 : console.log("x +90 deg");
         $("#rot_x").val(rotaion_deg);
         rotation_set();
@@ -1043,25 +1141,38 @@ $("canvas").hover(function() {      // no right click on canvas 3D view
 });
 
 
-$(document).ready(function(){
-    ipcRenderer.on('import_model_fc', function (ev, data) {
-        console.log('>> import model');
-        //$( "#import_label" ).trigger( "click" );
-        //$("#fileUpload").click();
-        //$("#import_label").click();
-        $('#a_input_click').trigger('click');
-        $('#a_input_click').click();
-        $('#import_label').trigger('click');
-        $('#fileUpload').trigger('click');
-        //document.getElementById("fileUpload").click();
-    })
-});
 
-function performClick(elemId) {
-   var elem = document.getElementById(elemId);
-   if(elem && document.createEvent) {
-      var evt = document.createEvent("MouseEvents");
-      evt.initEvent("click", true, false);
-      elem.dispatchEvent(evt);
-   }
-}
+
+$("#flat-slider")
+    .slider({
+        max: 25,
+        min: 0,
+        range: "min",
+        value: 20,
+        orientation: "horizontal"
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    });
+    //.slider("float");
+
+$("#flat-slider-vertical-1, #flat-slider-vertical-2, #flat-slider-vertical-3")
+    .slider({
+        max: 25,
+        min: 0,
+        range: "min",
+        value: 20,
+        orientation: "horizontal"
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    })
+    .slider("float");
+
+
+
+
+//$( "#import_label" ).trigger( "click" );
+//$("#fileUpload").click();

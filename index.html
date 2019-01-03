@@ -5,6 +5,13 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/style_test_app.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+		<link rel='stylesheet' href='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/css/jqueryui.min.css'>
+		<link rel='stylesheet' href='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/css/jquery-ui-slider-pips.min.css'>
+
+		<!--  		<link rel='stylesheet' href='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/css/app.min.css'>	-->
 
 	</head>
 	<body>
@@ -59,9 +66,12 @@
 					<hr class="side_bar_hr" />
 					-->
 					<form id="upload_form">
+						<!--
 						<input type="file" id="fileUpload" name="fileUpload" accept="model/stl" class="import_input">
+						-->
+
+						<input type="file" id="fileUpload" name="fileUpload" class="import_input">
 						<label for="fileUpload" class="label_import_btn button" id="import_label">import file</label>
-						<a href="#" onclick="performClick('fileUpload');" id="a_input_click">Open file dialog</a>
 					</form>
 
 					<div class="easy_settings">
@@ -92,6 +102,10 @@
 	                        <button id="set_scale" class="button">set scale</button>
 	                    </div>
 
+  						<div id="flat-slider"></div>
+
+
+
 					</div>
 
                     <!--
@@ -107,6 +121,7 @@
                     -->
                     <button id="back_to_models" class="button"> <- back </button>
                     <button id="back_to_gcode" class="button"> gcode -> </button>
+
 
                 </div>
     		</div>
@@ -144,6 +159,15 @@
 
 		<script src="js/WebGL.js"></script>
 		<script src="js/libs/stats.min.js"></script>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+		<!--  		<script src='https://raw.githubusercontent.com/simeydotme/jQuery-ui-Slider-Pips/master/dist/jquery-ui-slider-pips.js'></script>		 -->
+
+		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-plus-ui.min.js'></script>
+		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-ui-slider-pips.js'></script>
+
+
 
 		<script src="main_script.js"></script>
 

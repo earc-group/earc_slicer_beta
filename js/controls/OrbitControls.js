@@ -69,10 +69,10 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
 
 	// Set to false to disable use of the keys
-	this.enableKeys = true;
+	this.enableKeys = false;
 
 	// The four arrow keys
-	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
+	this.keys = { LEFT: 65, UP: 87, RIGHT: 68, BOTTOM: 83 }; // W S A D
 
 	// Mouse buttons
 	this.mouseButtons = { LEFT: THREE.MOUSE.LEFT, MIDDLE: THREE.MOUSE.MIDDLE, RIGHT: THREE.MOUSE.RIGHT };
