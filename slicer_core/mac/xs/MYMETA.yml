@@ -1,0 +1,63 @@
+---
+abstract: 'XS code for Slic3r'
+author:
+  - unknown
+build_requires:
+  ExtUtils::ParseXS: '3.35'
+  ExtUtils::Typemaps: '1.00'
+  ExtUtils::Typemaps::Basic: '1.05'
+  ExtUtils::Typemaps::Default: '1.05'
+  ExtUtils::XSpp: '0.18'
+  Module::Build: '0.3601'
+  Test::More: '0'
+configure_requires:
+  ExtUtils::CppGuess: '0.07'
+  Module::Build: '0.38'
+  Module::Build::WithXSpp: '0.13'
+dynamic_config: 0
+generated_by: 'Module::Build version 0.4224, CPAN::Meta::Converter version 2.150010'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Slic3r-XS
+provides:
+  Slic3r::ExPolygon:
+    file: lib/Slic3r/XS.pm
+  Slic3r::ExPolygon::Collection:
+    file: lib/Slic3r/XS.pm
+  Slic3r::ExtrusionLoop:
+    file: lib/Slic3r/XS.pm
+  Slic3r::ExtrusionPath:
+    file: lib/Slic3r/XS.pm
+  Slic3r::ExtrusionPath::Collection:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Filler:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Flow:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Line:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Point:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Point3:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Pointf:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Pointf3:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Polygon:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Polyline:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Polyline::Collection:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Surface:
+    file: lib/Slic3r/XS.pm
+  Slic3r::Surface::Collection:
+    file: lib/Slic3r/XS.pm
+  Slic3r::XS:
+    file: lib/Slic3r/XS.pm
+    version: '0.01'
+version: '0.01'
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

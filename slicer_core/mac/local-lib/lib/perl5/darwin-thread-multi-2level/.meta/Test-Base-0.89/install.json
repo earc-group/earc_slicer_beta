@@ -1,0 +1,1 @@
+{"name":"Test::Base","version":0.89,"provides":{"Test::Base::Handle":{"file":"lib/Test/Base.pm","version":0.89},"Test::Base::Filter":{"file":"lib/Test/Base/Filter.pm"},"Test::Base":{"file":"lib/Test/Base.pm","version":0.89},"Test::Base::Block":{"version":0.89,"file":"lib/Test/Base.pm"}},"dist":"Test-Base-0.89","target":"Test::Base","pathname":"I/IN/INGY/Test-Base-0.89.tar.gz"}
