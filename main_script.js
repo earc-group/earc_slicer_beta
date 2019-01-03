@@ -12,6 +12,11 @@ const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
 var os = require('os');
 
+const { remote } = require('electron');
+const { Menu, MenuItem } = remote;
+
+var basepath = remote.app.getAppPath();
+
 var loaded_models = {};
 loaded_models.model = [];
 
@@ -495,6 +500,10 @@ function init() {
     });
 
     function slice_model(){
+
+        console.log("loaded_models.model.length");
+        console.log(loaded_models.model.length);
+
         for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
             var object = scene.getObjectByName( loaded_models.model[i].name, true );
             object.visible = false;
@@ -525,7 +534,7 @@ function init() {
             var path_to_file = "output/output.stl"; // get prepared stl file
 
             setTimeout(function(){    // send comand to slicer core
-                if(os.type() == "Darwin"){  // os.type Darwin >> mac os
+                if(os.platform() == "darwin"){  // os.type Darwin >> mac os
                     cmd.get(
                         'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
                         function(err, data, stderr){
@@ -552,9 +561,9 @@ function init() {
                             }
                         }
                     );
-                } else if(os.type() == "Window_NT"){    // windows slicer core
+                } else if(os.platform() == "win32"){    // windows slicer core
                     cmd.get(
-                        './slicer_core/win/Slic3r-console.exe -o output/output.gcode output/output.stl',
+                        basepath + '/slicer_core/win/Slic3r-console.exe -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -579,7 +588,7 @@ function init() {
                             }
                         }
                     );
-                } else if(os.type() == "Linux"){    // linux slicer core
+                } else if(os.platform() == "linux"){    // linux slicer core
                     console.warn(">> Linux slicer core is not finished");
                     cmd.get(
                         'perl slicer_core/linux/slic3r.pl -o output/output.gcode output/output.stl ',
@@ -1033,6 +1042,7 @@ function execute(command, callback) {
     });
 };
 
+/*
 // call the function --> test if core work OK?
 execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
     console.log("slicer_core respond test --> v:" + output);
@@ -1044,9 +1054,11 @@ execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
         console.log("Slicing will not work!");
         console.log("----------------------");
     }
-});
+});*/
 
-if(os.type() == "Darwin"){
+
+
+if(os.platform() == "darwin"){
     console.log("platform: mac os");
     execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
         console.log("slicer_core respond test --> v:" + output);
@@ -1059,20 +1071,27 @@ if(os.type() == "Darwin"){
             console.log("----------------------");
         }
     });
-} else if(os.type() == "Window_NT"){
+} else if(os.platform() == "win32"){
     console.log("platform: windows");
-    execute('./slicer_core/win/Slic3r-console.exe --version', (output) => {
-        console.log("slicer_core respond test --> v:" + output);
-        if(output == ""){
-            alert("slicer_core --> is not responding");
-            console.error("ERROR: slicer_core --> is not responding");
-            console.log("check folder slicer_core if is correctly installed.");
-            console.log("check perl instalation");
-            console.log("Slicing will not work!");
-            console.log("----------------------");
+    console.log(basepath);
+    cmd.get(
+        basepath + '/slicer_core/win/Slic3r-console.exe --version',
+        function(err, data, stderr){
+            console.log(data);  // get feedback from slicer core
+            if (data !== null) {
+              console.log(">> Done");       // script if sucess
+              //alert("Done!");
+          } else {
+              alert("slicer_core --> is not responding");
+              console.error("ERROR: slicer_core --> is not responding");
+              console.log("check folder slicer_core if is correctly installed.");
+              console.log("check perl instalation");
+              console.log("Slicing will not work!");
+              console.log("----------------------");
+          }
         }
-    });
-} else if (os.type() == "Linux"){
+    );
+} else if (os.platform() == "linux"){
     console.log("platform: Linux");
     execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
         console.log("slicer_core respond test --> v:" + output);
@@ -1086,8 +1105,9 @@ if(os.type() == "Darwin"){
         }
     });
 } else {
-    console.warn(">> core-error: unknown platform");
+    console.warn(">> core-error: unknown platform" + os.type() + "-" + os.platform());
 }
+
 
 /*
 Vue.component('todo-item', {
@@ -1131,8 +1151,6 @@ jQuery(document).ready(function($) {
 
 
 // context menu
-const { remote } = require('electron')
-const { Menu, MenuItem } = remote
 
 var item_selected_ctx = "";
 
@@ -1210,6 +1228,19 @@ $("#flat-slider-vertical-1, #flat-slider-vertical-2, #flat-slider-vertical-3")
         last: "pip"
     })
     .slider("float");
+
+
+
+
+/*
+
+Note:
+
+if is only one model on scene then
+    insert in slicing command center axis xy
+    else center whole group
+
+*/
 
 
 
