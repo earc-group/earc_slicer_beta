@@ -4,7 +4,7 @@
   "description": "3D printing software by earc",
   "keywords": [],
   "main": "./main.js",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "jankovar",
   "scripts": {
     "start": "electron .",
