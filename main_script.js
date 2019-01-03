@@ -10,6 +10,7 @@ var cmd = require('node-cmd');
 const fs = require('fs');
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
+var os = require('os');
 
 var loaded_models = {};
 loaded_models.model = [];
@@ -26,6 +27,8 @@ init();
 animate();
 
 function init() {
+
+    console.log("os_core: ", os.type());
 
     var space_x = 200;
     var space_y = 200;
@@ -487,23 +490,11 @@ function init() {
         $("#back_to_models").hide();
     });
 
-    $(document).on('click', '#slice_btn', function(){
-
-        for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
-            var object = scene.getObjectByName( loaded_models.model[i].name, true );
-            object.visible = false;
-        }
-
-        setTimeout(function(){
-            var gcode_view = scene.getObjectByName( "gcode_view", true );
-            gcode_view.visible = true;
-        }, 1000);
-        $("#slice_btn").hide();
-        $("#back_to_models").show();
+    ipcRenderer.on('slice_fc_menu', function () {
+        slice_model();
     });
 
-    ipcRenderer.on('slice_fc_menu', function () {
-
+    function slice_model(){
         for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
             var object = scene.getObjectByName( loaded_models.model[i].name, true );
             object.visible = false;
@@ -533,98 +524,104 @@ function init() {
 
             var path_to_file = "output/output.stl"; // get prepared stl file
 
-            setTimeout(function(){      // send comand to slicer core
-                cmd.get(
-                    'perl slicer_core/slic3r.pl -o output/output.gcode output/output.stl ',
-                    function(err, data, stderr){
-                        console.log(data);
+            setTimeout(function(){    // send comand to slicer core
+                if(os.type() == "Darwin"){  // os.type Darwin >> mac os
+                    cmd.get(
+                        'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
+                        function(err, data, stderr){
+                            console.log(data);  // get feedback from slicer core
+                            if (data !== null) {
+                              console.log(">> Done");       // script if sucess
+                              //alert("Done!");
+                              setTimeout(function(){
+                                  show_gcode();
+                                  $("#slice_btn").hide();
+                                  $("#back_to_models").show();
 
-                        if (data !== null) {
-                          console.log(">> Done");       // script if sucess
-                          //alert("Done!");
-                          setTimeout(function(){
-                              show_gcode();
-                              $("#slice_btn").hide();
-                              $("#back_to_models").show();
-
-                              function show_div_load_slice(){
-                              	$(".loading_screen_slice").addClass("hide");
-                                $(".loading_screen_slice").removeClass("show");
                                   function show_div_load_slice(){
-                                  	$(".loading_screen_slice").hide();
+                                  	$(".loading_screen_slice").addClass("hide");
+                                    $(".loading_screen_slice").removeClass("show");
+                                      function show_div_load_slice(){
+                                      	$(".loading_screen_slice").hide();
+                                      }
+                                      setTimeout(show_div_load_slice, 600);
                                   }
-                                  setTimeout(show_div_load_slice, 600);
-                              }
-                              setTimeout(show_div_load_slice, 200);
+                                  setTimeout(show_div_load_slice, 200);
 
-                          }, 500);
+                              }, 500);
+                            }
                         }
-                    }
-                );
+                    );
+                } else if(os.type() == "Linux"){    // linux slicer core
+                    console.warn(">> Linux slicer core is not finished");
+                    cmd.get(
+                        'perl slicer_core/linux/slic3r.pl -o output/output.gcode output/output.stl ',
+                        function(err, data, stderr){
+                            console.log(data);  // get feedback from slicer core
+                            if (data !== null) {
+                              console.log(">> Done");       // script if sucess
+                              //alert("Done!");
+                              setTimeout(function(){
+                                  show_gcode();
+                                  $("#slice_btn").hide();
+                                  $("#back_to_models").show();
+
+                                  function show_div_load_slice(){
+                                  	$(".loading_screen_slice").addClass("hide");
+                                    $(".loading_screen_slice").removeClass("show");
+                                      function show_div_load_slice(){
+                                      	$(".loading_screen_slice").hide();
+                                      }
+                                      setTimeout(show_div_load_slice, 600);
+                                  }
+                                  setTimeout(show_div_load_slice, 200);
+
+                              }, 500);
+                            }
+                        }
+                    );
+                } else if(os.type() == "Window_NT"){    // windows slicer core
+                    cmd.get(
+                        './slicer_core/win/Slic3r-console.exe -o output/output.gcode output/output.stl ',
+                        function(err, data, stderr){
+                            console.log(data);  // get feedback from slicer core
+                            if (data !== null) {
+                              console.log(">> Done");       // script if sucess
+                              //alert("Done!");
+                              setTimeout(function(){
+                                  show_gcode();
+                                  $("#slice_btn").hide();
+                                  $("#back_to_models").show();
+
+                                  function show_div_load_slice(){
+                                  	$(".loading_screen_slice").addClass("hide");
+                                    $(".loading_screen_slice").removeClass("show");
+                                      function show_div_load_slice(){
+                                      	$(".loading_screen_slice").hide();
+                                      }
+                                      setTimeout(show_div_load_slice, 600);
+                                  }
+                                  setTimeout(show_div_load_slice, 200);
+
+                              }, 500);
+                            }
+                        }
+                    );
+                } else {
+                    console.warn(">> error: unknown platform");
+                }
             }, 1000);
 
             console.log(">> working ...");
         } else {
             console.log(">> no models");
         }
-
-    });
+    }
 
     $(".loading_screen_slice").hide();
 
     $(document).on('click','#slice_btn', function(){
-        if($("#model_li").length !== 0){    // check if models exist
-            console.log(">> start slicing");
-
-            function show_div_load_slice(){    // Animated loading / slicing screen
-            	$(".loading_screen_slice").show();
-                function show_div_load_slice(){
-                	$(".loading_screen_slice").addClass("show");
-                	$(".loading_screen_slice").removeClass("hide");
-                }
-                setTimeout(show_div_load_slice, 500);
-            }
-            setTimeout(show_div_load_slice, 100);
-
-            exportASCII();  // export stl with right rotation
-
-            var path_to_file = "output/output.stl"; // get prepared stl file
-
-            setTimeout(function(){      // send comand to slicer core
-                cmd.get(
-                    'perl slicer_core/slic3r.pl -o output/output.gcode output/output.stl ',
-                    function(err, data, stderr){
-                        console.log(data);
-
-                        if (data !== null) {
-                          console.log(">> Done");       // script if sucess
-                          //alert("Done!");
-                          setTimeout(function(){
-                              show_gcode();
-                              $("#slice_btn").hide();
-                              $("#back_to_models").show();
-
-                              function show_div_load_slice(){
-                              	$(".loading_screen_slice").addClass("hide");
-                                $(".loading_screen_slice").removeClass("show");
-                                  function show_div_load_slice(){
-                                  	$(".loading_screen_slice").hide();
-                                  }
-                                  setTimeout(show_div_load_slice, 600);
-                              }
-                              setTimeout(show_div_load_slice, 200);
-
-                          }, 500);
-                        }
-                    }
-                );
-            }, 1000);
-
-            console.log(">> working ...");
-        } else {
-            console.log(">> no models");
-        }
-
+        slice_model();
     });
 
     function exportASCII() {    // export stl with right rotation
@@ -1037,7 +1034,7 @@ function execute(command, callback) {
 };
 
 // call the function --> test if core work OK?
-execute('perl slicer_core/slic3r.pl --version', (output) => {
+execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
     console.log("slicer_core respond test --> v:" + output);
     if(output == ""){
         alert("slicer_core --> is not responding");
