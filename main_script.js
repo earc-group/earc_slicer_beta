@@ -1201,7 +1201,7 @@ $("canvas").hover(function() {      // no right click on canvas 3D view
 
 
 
-$("#flat-slider")
+$("#flat-slider")       // define slider
     .slider({
         max: 10,
         min: 0,
@@ -1215,19 +1215,14 @@ $("#flat-slider")
     })
     .slider("float");
 
-$("#flat-slider-vertical-1, #flat-slider-vertical-2, #flat-slider-vertical-3")
-    .slider({
-        max: 25,
-        min: 0,
-        range: "min",
-        value: 20,
-        orientation: "horizontal"
-    })
-    .slider("pips", {
-        first: "pip",
-        last: "pip"
-    })
-    .slider("float");
+
+$(".slider_value").text($(".ui-slider-tip").html() * 10 + "%");
+
+$(".ui-slider-tip").on('DOMSubtreeModified', function () {
+    $(".slider_value").text($(".ui-slider-tip").html() * 10 + "%");
+});
+
+
 
 
 

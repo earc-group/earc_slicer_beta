@@ -559,11 +559,24 @@ span
 .ui-slider-handle
     display: none
 
-#flat-slider
+.easy_set_div
+    text-align: left
+    margin-top: 10px
+    & p
+        margin-left: 10px
+
+.slider_value
+    text-align: right
+    display: inline-block
+    float: right
+    margin-top: -12px
+    margin-right: 10px
+
+#flat-slider, #flat-slider-2
   width: 90%
   left: 5%
   -webkit-focus-ring-color: none 0px
-  margin-top: 5vh
+  margin-top: 10px
   &.ui-slider
     background: linear-gradient(to left, #00FFFF, #00BAFF)
     border: none
@@ -640,27 +653,4 @@ span
   .ui-slider-pip
     &[class*=ui-slider-pip-selected] .ui-slider-line, &.ui-slider-pip-inrange .ui-slider-line
       background-color: #00FFFF
-      //background: linear-gradient(to left, #00FFFF, #00BAFF)
       box-shadow: 0px 0px 10px rgba(#000, .2)
-      //border: 1px solid #00BAFF
-
-#flat-slider-vertical-1
-  .ui-slider-handle, .ui-slider-range
-    background-color: #f27793
-  .ui-slider-pip
-    &[class*=ui-slider-pip-selected] .ui-slider-line, &.ui-slider-pip-inrange .ui-slider-line
-      background-color: #f27793
-
-#flat-slider-vertical-2
-  .ui-slider-handle, .ui-slider-range
-    background-color: #bd77f2
-  .ui-slider-pip
-    &[class*=ui-slider-pip-selected] .ui-slider-line, &.ui-slider-pip-inrange .ui-slider-line
-      background-color: #bd77f2
-
-#flat-slider-vertical-3
-  .ui-slider-handle, .ui-slider-range
-    background-color: #67c3ec
-  .ui-slider-pip
-    &[class*=ui-slider-pip-selected] .ui-slider-line, &.ui-slider-pip-inrange .ui-slider-line
-      background-color: #67c3ec
