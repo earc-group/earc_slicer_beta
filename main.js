@@ -10,6 +10,13 @@ const MenuItem = electron.MenuItem
 const join = require('path').join;
 const ipcMain = require('electron');
 
+const iconUrl = url.format({
+  pathname: path.join(__dirname, 'assets/icons/earc_slicer_icon/icon.icns'),
+  protocol: 'file:',
+  slashes: true
+})
+
+
 // Replace '..' with 'about-window'
 const openAboutWindow = require('about-window').default;
 
@@ -26,7 +33,9 @@ function createWindow () {
       minHeight: 560,
       //icon: path.join('img/icons/png/64x64.png'),
       //icon: path.join(__dirname, 'assets/icons/png/64x64.png')
-      icon: path.join('assets/icons/png/64x64.png')
+      icon: path.join(__dirname, 'assets/icons/earc_slicer_icon/icon.icns')
+     // icon: __dirname +  'assets/icons/earc_slicer_icon/icon.icns'
+      //icon: path.join('assets/icons/png/64x64.png')
   })
 
 
