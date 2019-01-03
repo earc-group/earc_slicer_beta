@@ -1212,8 +1212,8 @@ $("#flat-slider")
     .slider("pips", {
         first: "pip",
         last: "pip"
-    });
-    //.slider("float");
+    })
+    .slider("float");
 
 $("#flat-slider-vertical-1, #flat-slider-vertical-2, #flat-slider-vertical-3")
     .slider({

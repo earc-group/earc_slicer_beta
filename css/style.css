@@ -466,9 +466,7 @@ span {
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
   height: 43vh;
-  word-wrap: break-word;
   margin-bottom: 20px;
-  overflow-y: auto;
 }
 
 .p_hl {
@@ -653,6 +651,8 @@ span {
 }
 
 #flat-slider {
+  width: 90%;
+  left: 5%;
   -webkit-focus-ring-color: none 0px;
   margin-top: 5vh;
 }
