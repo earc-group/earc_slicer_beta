@@ -7,14 +7,8 @@
         <link rel="stylesheet" href="css/style.css" />
         <link rel="stylesheet" href="css/style_test_app.css" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-
 		<link rel='stylesheet' href='css/jqueryui.css'>
-		<!--  		<link rel='stylesheet' href='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/css/jqueryui.min.css'>		 -->
-
 		<link rel='stylesheet' href='css/jquery-ui-slider-pips.css'>
-
-		<!--  		<link rel='stylesheet' href='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/css/app.min.css'>	-->
-
 	</head>
 	<body>
 
@@ -77,7 +71,7 @@
 					</form>
 
 					<div class="easy_settings">
-						<p class="p_hl">settings:</p>
+						<!--  						<p class="p_hl">settings:</p>						 -->
 
 						<div class="rotation_menu_manual">
 	                        <p>rotaton:</p><br />
@@ -104,11 +98,36 @@
 	                        <button id="set_scale" class="button">set scale</button>
 	                    </div>
 
-						<br />
 						<div class="easy_set_div">
+							<p class="easy_set_div_label label_preset_select">preset: </p>
+							<div class="preset_select">
+								<select id="preset">
+								    <option value="PLA generic">PLA generic</option>
+								    <option value="PLA smartie">PLA smartie</option>
+								    <option value="PLA fillamentum">PLA fillamentum</option>
+								    <option value="PETG generic">PETG generic</option>
+								    <option value="PETG spectrum">PETG spectrum</option>
+								</select>
+							</div>
+
+							<p class="easy_set_div_label label_infil_type">infill: </p>
+							<div class="infil_type">
+								<select id="infil_type">
+								    <option value="PLA generic">Honeycomb</option>
+								    <option value="PLA smartie">Rectilinear</option>
+									<option value="PLA generic">3D Honeycomb</option>
+								</select>
+							</div>
+
+							<p>print quality: </p>
+							<p class="slider_value slider_value_qv"></p>
+							<div id="quality_slider"></div>
+							<br />
+
 							<p>speed: </p>
-							<p class="slider_value"></p>
-							<div id="flat-slider"></div>
+							<p class="slider_value slider_value_sp"></p>
+							<div id="speed_slider"></div>
+							<br />
 
 						</div>
 

@@ -1205,7 +1205,21 @@ $("canvas").hover(function() {      // no right click on canvas 3D view
 
 
 
-$("#flat-slider")       // define slider
+$("#quality_slider")       // define slider
+    .slider({
+        max: 8,
+        min: 0,
+        //range: "min",
+        value: 4,
+        orientation: "horizontal"
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    })
+    .slider("float");
+
+$("#speed_slider")       // define slider
     .slider({
         max: 10,
         min: 0,
@@ -1220,14 +1234,66 @@ $("#flat-slider")       // define slider
     .slider("float");
 
 
-$(".slider_value").text($(".ui-slider-tip").html() * 10 + "%");
+var layers_array = [0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3];
 
-$(".ui-slider-tip").on('DOMSubtreeModified', function () {
-    $(".slider_value").text($(".ui-slider-tip").html() * 10 + "%");
+$(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
+$(".slider_value_sp").text($("#speed_slider .ui-slider-tip").html() * 10 + "%");
+
+$("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+    $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
+});
+$("#speed_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+    $(".slider_value_sp").text($("#speed_slider .ui-slider-tip").html() * 10 + "%");
 });
 
+//  ----- select dialog -----
+$('select').each(function(){
+    var $this = $(this), numberOfOptions = $(this).children('option').length;
 
+    $this.addClass('select-hidden');
+    $this.wrap('<div class="select"></div>');
+    $this.after('<div class="select-styled"></div>');
 
+    var $styledSelect = $this.next('div.select-styled');
+    $styledSelect.text($this.children('option').eq(0).text());
+
+    var $list = $('<ul />', {
+        'class': 'select-options'
+    }).insertAfter($styledSelect);
+
+    for (var i = 0; i < numberOfOptions; i++) {
+        $('<li />', {
+            text: $this.children('option').eq(i).text(),
+            rel: $this.children('option').eq(i).val()
+        }).appendTo($list);
+    }
+
+    var $listItems = $list.children('li');
+
+    $styledSelect.click(function(e) {
+        e.stopPropagation();
+        $('div.select-styled.active').not(this).each(function(){
+            $(this).removeClass('active').next('ul.select-options').hide();
+        });
+        $(this).toggleClass('active').next('ul.select-options').toggle();
+    });
+
+    $listItems.click(function(e) {
+        e.stopPropagation();
+        $styledSelect.text($(this).text()).removeClass('active');
+        $this.val($(this).attr('rel'));
+        $list.hide();
+        console.log("select: " + $(".select-styled").html());
+        //console.log($this.val());
+    });
+
+    $(document).click(function() {
+        $styledSelect.removeClass('active');
+        $list.hide();
+    });
+
+});
+//  ----- select dialog end -----
 
 
 
