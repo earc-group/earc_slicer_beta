@@ -538,7 +538,8 @@ function init() {
             setTimeout(function(){    // send comand to slicer core
                 if(os.platform() == "darwin"){  // os.type Darwin >> mac os
                     cmd.get(
-                        'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
+                        //'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
+                        'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r -o output/output.gcode output/output.stl ',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -1062,7 +1063,8 @@ execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
 
 if(os.platform() == "darwin"){
     console.log("platform: mac os");
-    execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
+    //execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
+    execute('slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r --version', (output) => {
         console.log("slicer_core respond test --> v:" + output);
         if(output == ""){
             alert("slicer_core --> is not responding");
