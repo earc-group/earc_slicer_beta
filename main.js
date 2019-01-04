@@ -29,8 +29,8 @@ function createWindow () {
   mainWindow = new BrowserWindow({
       width: 1300,
       height: 640,
-      minWidth: 1024,
-      minHeight: 560,
+      minWidth: 1060,
+      minHeight: 630,
       //icon: path.join('img/icons/png/64x64.png'),
       //icon: path.join(__dirname, 'assets/icons/png/64x64.png')
       icon: path.join(__dirname, 'assets/icons/earc_slicer_icon/icon.icns')

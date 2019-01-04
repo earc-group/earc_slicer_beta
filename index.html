@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link rel="stylesheet" href="css/style.css" />
         <link rel="stylesheet" href="css/style_test_app.css" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+		<!--  		link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">		 -->
 		<link rel='stylesheet' href='css/jqueryui.css'>
 		<link rel='stylesheet' href='css/jquery-ui-slider-pips.css'>
 	</head>
@@ -63,16 +63,12 @@
 					-->
 					<form id="upload_form">
 						<!--
-						<input type="file" id="fileUpload" name="fileUpload" accept="model/stl" class="import_input">
-						-->
-
 						<input type="file" id="fileUpload" name="fileUpload" class="import_input">
-						<label for="fileUpload" class="label_import_btn button" id="import_label">import file</label>
+						-->
+						<label class="label_import_btn button" id="import_label">import file</label>
 					</form>
 
 					<div class="easy_settings">
-						<!--  						<p class="p_hl">settings:</p>						 -->
-
 						<div class="rotation_menu_manual">
 	                        <p>rotaton:</p><br />
 	                        <p>x: <input type="text" id="rot_x" name="rot_x" class="rotation_inp"></p>
@@ -140,7 +136,7 @@
 
 							<div class="switch_set sw_layer_fan">
 						      <button type="button" class="btn btn-toggle focus active" data-toggle="button" aria-pressed="false" autocomplete="off" pressed="true">
-						        <div class="handle handle_2"></div>
+						        <div class="handle"></div>
 						      </button>
 						    </div>
 
@@ -206,12 +202,10 @@
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-		<!--  		<script src='https://raw.githubusercontent.com/simeydotme/jQuery-ui-Slider-Pips/master/dist/jquery-ui-slider-pips.js'></script>		 -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-plus-ui.min.js'></script>
 		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-ui-slider-pips.js'></script>
-
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.min.js'></script>
 
 		<script src="main_script.js"></script>
 

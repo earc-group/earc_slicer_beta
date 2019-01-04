@@ -45,7 +45,7 @@ function init() {
 	renderer.setClearColor( 0xffffff );
 	//renderer.setSize( 800, 500 );
 	//renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.setSize( Math.round((window.innerWidth/100)*74), window.innerHeight );
+	renderer.setSize( Math.round((window.innerWidth/100)*72), window.innerHeight );
 	document.body.appendChild( renderer.domElement );
 
 	//camera = new THREE.PerspectiveCamera( 30, 800 / 500, 1, 2000 );
@@ -185,7 +185,8 @@ function init() {
 	var mesh_pos, mesh_box;
 
     $('#fileUpload').on('change', function() {
-        var file = this.files[0];
+        /*
+var file = this.files[0];
 
         var file_path = file.path;
         console.log(file.path);
@@ -200,11 +201,37 @@ function init() {
             load_obj_model(f.path, f.name);
         } */
 
-        else {
+        /*else {
             console.log("ERROR --> Unsupported File --> ." + ext);
             alert("Unsupported File --> ." + ext + "  (only .stl)");
-        }
+        }*/
 
+    });
+
+    $('#import_label').on('click', function() {
+        console.log('>> import model');
+        var file_path = dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] })[0];
+        console.log(file_path);
+
+            var file_name = file_path.split('/');
+            file_name = file_name[file_name.length-1];
+
+            console.log(file_name);
+
+            var ext = file_name.slice((file_name.lastIndexOf(".") - 1 >>> 0) + 2);
+            if(ext == "stl"){
+                console.log("ext --> ." + ext + " -> OK");
+                load_stl_model(file_path, file_name);
+            } /*
+            else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+                console.log("ext --> ." + ext + " -> OK");
+                load_obj_model(f.path, f.name);
+            } */
+
+            else {
+                console.log("ERROR --> Unsupported File --> ." + ext);
+                alert("Unsupported File --> ." + ext + "  (only .stl)");
+            }
     });
 
     ipcRenderer.on('import_model_fc', function (ev, data) {
@@ -237,6 +264,10 @@ function init() {
     function load_stl_model(model_file_path, model_file_name){
 
         var file_path = model_file_path;
+
+        for(var i = 0; i < loaded_models.model.length; i++){
+            loaded_models.model[i].name == model_file_name ? model_file_name = "(cp)" + model_file_name : model_file_name = model_file_name;
+        }
 
         $("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + model_file_name + "</p><div class='cross_icon del_model_btn' id='" + model_file_name + "'></div></li>");
 
@@ -503,8 +534,7 @@ function init() {
 
     function slice_model(){
 
-        console.log("loaded_models.model.length");
-        console.log(loaded_models.model.length);
+        
 
         for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
             var object = scene.getObjectByName( loaded_models.model[i].name, true );
@@ -535,11 +565,21 @@ function init() {
 
             var path_to_file = "output/output.stl"; // get prepared stl file
 
+            var single_obj_pos = "";
+
+            if(loaded_models.model.length == 1){
+                var slingle_obj = scene.getObjectByName( loaded_models.model[0].name, true );
+                single_obj_pos = "-m --print-center " + (space_y - Math.abs(slingle_obj.position.x - space_y / 2)) + "," + Math.abs(slingle_obj.position.z - space_x / 2);
+                console.log(single_obj_pos);
+            } else {
+                single_obj_pos = "";
+            }
+
             setTimeout(function(){    // send comand to slicer core
                 if(os.platform() == "darwin"){  // os.type Darwin >> mac os
                     cmd.get(
                         //'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
-                        'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r -o output/output.gcode output/output.stl ',
+                        'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r ' + single_obj_pos + ' -o output/output.gcode output/output.stl ',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -566,7 +606,7 @@ function init() {
                     );
                 } else if(os.platform() == "win32"){    // windows slicer core
                     cmd.get(
-                        basepath + '/slicer_core/win/Slic3r-console.exe -o output/output.gcode output/output.stl',
+                        basepath + '/slicer_core/win/Slic3r-console.exe ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -594,7 +634,7 @@ function init() {
                 } else if(os.platform() == "linux"){    // linux slicer core
                     console.warn(">> Linux slicer core is not finished");
                     cmd.get(
-                        'perl slicer_core/linux/slic3r.pl -o output/output.gcode output/output.stl ',
+                        'perl slicer_core/linux/slic3r.pl ' + single_obj_pos + ' -o output/output.gcode output/output.stl ',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -1045,22 +1085,6 @@ function execute(command, callback) {
     });
 };
 
-/*
-// call the function --> test if core work OK?
-execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
-    console.log("slicer_core respond test --> v:" + output);
-    if(output == ""){
-        alert("slicer_core --> is not responding");
-        console.error("ERROR: slicer_core --> is not responding");
-        console.log("check folder slicer_core if is correctly installed.");
-        console.log("check perl instalation");
-        console.log("Slicing will not work!");
-        console.log("----------------------");
-    }
-});*/
-
-
-
 if(os.platform() == "darwin"){
     console.log("platform: mac os");
     //execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
@@ -1112,32 +1136,6 @@ if(os.platform() == "darwin"){
     console.warn(">> core-error: unknown platform" + os.type() + "-" + os.platform());
 }
 
-
-/*
-Vue.component('todo-item', {
-    props: ['todo'],
-    template: '<li>{{ todo.text }}</li>'
-})*/
-
-/*
-var app = new Vue({
-    el: '#app',
-
-data: {
-        model_list: "",
-        some_text: 'hello world',
-    },
-    methods: {
-        reverseMessage: function () {
-
-            //this.lang == "CZ" ? this.lang = "EN" : this.lang = "CZ"
-
-        },
-    }
-
-
-})*/
-
 jQuery(document).ready(function($) {
 
     $(document).ready(function(){
@@ -1152,7 +1150,6 @@ jQuery(document).ready(function($) {
     })
 
 });
-
 
 // context menu
 
@@ -1201,8 +1198,6 @@ $("canvas").hover(function() {      // no right click on canvas 3D view
 }, function() {
     hover_over_element = "";
 });
-
-
 
 
 $("#quality_slider")       // define slider
@@ -1294,9 +1289,6 @@ $('select').each(function(){
 
 });
 //  ----- select dialog end -----
-
-
-
 
 
 
