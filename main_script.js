@@ -536,7 +536,7 @@ var file = this.files[0];
 
     function slice_model(){
 
-
+        // load preset << user settings
 
         for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
             var object = scene.getObjectByName( loaded_models.model[i].name, true );
@@ -581,7 +581,7 @@ var file = this.files[0];
                 if(os.platform() == "darwin"){  // os.type Darwin >> mac os
                     cmd.get(
                         //'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
-                        'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r ' + single_obj_pos + ' -o output/output.gcode output/output.stl ',
+                        'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r --load last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -1232,17 +1232,7 @@ $("#infill_slider")       // define slider
 
 
 var layers_array = [0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3];
-
-$(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
-$(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
-
-$("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
-    $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
-});
-$("#infill_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
-    $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
-});
-
+sliders_velue_set();
 
 var settings_files = [];
 var settings_file_names = [];
@@ -1282,19 +1272,11 @@ setTimeout(function(){
 
 }, 200);
 
-
-var config = ini.parse(fs.readFileSync('./user_settings/preset_PLA-generic.ini', 'utf-8'))
-
-console.log(config.presets.print);
-/*
-config.scope = 'local'
-config.database.database = 'use_another_database'
-config.paths.default.tmpdir = '/tmp'
-delete config.paths.default.datadir
-config.paths.default.array.push('fourth value')*/
-
-fs.writeFileSync('./config_modified.ini', ini.stringify(config, { section: 'section' }))
-
+$(document).on('click','.switch_set', function(){
+    setTimeout(function(){
+        save_config();
+    }, 200);
+})
 
 //  ----- select dialog -----
 setTimeout(function(){
@@ -1341,6 +1323,8 @@ setTimeout(function(){
                 load_preset($(".select-styled").html());
             }
 
+            save_config();
+
             //console.log($this.val());
         });
 
@@ -1351,18 +1335,25 @@ setTimeout(function(){
 
     });
 
-    load_preset($(".select-styled").html());
+    load_preset();
 
 }, 600);
 
 function load_preset(pres_name){
 
-    var selected_preset = pres_name;
-    selected_preset = selected_preset.replace(" ", "-");
-    var index = settings_files.indexOf(selected_preset);
-    var selected_preset_name = settings_file_names[index];
+    if(pres_name == null){
+        selected_preset_name = "last_config.ini";
+    } else {
+        var selected_preset = pres_name;
+        selected_preset = selected_preset.replace(" ", "-");
+        var index = settings_files.indexOf(selected_preset);
+        var selected_preset_name = settings_file_names[index];
 
-    var config = ini.parse(fs.readFileSync('./user_settings/' + selected_preset_name, 'utf-8'))
+        selected_preset_name = "./user_settings/" + selected_preset_name;
+    }
+
+    var config = ini.parse(fs.readFileSync(selected_preset_name, 'utf-8'))
+
     var layer_height = config.print.layer_height;
     var infill_density = config.print.fill_density;
     var infill_pattern = config.print.fill_pattern;
@@ -1438,25 +1429,67 @@ function load_preset(pres_name){
         })
         .slider("float");
 
+    sliders_velue_set();
+
+    // save preset << user settings
+
+    fs.writeFileSync('./last_config.ini', ini.stringify(config))
+}
+
+function sliders_velue_set(){
     $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
     $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
 
     $("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
         $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
+        save_config();
     });
     $("#infill_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
         $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
+        save_config();
     });
+}
 
+function save_config(){     // save preset << user settings
 
-    /*
-    config.scope = 'local'
-    config.database.database = 'use_another_database'
-    config.paths.default.tmpdir = '/tmp'
-    delete config.paths.default.datadir
-    config.paths.default.array.push('fourth value')*/
+    console.log(">> saving settings");
 
-    fs.writeFileSync('./config_modified.ini', ini.stringify(config, { section: 'section' }))
+    var selected_preset = $(".select-styled").html();
+    selected_preset = selected_preset.replace(" ", "-");
+    var index = settings_files.indexOf(selected_preset);
+    var selected_preset_name = settings_file_names[index];
+
+    var config = ini.parse(fs.readFileSync('./user_settings/' + selected_preset_name, 'utf-8'))
+    var last_config = ini.parse(fs.readFileSync('last_config.ini', 'utf-8'))
+
+    if($(".infill_type .select-styled").html() == "Honeycomb"){
+        config.print.fill_pattern = 'honeycomb';
+    } else if($(".infill_type .select-styled").html() == "Rectilinear"){
+        config.print.fill_pattern = 'rectilinear';
+    } else if($(".infill_type .select-styled").html() == "3D Honeycomb"){
+        config.print.fill_pattern = '3dhoneycomb';
+    }
+
+    if($(".sw_support .btn-toggle").hasClass("active")){
+        console.log(">> has");
+        config.print.support_material = "1";
+    } else {
+        config.print.support_material = "0";
+    }
+
+    if($(".sw_layer_fan .btn-toggle").hasClass("active")){
+        config.filament.cooling = "1";
+    } else {
+        config.filament.cooling = "0";
+    }
+
+    config.print.fill_density = $(".slider_value_sp").text();
+    config.print.layer_height = $(".slider_value_qv").text().replace(" mm", "");
+
+    setTimeout(function(){
+        fs.writeFileSync('./last_config.ini', ini.stringify(config))
+    }, 600);
+
 }
 // ----- select dialog end -----
 
