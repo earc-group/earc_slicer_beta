@@ -461,7 +461,7 @@ span {
 .easy_settings {
   position: absolute;
   width: 85%;
-  top: 47vh;
+  top: 48vh;
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
   height: 43vh;
@@ -794,7 +794,7 @@ span {
   margin-top: 6px;
 }
 
-.label_infil_type {
+.label_infill_type {
   margin-top: 15px;
 }
 
@@ -811,7 +811,7 @@ span {
   width: calc(100% - 10px) !important;
 }
 
-.infil_type {
+.infill_type {
   margin-top: -20px;
   display: block;
   position: relative;

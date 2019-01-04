@@ -11,6 +11,8 @@ const fs = require('fs');
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
 var os = require('os');
+var ini = require('ini');
+const path = require('path');
 
 const { remote } = require('electron');
 const { Menu, MenuItem } = remote;
@@ -534,7 +536,7 @@ var file = this.files[0];
 
     function slice_model(){
 
-        
+
 
         for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
             var object = scene.getObjectByName( loaded_models.model[i].name, true );
@@ -1205,7 +1207,7 @@ $("#quality_slider")       // define slider
         max: 8,
         min: 0,
         //range: "min",
-        value: 4,
+        value: 5,
         orientation: "horizontal"
     })
     .slider("pips", {
@@ -1241,56 +1243,222 @@ $("#infill_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
     $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
 });
 
+
+var settings_files = [];
+var settings_file_names = [];
+const directoryPath = path.join(__dirname, 'user_settings');
+fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+        return console.log('Unable to scan directory: ' + err);
+    }
+    files.forEach(function (file) {
+        var string_array = file.split("_");
+        if(string_array.length == 2){
+            if(string_array[0] == "preset" || string_array[0] == "user#preset"){
+                var name = string_array[1];
+                name = name.split(".")
+                if(name.length !== 2){
+                    console.warn("incorrect settings file name");
+                }  else {
+                    settings_files.push(name[0]);
+                    settings_file_names.push(file);
+                }
+            }
+        } else {
+            console.warn("incorrect settings file name");
+        }
+    });
+});
+
+setTimeout(function(){
+
+    for(var i = 0; i < settings_files.length; i++){
+        var preset_name = settings_files[i].replace("-", " ");
+        $(".preset_select select").append("<option value=" + preset_name + ">" + preset_name + "</option>");
+    }
+    console.log("loaded presets:");
+    console.log(settings_files);
+    console.log(settings_file_names);
+
+}, 200);
+
+
+var config = ini.parse(fs.readFileSync('./user_settings/preset_PLA-generic.ini', 'utf-8'))
+
+console.log(config.presets.print);
+/*
+config.scope = 'local'
+config.database.database = 'use_another_database'
+config.paths.default.tmpdir = '/tmp'
+delete config.paths.default.datadir
+config.paths.default.array.push('fourth value')*/
+
+fs.writeFileSync('./config_modified.ini', ini.stringify(config, { section: 'section' }))
+
+
 //  ----- select dialog -----
-$('select').each(function(){
-    var $this = $(this), numberOfOptions = $(this).children('option').length;
+setTimeout(function(){
 
-    $this.addClass('select-hidden');
-    $this.wrap('<div class="select"></div>');
-    $this.after('<div class="select-styled"></div>');
+    $('select').each(function(){
+        var $this = $(this), numberOfOptions = $(this).children('option').length;
 
-    var $styledSelect = $this.next('div.select-styled');
-    $styledSelect.text($this.children('option').eq(0).text());
+        $this.addClass('select-hidden');
+        $this.wrap('<div class="select"></div>');
+        $this.after('<div class="select-styled"></div>');
 
-    var $list = $('<ul />', {
-        'class': 'select-options'
-    }).insertAfter($styledSelect);
+        var $styledSelect = $this.next('div.select-styled');
+        $styledSelect.text($this.children('option').eq(0).text());
 
-    for (var i = 0; i < numberOfOptions; i++) {
-        $('<li />', {
-            text: $this.children('option').eq(i).text(),
-            rel: $this.children('option').eq(i).val()
-        }).appendTo($list);
+        var $list = $('<ul />', {
+            'class': 'select-options'
+        }).insertAfter($styledSelect);
+
+        for (var i = 0; i < numberOfOptions; i++) {
+            $('<li />', {
+                text: $this.children('option').eq(i).text(),
+                rel: $this.children('option').eq(i).val()
+            }).appendTo($list);
+        }
+
+        var $listItems = $list.children('li');
+
+        $styledSelect.click(function(e) {
+            e.stopPropagation();
+            $('div.select-styled.active').not(this).each(function(){
+                $(this).removeClass('active').next('ul.select-options').hide();
+            });
+            $(this).toggleClass('active').next('ul.select-options').toggle();
+        });
+
+        $listItems.click(function(e) {
+            e.stopPropagation();
+            $styledSelect.text($(this).text()).removeClass('active');
+            $this.val($(this).attr('rel'));
+            $list.hide();
+
+            if($this.parent().parent().attr('class') == "preset_select"){
+                console.log("select: " + $(".select-styled").html());
+                load_preset($(".select-styled").html());
+            }
+
+            //console.log($this.val());
+        });
+
+        $(document).click(function() {
+            $styledSelect.removeClass('active');
+            $list.hide();
+        });
+
+    });
+
+    load_preset($(".select-styled").html());
+
+}, 600);
+
+function load_preset(pres_name){
+
+    var selected_preset = pres_name;
+    selected_preset = selected_preset.replace(" ", "-");
+    var index = settings_files.indexOf(selected_preset);
+    var selected_preset_name = settings_file_names[index];
+
+    var config = ini.parse(fs.readFileSync('./user_settings/' + selected_preset_name, 'utf-8'))
+    var layer_height = config.print.layer_height;
+    var infill_density = config.print.fill_density;
+    var infill_pattern = config.print.fill_pattern;
+    var support_enable = config.print.support_material;
+    var layer_fan_enable = config.filament.cooling;
+    var layer_height_index = layers_array.indexOf(Number(config.print.layer_height));
+    var infill_density_slider = infill_density.replace("%","");
+    infill_density_slider = Number(infill_density_slider) / 10;
+
+    $(".infill_type .select-styled").html("Rectilinear");
+    if(infill_pattern == "honeycomb"){
+        $(".infill_type .select-styled").html("Honeycomb");
+    } else if(infill_pattern == "rectilinear"){
+        $(".infill_type .select-styled").html("Rectilinear");
+    } else if(infill_pattern == "3dhoneycomb"){
+        $(".infill_type .select-styled").html("3D Honeycomb");
+    } else {
+        $(".infill_type .select-styled").html("Honeycomb");
+        console.log("infil type not found >> default")
     }
 
-    var $listItems = $list.children('li');
+    if(support_enable == 0){
+        $(".sw_support .btn-toggle").removeClass("active");
+        $(".sw_support .btn-toggle").removeClass("focus");
+        $(".sw_support .btn-toggle").attr("pressed","false");
+    } else {
 
-    $styledSelect.click(function(e) {
-        e.stopPropagation();
-        $('div.select-styled.active').not(this).each(function(){
-            $(this).removeClass('active').next('ul.select-options').hide();
-        });
-        $(this).toggleClass('active').next('ul.select-options').toggle();
+        if(!$(".sw_support .btn-toggle").hasClass("active")){
+            $(".sw_support .btn-toggle").addClass("active");
+            $(".sw_support .btn-toggle").addClass("focus");
+        }
+        $(".sw_support .btn-toggle").attr("pressed","true")
+    }
+
+    if(layer_fan_enable == 0){
+        $(".sw_layer_fan .btn-toggle").removeClass("active");
+        $(".sw_layer_fan .btn-toggle").removeClass("focus");
+        $(".sw_layer_fan .btn-toggle").attr("pressed","false");
+    } else {
+
+        if(!$(".sw_layer_fan .btn-toggle").hasClass("active")){
+            $(".sw_layer_fan .btn-toggle").addClass("active");
+            $(".sw_layer_fan .btn-toggle").addClass("focus");
+        }
+        $(".sw_layer_fan .btn-toggle").attr("pressed","true")
+    }
+
+    $("#quality_slider")       // edit slider from preset value
+        .slider({
+            max: 8,
+            min: 0,
+            //range: "min",
+            value: layer_height_index,
+            orientation: "horizontal"
+        })
+        .slider("pips", {
+            first: "pip",
+            last: "pip"
+        })
+        .slider("float");
+
+    $("#infill_slider")
+        .slider({
+            max: 10,
+            min: 0,
+            //range: "min",
+            value: infill_density_slider,
+            orientation: "horizontal"
+        })
+        .slider("pips", {
+            first: "pip",
+            last: "pip"
+        })
+        .slider("float");
+
+    $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
+    $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
+
+    $("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+        $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
+    });
+    $("#infill_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+        $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
     });
 
-    $listItems.click(function(e) {
-        e.stopPropagation();
-        $styledSelect.text($(this).text()).removeClass('active');
-        $this.val($(this).attr('rel'));
-        $list.hide();
-        console.log("select: " + $(".select-styled").html());
-        //console.log($this.val());
-    });
 
-    $(document).click(function() {
-        $styledSelect.removeClass('active');
-        $list.hide();
-    });
+    /*
+    config.scope = 'local'
+    config.database.database = 'use_another_database'
+    config.paths.default.tmpdir = '/tmp'
+    delete config.paths.default.datadir
+    config.paths.default.array.push('fourth value')*/
 
-});
-//  ----- select dialog end -----
-
-
+    fs.writeFileSync('./config_modified.ini', ini.stringify(config, { section: 'section' }))
+}
+// ----- select dialog end -----
 
 /*
 
