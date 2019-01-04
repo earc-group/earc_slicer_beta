@@ -119,19 +119,36 @@
 								</select>
 							</div>
 
-							<p>print quality: </p>
+							<p class="easy_set_div_label">print quality: </p>
 							<p class="slider_value slider_value_qv"></p>
 							<div id="quality_slider"></div>
 							<br />
 
-							<p>speed: </p>
+							<p class="easy_set_div_label">infill density: </p>
 							<p class="slider_value slider_value_sp"></p>
-							<div id="speed_slider"></div>
+							<div id="infill_slider"></div>
 							<br />
 
+							<div class="switch_set sw_support">
+						      <button type="button" class="btn btn-toggle focus active" data-toggle="button" aria-pressed="flase" autocomplete="off" pressed="true">
+						        <div class="handle"></div>
+						      </button>
+						    </div>
+
+							<p class="sw_label_set">generate supports</p>
+							<br />
+
+							<div class="switch_set sw_layer_fan">
+						      <button type="button" class="btn btn-toggle focus active" data-toggle="button" aria-pressed="false" autocomplete="off" pressed="true">
+						        <div class="handle handle_2"></div>
+						      </button>
+						    </div>
+
+							<p class="sw_label_set">layer fan</p>
+							<br />
+
+
 						</div>
-
-
 
 					</div>
 
@@ -194,7 +211,7 @@
 		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-plus-ui.min.js'></script>
 		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-ui-slider-pips.js'></script>
 
-
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.min.js'></script>
 
 		<script src="main_script.js"></script>
 

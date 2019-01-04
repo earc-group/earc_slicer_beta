@@ -1219,7 +1219,7 @@ $("#quality_slider")       // define slider
     })
     .slider("float");
 
-$("#speed_slider")       // define slider
+$("#infill_slider")       // define slider
     .slider({
         max: 10,
         min: 0,
@@ -1237,13 +1237,13 @@ $("#speed_slider")       // define slider
 var layers_array = [0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3];
 
 $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
-$(".slider_value_sp").text($("#speed_slider .ui-slider-tip").html() * 10 + "%");
+$(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
 
 $("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
     $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
 });
-$("#speed_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
-    $(".slider_value_sp").text($("#speed_slider .ui-slider-tip").html() * 10 + "%");
+$("#infill_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+    $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
 });
 
 //  ----- select dialog -----
@@ -1294,6 +1294,9 @@ $('select').each(function(){
 
 });
 //  ----- select dialog end -----
+
+
+
 
 
 

@@ -3,22 +3,22 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600|Source+Sans+Pro:200,300,400')
 
 @font-face
-  font-family: 'Roboto'
-  font-style: normal
-  font-weight: 100
-  src: local('Roboto Thin'), local('Roboto-Thin'), url('../assets/fonts/Roboto-Thin.ttf') format('ttf')
+    font-family: 'Roboto'
+    font-style: normal
+    font-weight: 100
+    src: local('Roboto Thin'), local('Roboto-Thin'), url('../assets/fonts/Roboto-Thin.ttf') format('ttf')
 
 @font-face
-  font-family: 'Roboto'
-  font-style: normal
-  font-weight: 300
-  src: local('Roboto Light'), local('Roboto-Light'), url('../assets/fonts/Roboto-Light.ttf') format('ttf')
+    font-family: 'Roboto'
+    font-style: normal
+    font-weight: 300
+    src: local('Roboto Light'), local('Roboto-Light'), url('../assets/fonts/Roboto-Light.ttf') format('ttf')
 
 @font-face
-  font-family: 'Roboto'
-  font-style: normal
-  font-weight: 400
-  src: local('Roboto Regular'), local('Roboto-Regular'), url('../assets/fonts/Roboto-Regular.ttf') format('ttf')
+    font-family: 'Roboto'
+    font-style: normal
+    font-weight: 400
+    src: local('Roboto Regular'), local('Roboto-Regular'), url('../assets/fonts/Roboto-Regular.ttf') format('ttf')
 
 
 //$main_color: #694CE8
@@ -46,7 +46,7 @@ p
 
 .button
     color: #fff
-    background: linear-gradient(-90deg, #00FFFF, #00BAFF)
+    background: linear-gradient(-90deg, #00FFFF, #00BAFF) no-repeat
     width: 20vw
     margin: auto
     margin-top: 1vh
@@ -606,7 +606,7 @@ span
           width: 1px
           border-radius: 12px
         &[class*=ui-slider-pip-selected] .ui-slider-line
-          height: 12px
+          height: 11px
           width: 12px
           transform: translate(-6px, -4px)
         &.ui-slider-pip-inrange .ui-slider-line
@@ -655,7 +655,7 @@ span
       background-color: #00FFFF
       box-shadow: 0px 0px 10px rgba(#000, .2)
 
-#speed_slider
+#infill_slider
   width: 90%
   left: 5%
   -webkit-focus-ring-color: none 0px
@@ -851,3 +851,102 @@ span
             user-select: none
             display: none
 //  ----- select dialog end -----
+.switch_set
+    float: left
+    position: relative
+    margin-left: 10px
+    display: inline-block
+
+.sw_label_set
+    margin-top: 2px
+    left: 3px
+    position: relative
+    z-index: 10
+
+//  ----- switch btn -----
+.btn-toggle
+    z-index: 20
+    cursor: pointer
+    margin: 0 4px
+    padding: 0
+    position: relative
+    border: none
+    height: 1.3rem
+    width: 2.5rem
+    border-radius: 1.3rem
+    color: #6b7381
+    background: #ccc
+    &:focus, &.focus, &:focus.active, &.focus.active
+        outline: none
+    &:before, &:after
+        line-height: 1.5rem
+        width: 4rem
+        text-align: center
+        font-weight: 600
+        font-size: 0.75rem
+        text-transform: uppercase
+        letter-spacing: 2px
+        position: absolute
+        bottom: 0
+        transition: opacity 0.25s
+    &:before
+        content: ''
+        left: 0rem
+        display: none
+    &:after
+        content: ''
+        right: 0rem
+        display: none
+    > .handle
+        position: absolute
+        top: 0.1rem
+        left: 0.1rem
+        width: 1.09rem
+        height: 1.09rem
+        border-radius: 1.09rem
+        background: #fff
+        transition: left 0.25s
+    > .handle_2
+        position: absolute
+        top: 0.13rem !important
+        left: 0.1rem
+        width: 1.09rem
+        height: 1.06rem !important
+        border-radius: 1.09rem
+        background: #fff
+        transition: left 0.25s
+    &.active
+        transition: background-color 0.25s
+        > .handle
+            left: 1.3rem !important
+            transition: left 0.25s
+        &:before
+            opacity: 0.5
+        &:after
+            opacity: 1
+    &.btn-sm
+        &:before, &:after
+            line-height: -0.5rem
+            color: #fff
+            letter-spacing: 0.75px
+            left: 0.4125rem
+            width: 2.325rem
+        &:before
+            text-align: right
+        &:after
+            text-align: left
+            opacity: 0
+        &.active
+            &:before
+                opacity: 0
+            &:after
+                opacity: 1
+    &.btn-xs
+        &:before, &:after
+            display: none
+    &:before, &:after
+        color: #6b7381
+    &.active
+        //background-color: #00BAFF
+        background: linear-gradient(-90deg, #00FFFF, #00BAFF) no-repeat
+//    ----- switch btn end -----
