@@ -608,7 +608,7 @@ var file = this.files[0];
                     );
                 } else if(os.platform() == "win32"){    // windows slicer core
                     cmd.get(
-                        basepath + '/slicer_core/win/Slic3r-console.exe ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
+                        basepath + '/slicer_core/win/Slic3r-console.exe --load last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -636,7 +636,7 @@ var file = this.files[0];
                 } else if(os.platform() == "linux"){    // linux slicer core
                     console.warn(">> Linux slicer core is not finished");
                     cmd.get(
-                        'slicer_core/linux/Slic3r/slic3r --load last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
+                        'slicer_core/linux/Slic3r/Slic3r --load last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -1123,7 +1123,7 @@ if(os.platform() == "darwin"){
     );
 } else if (os.platform() == "linux"){
     console.log("platform: Linux");
-    execute('perl slicer_core/mac/slic3r.pl --version', (output) => {
+    execute('slicer_core/linux/Slic3r/Slic3r --version', (output) => {
         console.log("slicer_core respond test --> v:" + output);
         if(output == ""){
             alert("slicer_core --> is not responding");
@@ -1281,6 +1281,12 @@ $(document).on('click','.switch_set', function(){
 //  ----- select dialog -----
 setTimeout(function(){
 
+    load_select_dialog();
+    load_preset();
+
+}, 600);
+
+function load_select_dialog(){
     $('select').each(function(){
         var $this = $(this), numberOfOptions = $(this).children('option').length;
 
@@ -1333,11 +1339,12 @@ setTimeout(function(){
             $list.hide();
         });
 
+        console.log(">> reload preset select");
+
     });
+}
 
-    load_preset();
-
-}, 600);
+// ---- select dialog end ------
 
 function load_preset(pres_name){
 
@@ -1354,12 +1361,12 @@ function load_preset(pres_name){
 
     var config = ini.parse(fs.readFileSync(selected_preset_name, 'utf-8'))
 
-    var layer_height = config.print.layer_height;
-    var infill_density = config.print.fill_density;
-    var infill_pattern = config.print.fill_pattern;
-    var support_enable = config.print.support_material;
-    var layer_fan_enable = config.filament.cooling;
-    var layer_height_index = layers_array.indexOf(Number(config.print.layer_height));
+    var layer_height = config.layer_height;
+    var infill_density = config.fill_density;
+    var infill_pattern = config.fill_pattern;
+    var support_enable = config.support_material;
+    var layer_fan_enable = config.cooling;
+    var layer_height_index = layers_array.indexOf(Number(config.layer_height));
     var infill_density_slider = infill_density.replace("%","");
     infill_density_slider = Number(infill_density_slider) / 10;
 
@@ -1460,31 +1467,30 @@ function save_config(){     // save preset << user settings
     var selected_preset_name = settings_file_names[index];
 
     var config = ini.parse(fs.readFileSync('./user_settings/' + selected_preset_name, 'utf-8'))
-    var last_config = ini.parse(fs.readFileSync('last_config.ini', 'utf-8'))
 
     if($(".infill_type .select-styled").html() == "Honeycomb"){
-        config.print.fill_pattern = 'honeycomb';
+        config.fill_pattern = 'honeycomb';
     } else if($(".infill_type .select-styled").html() == "Rectilinear"){
-        config.print.fill_pattern = 'rectilinear';
+        config.fill_pattern = 'rectilinear';
     } else if($(".infill_type .select-styled").html() == "3D Honeycomb"){
-        config.print.fill_pattern = '3dhoneycomb';
+        config.fill_pattern = '3dhoneycomb';
     }
 
     if($(".sw_support .btn-toggle").hasClass("active")){
         console.log(">> has");
-        config.print.support_material = "1";
+        config.support_material = "1";
     } else {
-        config.print.support_material = "0";
+        config.support_material = "0";
     }
 
     if($(".sw_layer_fan .btn-toggle").hasClass("active")){
-        config.filament.cooling = "1";
+        config.cooling = "1";
     } else {
-        config.filament.cooling = "0";
+        config.cooling = "0";
     }
 
-    config.print.fill_density = $(".slider_value_sp").text();
-    config.print.layer_height = $(".slider_value_qv").text().replace(" mm", "");
+    config.fill_density = $(".slider_value_sp").text();
+    config.layer_height = $(".slider_value_qv").text().replace(" mm", "");
 
     setTimeout(function(){
         fs.writeFileSync('./last_config.ini', ini.stringify(config))
@@ -1493,15 +1499,126 @@ function save_config(){     // save preset << user settings
 }
 // ----- select dialog end -----
 
-/*
+ipcRenderer.on('save_pres_fc_menu', function () {
+    //window.open('save_pres.html', '_blank', 'nodeIntegration=yes, resizable=0, width=400, height=220');
 
-Note:
+    var child = window.open('save_pres.html', '_blank', 'nodeIntegration=yes, resizable=0, width=400, height=220');
+    var timer = setInterval(checkChild, 500);
 
-if is only one model on scene then
-    insert in slicing command center axis xy
-    else center whole group
+    function checkChild() {
+        if (child.closed) {
+            console.log(">> reload presets");
+            setTimeout(function(){
+                reload_presets_select();
+            }, 400);
+            clearInterval(timer);
+        }
+    }
+});
 
-*/
+function reload_presets_select(){
+    settings_files = [];
+    settings_file_names = [];
+    const directoryPath = path.join(__dirname, 'user_settings');
+    fs.readdir(directoryPath, function (err, files) {
+        if (err) {
+            return console.log('Unable to scan directory: ' + err);
+        }
+        files.forEach(function (file) {
+            var string_array = file.split("_");
+            if(string_array.length == 2){
+                if(string_array[0] == "preset" || string_array[0] == "user#preset"){
+                    var name = string_array[1];
+                    name = name.split(".")
+                    if(name.length !== 2){
+                        console.warn("incorrect settings file name");
+                    }  else {
+                        settings_files.push(name[0]);
+                        settings_file_names.push(file);
+                    }
+                }
+            } else {
+                console.warn("incorrect settings file name");
+            }
+        });
+    });
+
+    setTimeout(function(){
+
+        $(".preset_select").find( ".select-options" ).remove();
+        $(".preset_select").find( ".select-styled" ).remove();
+        $(".preset_select").find( ".preset_select select" ).html("");
+
+        for(var i = 0; i < settings_files.length; i++){
+            var preset_name = settings_files[i].replace("-", " ");
+            $(".preset_select select").append("<option value=" + preset_name + ">" + preset_name + "</option>");
+        }
+        console.log("loaded presets:");
+        console.log(settings_files);
+        console.log(settings_file_names);
+
+        setTimeout(function(){
+            reload_select_dialog();
+        }, 200);
+
+    }, 200);
+}
+
+function reload_select_dialog(){
+    $('.preset_select select').each(function(){
+        var $this = $(this), numberOfOptions = $(this).children('option').length;
+
+        $this.addClass('select-hidden');
+        $this.wrap('<div class="select"></div>');
+        $this.after('<div class="select-styled"></div>');
+
+        var $styledSelect = $this.next('div.select-styled');
+        $styledSelect.text($this.children('option').eq(0).text());
+
+        var $list = $('<ul />', {
+            'class': 'select-options'
+        }).insertAfter($styledSelect);
+
+        for (var i = 0; i < numberOfOptions; i++) {
+            $('<li />', {
+                text: $this.children('option').eq(i).text(),
+                rel: $this.children('option').eq(i).val()
+            }).appendTo($list);
+        }
+
+        var $listItems = $list.children('li');
+
+        $styledSelect.click(function(e) {
+            e.stopPropagation();
+            $('div.select-styled.active').not(this).each(function(){
+                $(this).removeClass('active').next('ul.select-options').hide();
+            });
+            $(this).toggleClass('active').next('ul.select-options').toggle();
+        });
+
+        $listItems.click(function(e) {
+            e.stopPropagation();
+            $styledSelect.text($(this).text()).removeClass('active');
+            $this.val($(this).attr('rel'));
+            $list.hide();
+
+            if($this.parent().parent().attr('class') == "preset_select"){
+                console.log("select: " + $(".select-styled").html());
+                load_preset($(".select-styled").html());
+            }
+
+            //console.log($this.val());
+        });
+
+        $(document).click(function() {
+            $styledSelect.removeClass('active');
+            $list.hide();
+        });
+
+        console.log(">> reload preset select");
+
+    });
+}
 
 
 

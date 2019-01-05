@@ -100,41 +100,62 @@ const menu = Menu.buildFromTemplate([
         ]
       }, */
 
-
-      {
+    {
         label: 'File',
         submenu: [
           {
             label: "import model",
-            accelerator: "Command+o",
+            accelerator: "CmdOrCtrl+o",
             click: function (menuItem, currentWindow) {
                 currentWindow.webContents.send('import_model_fc')
             }
           },
           {
             label: "slice model",
-            accelerator: "Command+s",
+            accelerator: "CmdOrCtrl+e",
             click: function (menuItem, currentWindow) {
                 currentWindow.webContents.send('slice_fc_menu')
             }
           },
+          {
+            label: "save preset",
+            accelerator: "CmdOrCtrl+s",
+            click: function (menuItem, currentWindow) {
+                currentWindow.webContents.send('save_pres_fc_menu')
+            }
+          },
         ]
-      },
-      {
-        label: 'View',
+    },
+    {
+        label: 'Edit',
         submenu: [
-          { role: 'reload' },
-          //{ role: 'forcereload' },
-          { role: 'toggledevtools' },
-          { type: 'separator' },
-          { role: 'togglefullscreen' }
+            { role: "undo"},
+            { role: "redo"},
+            { type: "separator" },
+            { role: "cut",},
+            { role: "copy"},
+            { role: "paste"},
+            { role: "selectall"},
+            { role: "reload" }
         ]
-      },
-      {
+    },
+    {
+        label: 'View',  // someting is weird here
+        submenu: [
+            { role: 'toggledevtools' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' }
+        ]
+    },
+    {
         role: 'window',
         submenu: [
           { role: 'minimize' },
-          { role: 'close' }
+          { role: 'close' },
+          { role: "reload"},
+          { type: "separator" },
+          { role: "toggledevtools"},
+          { role: "togglefullscreen"}
         ]
       },
       {

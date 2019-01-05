@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>save preset - earc slicer</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="css/style.css" />
+	</head>
+	<body>
+
+		<div class="loading_screen_app"></div>
+		<div class="done_screen_app">
+			<h2>saved</h2>
+		</div>
+		<div class="error_screen_app">
+			<h2>error</h2>
+		</div>
+
+		<div id="app">
+			<div class="save_pres_app">
+				<h2 class="save_pres_app_h2">save custom preset</h2>
+				<div class="app_content_save_pres">
+					<p class="easy_set_div_label label_preset_save">select preset to save: </p>
+					<div class="preset_select_save">
+						<select id="save_preset">
+
+						</select>
+					</div>
+
+					<div class="save_pres_btn_group">
+						<button id="save_pres_btn" class="button save_pres_btn">save</button>
+						<button id="saveas_pres_btn" class="button w save_pres_btn">save as</button>
+					</div>
+					<p class="easy_set_div_label label_preset_note">note: you can't overwrite default presets</p>
+				</div>
+			</div>
+			<div class="saveas_pres_app">
+				<h2 class="save_pres_app_h2">save custom preset</h2>
+				<div class="app_content_save_pres">
+					<p class="easy_set_div_label label_preset_save">preset new name: </p>
+					<input type="text" class="inp_name_pres_save" placeholder="name" autofocus/>
+
+					<div class="save_pres_btn_group">
+						<button id="saveas_pres_btn_save" class="button w save_pres_btn">save as</button>
+					</div>
+				</div>
+				<p class="easy_set_div_label label_preset_note_as">note: you can't use "- . _" in name</p>
+			</div>
+        </div>
+
+		<script src="js/jquery-3.3.1.min.js"></script>
+		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-plus-ui.min.js'></script>
+
+		<script src="save_pres_script.js"></script>
+
+	</body>
+</html>
