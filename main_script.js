@@ -636,7 +636,7 @@ var file = this.files[0];
                 } else if(os.platform() == "linux"){    // linux slicer core
                     console.warn(">> Linux slicer core is not finished");
                     cmd.get(
-                        'perl slicer_core/linux/slic3r.pl ' + single_obj_pos + ' -o output/output.gcode output/output.stl ',
+                        'slicer_core/linux/Slic3r/slic3r --load last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
