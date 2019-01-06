@@ -6,6 +6,9 @@ var selected_object_obj, saveString, gcode_view;
 
 var hover_over_element = "";
 
+let mainWindow = null;
+const Electron = require('electron');
+
 var cmd = require('node-cmd');
 const fs = require('fs');
 const { ipcRenderer } = require('electron');
@@ -16,6 +19,9 @@ const path = require('path');
 
 const { remote } = require('electron');
 const { Menu, MenuItem } = remote;
+
+const electron = require('electron');
+const ipc = electron.ipcRenderer;
 
 var basepath = remote.app.getAppPath();
 
@@ -581,7 +587,7 @@ var file = this.files[0];
                 if(os.platform() == "darwin"){  // os.type Darwin >> mac os
                     cmd.get(
                         //'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
-                        'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r --load last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
+                        'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -608,7 +614,7 @@ var file = this.files[0];
                     );
                 } else if(os.platform() == "win32"){    // windows slicer core
                     cmd.get(
-                        basepath + '/slicer_core/win/Slic3r-console.exe --load last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
+                        basepath + '/slicer_core/win/Slic3r-console.exe --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -636,7 +642,7 @@ var file = this.files[0];
                 } else if(os.platform() == "linux"){    // linux slicer core
                     console.warn(">> Linux slicer core is not finished");
                     cmd.get(
-                        'slicer_core/linux/Slic3r/Slic3r --load last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
+                        'slicer_core/linux/Slic3r/Slic3r --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
                             if (data !== null) {
@@ -1327,11 +1333,11 @@ function load_select_dialog(){
             if($this.parent().parent().attr('class') == "preset_select"){
                 console.log("select: " + $(".select-styled").html());
                 load_preset($(".select-styled").html());
+
+                save_last_preset_name();
             }
 
             save_config();
-
-            //console.log($this.val());
         });
 
         $(document).click(function() {
@@ -1339,7 +1345,7 @@ function load_select_dialog(){
             $list.hide();
         });
 
-        console.log(">> reload preset select");
+        console.log(">> load preset select");
 
     });
 }
@@ -1348,8 +1354,10 @@ function load_select_dialog(){
 
 function load_preset(pres_name){
 
+    console.log("------ load_preset -------");
+
     if(pres_name == null){
-        selected_preset_name = "last_config.ini";
+        selected_preset_name = "app_settings/last_config.ini";
     } else {
         var selected_preset = pres_name;
         selected_preset = selected_preset.replace(" ", "-");
@@ -1440,7 +1448,7 @@ function load_preset(pres_name){
 
     // save preset << user settings
 
-    fs.writeFileSync('./last_config.ini', ini.stringify(config))
+    fs.writeFileSync('./app_settings/last_config.ini', ini.stringify(config))
 }
 
 function sliders_velue_set(){
@@ -1461,12 +1469,12 @@ function save_config(){     // save preset << user settings
 
     console.log(">> saving settings");
 
-    var selected_preset = $(".select-styled").html();
+    var selected_preset = $(".select-styled").html();   // get selected preset name
     selected_preset = selected_preset.replace(" ", "-");
     var index = settings_files.indexOf(selected_preset);
     var selected_preset_name = settings_file_names[index];
 
-    var config = ini.parse(fs.readFileSync('./user_settings/' + selected_preset_name, 'utf-8'))
+    var config = ini.parse(fs.readFileSync('./user_settings/' + selected_preset_name, 'utf-8')) // load selected preset file
 
     if($(".infill_type .select-styled").html() == "Honeycomb"){
         config.fill_pattern = 'honeycomb';
@@ -1477,7 +1485,6 @@ function save_config(){     // save preset << user settings
     }
 
     if($(".sw_support .btn-toggle").hasClass("active")){
-        console.log(">> has");
         config.support_material = "1";
     } else {
         config.support_material = "0";
@@ -1489,15 +1496,16 @@ function save_config(){     // save preset << user settings
         config.cooling = "0";
     }
 
+    $(".label_preset_material").text(config.material_type);
+
     config.fill_density = $(".slider_value_sp").text();
     config.layer_height = $(".slider_value_qv").text().replace(" mm", "");
 
     setTimeout(function(){
-        fs.writeFileSync('./last_config.ini', ini.stringify(config))
+        fs.writeFileSync('./app_settings/last_config.ini', ini.stringify(config))
     }, 600);
 
 }
-// ----- select dialog end -----
 
 ipcRenderer.on('save_pres_fc_menu', function () {
     //window.open('save_pres.html', '_blank', 'nodeIntegration=yes, resizable=0, width=400, height=220');
@@ -1510,13 +1518,15 @@ ipcRenderer.on('save_pres_fc_menu', function () {
             console.log(">> reload presets");
             setTimeout(function(){
                 reload_presets_select();
+                console.log(remote.getGlobal('test'));
             }, 400);
             clearInterval(timer);
         }
     }
 });
 
-function reload_presets_select(){
+function reload_presets_select(){   // this works dont touch it !!
+    console.log("----reload preset----");
     settings_files = [];
     settings_file_names = [];
     const directoryPath = path.join(__dirname, 'user_settings');
@@ -1545,14 +1555,14 @@ function reload_presets_select(){
 
     setTimeout(function(){
 
-        $(".preset_select").find( ".select-options" ).remove();
-        $(".preset_select").find( ".select-styled" ).remove();
-        $(".preset_select").find( ".preset_select select" ).html("");
+        $(".preset_select").html("");
+        $(".preset_select").html("<select id=\"preset\"></select>");
 
         for(var i = 0; i < settings_files.length; i++){
             var preset_name = settings_files[i].replace("-", " ");
             $(".preset_select select").append("<option value=" + preset_name + ">" + preset_name + "</option>");
         }
+
         console.log("loaded presets:");
         console.log(settings_files);
         console.log(settings_file_names);
@@ -1563,6 +1573,8 @@ function reload_presets_select(){
 
     }, 200);
 }
+
+var saved_pres_name;
 
 function reload_select_dialog(){
     $('.preset_select select').each(function(){
@@ -1605,9 +1617,10 @@ function reload_select_dialog(){
             if($this.parent().parent().attr('class') == "preset_select"){
                 console.log("select: " + $(".select-styled").html());
                 load_preset($(".select-styled").html());
-            }
 
-            //console.log($this.val());
+                save_last_preset_name();
+            }
+            save_config();
         });
 
         $(document).click(function() {
@@ -1616,8 +1629,42 @@ function reload_select_dialog(){
         });
 
         console.log(">> reload preset select");
+        console.log(">> PRESET RELOADED");
+
+        setTimeout(function(){
+            load_preset();
+            setTimeout(function(){
+                $(".preset_select .select-styled").html(saved_pres_name);
+            }, 200);
+        }, 300);
 
     });
+}
+
+ipc.on('pres_name_send_render', function (event, arg) {  // get select preset name from save_pres js file
+    console.log(arg);
+    saved_pres_name = arg;
+})
+
+setTimeout(function(){
+    load_last_preset_name();
+}, 600);
+
+function load_last_preset_name(){
+
+    // load last selected preset
+    var config_app = ini.parse(fs.readFileSync('./app_settings/app_config.ini', 'utf-8'))
+    $(".preset_select .select-styled").html(config_app.last_selected_preset);
+
+}
+
+function save_last_preset_name(){
+
+    console.log(">> saved pres name");
+    // load last selected preset
+    var config_app = ini.parse(fs.readFileSync('./app_settings/app_config.ini', 'utf-8'))
+    config_app.last_selected_preset = $(".preset_select .select-styled").html();
+    fs.writeFileSync('./app_settings/app_config.ini', ini.stringify(config_app))
 }
 
 

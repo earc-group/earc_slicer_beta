@@ -7,8 +7,12 @@ const url = require('url')
 const Menu = electron.Menu
 const MenuItem = electron.MenuItem
 
-const join = require('path').join;
-const ipcMain = require('electron');
+const join = require('path').join
+const ipcMain = require('electron')
+
+const ipc = require('electron').ipcMain
+const { webContents } = require('electron')
+
 
 const iconUrl = url.format({
   pathname: path.join(__dirname, 'assets/icons/earc_slicer_icon/icon.icns'),
@@ -16,9 +20,8 @@ const iconUrl = url.format({
   slashes: true
 })
 
-
 // Replace '..' with 'about-window'
-const openAboutWindow = require('about-window').default;
+const openAboutWindow = require('about-window').default
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -28,9 +31,9 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
       width: 1300,
-      height: 640,
+      height: 667,
       minWidth: 1060,
-      minHeight: 630,
+      minHeight: 629,
       //icon: path.join('img/icons/png/64x64.png'),
       //icon: path.join(__dirname, 'assets/icons/png/64x64.png')
       icon: path.join(__dirname, 'assets/icons/earc_slicer_icon/icon.icns')
@@ -59,28 +62,6 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.on('ready', function() {
     createWindow()
-
-    /*
-const menu = Menu.buildFromTemplate([
-           {
-               label: 'slicer',
-               submenu: [
-                   {
-                       label: 'About earc slicer',
-                       click: () =>
-                           openAboutWindow({
-                               icon_path: join(__dirname, 'assets/icons/png/512x512.png'),
-                               copyright: 'Copyright (c) 2018 (beta)',
-                               package_json_dir: __dirname,
-                               open_devtools: process.env.NODE_ENV !== 'production',
-                           }),
-                   },
-               ],
-           },
-       ]);
-    Menu.setApplicationMenu(menu);*/
-
-
 
     const { app, Menu } = require('electron')
 
@@ -239,6 +220,12 @@ app.on('activate', function () {
     createWindow()
   }
 })
+
+
+ipc.on('pres_name_send', function (event, arg) {
+    mainWindow.webContents.send('pres_name_send_render', arg)
+})
+
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

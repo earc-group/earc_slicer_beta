@@ -12,6 +12,9 @@ const path = require('path');
 const { remote } = require('electron');
 const { Menu, MenuItem } = remote;
 
+const electron = require('electron');
+const ipc = electron.ipcRenderer;
+
 jQuery(document).ready(function($) {
 
     setTimeout(function(){
@@ -137,6 +140,7 @@ jQuery(document).ready(function($) {
         setTimeout(function(){
             $(".saveas_pres_app").fadeIn("slow");
         }, 300);
+
     })
 
     $(document).on('click','#saveas_pres_btn_save', function(){
@@ -148,6 +152,8 @@ jQuery(document).ready(function($) {
         console.log(">> saving settings");
 
         var selected_preset = $(".select-styled").html();
+        ipc.send("pres_name_send", selected_preset);
+
         selected_preset = selected_preset.replace(" ", "-");
         var index = settings_files.indexOf(selected_preset);
         var selected_preset_name = settings_file_names[index];
@@ -155,7 +161,7 @@ jQuery(document).ready(function($) {
         console.log(">> saving to: ");
         console.log(selected_preset_name);
 
-        var config = ini.parse(fs.readFileSync('./last_config.ini', 'utf-8'))
+        var config = ini.parse(fs.readFileSync('./app_settings/last_config.ini', 'utf-8'))
 
         setTimeout(function(){
             fs.writeFileSync('./user_settings/' + selected_preset_name, ini.stringify(config));
@@ -186,6 +192,8 @@ jQuery(document).ready(function($) {
                 }, 800);
             }
 
+            ipc.send("pres_name_send", selected_preset);    // send arg to main.js >> main_script.sj
+
             selected_preset = selected_preset.replace(" ", "-");
             var index = settings_files.indexOf(selected_preset);
 
@@ -206,7 +214,7 @@ jQuery(document).ready(function($) {
                 console.log(">> saving to: ");
                 console.log(selected_preset_name);
 
-                var config = ini.parse(fs.readFileSync('./last_config.ini', 'utf-8'))
+                var config = ini.parse(fs.readFileSync('./app_settings/last_config.ini', 'utf-8'))
 
                 setTimeout(function(){
                     fs.writeFileSync('./user_settings/' + selected_preset_name, ini.stringify(config));

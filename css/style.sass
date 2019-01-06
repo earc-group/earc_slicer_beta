@@ -57,14 +57,14 @@ p
     cursor: pointer
     padding: 0.2em 0.5em
     font-size: 1.1em
-    transition: all .6s
+    transition: filter .6s, -webkit-filter .6s, box-shadow .6s
     letter-spacing: 1.6px
     &:hover
       filter: brightness(112%)
       -webkit-filter: brightness(112%)
       box-shadow: 0px 6px 18px rgba(#00BAFF, .3)
     &:active
-      transition: all .3s
+      transition: filter .6s, -webkit-filter .6s, box-shadow .6s
       filter: brightness(90%)
       transform: translateY(2px)
       box-shadow: 0px 6px 18px rgba(#00BAFF, .3)
@@ -661,6 +661,14 @@ span
 //  ----- select dialog -----
 .label_preset_select
     margin-top: 6px
+
+.label_preset_material
+    margin-top: -13px
+    display: inline-block
+    float: right
+    margin-right: 10px
+    text-align: right
+    color: #00BAFF
 
 .label_preset_save
     margin-left: 80px
