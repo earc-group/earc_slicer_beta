@@ -572,7 +572,7 @@ span
     margin-top: -12px
     margin-right: 10px
 
-#quality_slider,#infill_slider
+#quality_slider,#infill_slider,#gcode_slider
   width: 90%
   left: 5%
   -webkit-focus-ring-color: none 0px
@@ -772,6 +772,9 @@ span
 
 .no_select
     user-select: none
+
+#gcode_ui_side_bar
+    display: none
 
 .select-options
     text-align: left
@@ -1010,6 +1013,25 @@ span
     left: 50%
     transform: translateX(-50%)
 
+#iframe_analyzer
+    z-index: 990
+    width: 300px
+    height: 300px
+    position: absolute
+
 .select-options
     max-height: 33vh
     overflow-y: auto
+
+.pp_inf
+    color: #808080
+
+.print_info_box
+    margin-top: 20px
+    text-align: left
+
+.dg.main
+    z-index: 999 !important
+    margin-top: 60px
+
+//show_gcode_ui()

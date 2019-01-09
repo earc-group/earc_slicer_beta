@@ -10,6 +10,14 @@
  * @author tentone
  * @author joewalnes
  */
+
+/*
+
+console.log(global_var_gcode_start);
+console.log(global_var_gcode_end);
+
+*/
+
 THREE.GCodeLoader = function ( manager ) {
 
 	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
@@ -96,7 +104,8 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 	var lines = data.replace( /;.+/g, '' ).split( '\n' );
 
-	for ( var i = 0; i < lines.length; i ++ ) {
+
+    for ( var i = 0; i < lines.length; i ++ ) {
 
 		var tokens = lines[ i ].split( ' ' );
 		var cmd = tokens[ 0 ].toUpperCase();
@@ -182,6 +191,8 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 		geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertex, 3 ) );
 
 		var segments = new THREE.LineSegments( geometry, extruding ? extrudingMaterial : pathMaterial );
+        //var segments = new THREE.Mesh( geometry, pathMaterial );
+
 		segments.name = 'layer' + i;
 		object.add( segments );
 
@@ -190,9 +201,15 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 	var object = new THREE.Group();
 	object.name = 'gcode';
 
-	if ( this.splitLayer ) {
+    //var gcode_start = Math.round((layers.length/100)*global_var_gcode_start);
+    var gcode_end = Math.round(global_var_gcode_end * (layers.length/100))
 
-		for ( var i = 0; i < layers.length; i ++ ) {
+    //console.log(gcode_start);
+    console.log(global_var_gcode_end);
+
+    if ( this.splitLayer ) {
+
+		for ( var i = 0; i < gcode_end; i ++ ) {
 
 			var layer = layers[ i ];
 			addObject( layer.vertex, true );
@@ -204,7 +221,7 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 		var vertex = [], pathVertex = [];
 
-		for ( var i = 0; i < layers.length; i ++ ) {
+		for ( var i = 0; i < gcode_end; i ++ ) {
 
 			var layer = layers[ i ];
 

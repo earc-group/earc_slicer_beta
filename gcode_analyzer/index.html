@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>gcode viewer - online gcode viewer and analyzer in your browser!</title>
+    <meta name="description" content="Visual GCode viewer and analyzer in your browser. No need to upload you GCode anywhere, everything is done locally." />
+    <meta name="keywords" content="GCode,g-code,viewer,online,javascript" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="language" content="english" />
+
+    <link rel="meta" type="application/rdf+xml" title="Dublin" href="/dublin.rdf" />
+
+
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="lib/codemirror.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
+    <script type="text/javascript" src="lib/jquery-1.8.2.js"></script>
+    <script type="text/javascript" src="lib/jquery-ui-1.9.0.custom.js"></script>
+
+    <script type="text/javascript" src="lib/codemirror.js"></script>
+    <script type="text/javascript" src="lib/mode_gcode/gcode_mode.js"></script>
+    <script type="text/javascript" src="lib/three.js"></script>
+    <script type="text/javascript" src="lib/bootstrap.js"></script>
+    <script type="text/javascript" src="lib/modernizr.custom.09684.js"></script>
+    <script type="text/javascript" src="lib/TrackballControls.js"></script>
+    <script type="text/javascript" src="lib/zlib.min.js"></script>
+    <script type="text/javascript" src="js/ui.js"></script>
+    <script type="text/javascript" src="js/gCodeReader.js"></script>
+    <script type="text/javascript" src="js/renderer.js"></script>
+    <script type="text/javascript" src="js/analyzer.js"></script>
+    <script type="text/javascript" src="js/renderer3d.js"></script>
+
+    <style>
+        body{
+            padding: 20px;
+        }
+    </style>
+
+</head>
+<body>
+
+    <h2> included gcode analyzer for earc slicer</h2>
+
+    <div id="fileAccordionTab" class="accordion-body collapse">
+        <div class="accordion-inner">
+            <input type="file" id="file">
+            <div id="drop_zone">Drop file here</div>
+        </div>
+
+        <p>
+            print time:
+        </p>
+        <p class="p_print_time" id="p_print_time"></p>
+    </div>
+
+<script>
+    GCODE.ui.initHandlers();
+
+    var gcode_load_print_time = "";
+    var gcode_load_fs = "";
+
+    var fs = require('fs');
+    fs.readFile( __dirname + '../output/output.gcode', function (err, data) {
+      if (err) {
+        throw err;
+      }
+     // console.log(data.toString());
+      gcode_load_fs = data.toString();
+    });
+
+</script>
+
+
+</body>
+</html>

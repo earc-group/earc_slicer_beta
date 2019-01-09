@@ -5,6 +5,7 @@ var cameraTarget, selected_object, exporter, container, stats;
 var selected_object_obj, saveString, gcode_view;
 
 var hover_over_element = "";
+var gcode_print_time;
 
 let mainWindow = null;
 const Electron = require('electron');
@@ -36,6 +37,44 @@ var o = {
   ]
 };    */
 
+
+/*
+var xmlhttp,file,args;
+xmlhttp=new XMLHttpRequest();
+
+xmlhttp.onreadystatechange=function()
+  {
+    if (xmlhttp.readyState==4 )
+    {
+        file=xmlhttp.responseText;
+        console.log("Ready!!!");
+        ControlsLayer(ParserGcode(file));
+        console.log("finish");
+    }
+  }
+//xmlhttp.open("GET","laserholdv01.gcode",true);
+xmlhttp.open("GET","output/output.gcode",true);
+xmlhttp.send();*/
+
+var flag=false;
+var layer;
+
+/*
+
+fs.readFile( __dirname + '/output/output.gcode', function (err, data) {
+  if (err) {
+    throw err;
+  }
+  //console.log(data.toString());
+  ControlsLayer(ParserGcode(data.toString()));
+
+});
+*/
+
+
+
+
+
 setTimeout(function(){
     init();
     animate();
@@ -55,6 +94,17 @@ function init() {
 	//renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.setSize( Math.round((window.innerWidth/100)*72), window.innerHeight );
 	document.body.appendChild( renderer.domElement );
+
+    var element_res = document.body.appendChild( renderer.domElement );
+
+    window.onresize = function(event) {
+        renderer.setSize(element_res.width(), element_res.height());
+        camera.aspect = element_res.width() / element_res.height();
+        camera.updateProjectionMatrix();
+        controls.screen.width = window.innerWidth;
+        controls.screen.height = window.innerHeight;
+
+     }
 
 	//camera = new THREE.PerspectiveCamera( 30, 800 / 500, 1, 2000 );
 	camera = new THREE.PerspectiveCamera( 30, Math.round((window.innerWidth/100)*74) / window.innerHeight, 1, 3000 );
@@ -488,6 +538,8 @@ var file = this.files[0];
 
     // --------- END OF DRAG AND DROP ----------- //
 
+    //show_gcode();
+    //show_gcode_ui();
 
     $(document).on('click','#show_gcode', function(){       // ---------->> load gcode <<------
         show_gcode();
@@ -495,9 +547,20 @@ var file = this.files[0];
 
     function show_gcode(){       // ---------->> load and show gcode <<------
 
+        console.log("load_gcode_view");
+
+        $(".gcode_view_info_msg").text("analyzing gcode ...");
+
         var gcode_view = scene.getObjectByName( "gcode_view", true );
-        gcode_view == null ? console.log("no old gcode view") : gcode_view.visible = false;
-        //gcode_view.visible = false;     // Hide old gcode view before slicing new one
+        if(gcode_view == null){
+            console.log("no old gcode view");
+        } else {
+            scene.remove( gcode_view );
+            animate();
+        }
+
+        //effectController.minlayer
+        //global_var_gcode_end = effectController.maxlayer;
 
         var loader = new THREE.GCodeLoader();
     	loader.load( 'output/output.gcode', function ( gcode_view_mesh ) {
@@ -511,6 +574,81 @@ var file = this.files[0];
         	}
 
     	} );
+
+        ipc.send("open_window_analyzer", "open");
+
+    }
+
+    function re_show_gcode(){       // ---------->> reload and show new gcode with max layer <<------
+
+        /*
+var gcode_view = scene.getObjectByName( "gcode_view", true );
+        scene.remove( gcode_view );
+        animate();*/
+
+        var gcode_view = scene.getObjectByName( "gcode_view", true );
+        if(gcode_view == null){
+            console.log("no old gcode view");
+        } else {
+            scene.remove( gcode_view );
+            animate();
+        }
+
+        console.log(">> gcode removed");
+
+        var loader = new THREE.GCodeLoader();
+    	loader.load( 'output/output.gcode', function ( gcode_view_mesh ) {
+
+    		gcode_view_mesh.position.set( -100, 0, 100 );
+            gcode_view_mesh.name = "gcode_view";
+    		scene.add( gcode_view_mesh );
+
+            if ( gcode_view_mesh instanceof THREE.Mesh ) {
+               gcode_view = gcode_view_mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
+        	}
+
+    	} );
+
+        console.log(">> gcode added");
+
+    }
+
+    var feedback_slicer;
+    function show_gcode_ui(){
+        $("#stl_ui_side_bar").fadeOut("slow");
+        setTimeout(function(){
+            $("#gcode_ui_side_bar").fadeIn("slow");
+        }, 200);
+
+        var feedback_slicer_array = feedback_slicer.split(" ");
+        var fil_required = "";
+
+        for(var i = 0; i < feedback_slicer_array.length; i++){
+            if(feedback_slicer_array[i] == "required:"){
+                console.log(feedback_slicer_array[i + 1]);
+
+                var string = feedback_slicer_array[i + 1];
+                if(string.indexOf("mm") !=-1){
+                    fil_required = string;
+                    console.log("got fil_required <<<");
+                }
+            }
+        }
+
+        console.log("Filament required: " + fil_required);
+        $(".fil_required").text("filament required: " + fil_required);
+
+        $(".slider_value_gc").text($("#gcode_slider .ui-slider-tip").html() * 5 + "%");
+        $("#gcode_slider").on("mouseup", function () {
+
+            console.log(">> reload view");
+            global_var_gcode_end = 5 * $("#gcode_slider .ui-slider-tip").html();
+            $(".slider_value_gc").text($("#gcode_slider .ui-slider-tip").html() * 5 + "%");
+
+            re_show_gcode();
+
+        });
+
     }
 
     $(document).on('click', '#back_to_models', function(){
@@ -521,19 +659,22 @@ var file = this.files[0];
         animate();
 
         var object = scene.getObjectByName(loaded_models.model[0].name);
-        //object.visible = true;
-        //console.log(object);
 
         setTimeout(function(){
-
             for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
                 var object = scene.getObjectByName( loaded_models.model[i].name, true );
                 object.visible = true;
             }
-
         }, 100);
+
         $("#slice_btn").show();
         $("#back_to_models").hide();
+
+        $("#gcode_ui_side_bar").fadeOut("slow");
+        setTimeout(function(){
+            $("#stl_ui_side_bar").fadeIn("slow");
+        }, 200);
+
     });
 
     ipcRenderer.on('slice_fc_menu', function () {
@@ -553,8 +694,6 @@ var file = this.files[0];
             var gcode_view = scene.getObjectByName( "gcode_view", true );
             gcode_view.visible = true;
         }, 1000);
-        $("#slice_btn").hide();
-        $("#back_to_models").show();
 
         if($("#model_li").length !== 0){    // check if models exist
             console.log(">> start slicing");
@@ -583,6 +722,9 @@ var file = this.files[0];
                 single_obj_pos = "";
             }
 
+            $("#slice_btn").hide();
+            $("#back_to_models").show();
+
             setTimeout(function(){    // send comand to slicer core
                 if(os.platform() == "darwin"){  // os.type Darwin >> mac os
                     cmd.get(
@@ -590,8 +732,10 @@ var file = this.files[0];
                         'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
+                            feedback_slicer = data;
                             if (data !== null) {
                               console.log(">> Done");       // script if sucess
+                              show_gcode_ui();
                               //alert("Done!");
                               setTimeout(function(){
                                   show_gcode();
@@ -617,8 +761,10 @@ var file = this.files[0];
                         basepath + '/slicer_core/win/Slic3r-console.exe --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
+                            feedback_slicer = data;
                             if (data !== null) {
                               console.log(">> Done");       // script if sucess
+                              show_gcode_ui();
                               //alert("Done!");
                               setTimeout(function(){
                                   show_gcode();
@@ -645,8 +791,10 @@ var file = this.files[0];
                         'slicer_core/linux/Slic3r/Slic3r --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
                         function(err, data, stderr){
                             console.log(data);  // get feedback from slicer core
+                            feedback_slicer = data;
                             if (data !== null) {
                               console.log(">> Done");       // script if sucess
+                              show_gcode_ui();
                               //alert("Done!");
                               setTimeout(function(){
                                   show_gcode();
@@ -727,6 +875,7 @@ var file = this.files[0];
             //console.log('The file has been saved!');
         });
 	}
+
 
 	ObjectControl5 = new ObjectControls( camera, renderer.domElement );
 	ObjectControl5.displacing = false; ObjectControl5.attach( checkerboard );
@@ -928,7 +1077,28 @@ function scale_set(){     // --> set scale of model
 	ObjectControl5.mouseout = function () {
 		control.enabled = true;
 	}
+
+
+
+
+
+
+
+    /*
+
+    setTimeout(function(){
+
+    }, 2000);
+
+    */
+
+
+
+
+
 }
+
+// ----- end of three js ini() ------
 
 function delete_obj(objName){
   var selectedObject = scene.getObjectByName(objName);
@@ -1006,6 +1176,13 @@ function animate() {
 
 function render() {
 
+    /*
+    if( effectController && layers &&flag ) {
+        LayerMinMax(effectController.minlayer,effectController.maxlayer);
+    }*/
+
+    //LayerMinMax(effectController.minlayer,effectController.maxlayer);
+
 	ObjectControl1.update();
 	ObjectControl2.update();
 	//ObjectControl3.update();
@@ -1013,7 +1190,9 @@ function render() {
 	ObjectControl5.update();
 
 	control.update();
+    //renderer.clear();   // added
 	renderer.render(scene, camera);
+    //animate();  // added
 
 }
 
@@ -1228,6 +1407,20 @@ $("#infill_slider")       // define slider
         min: 0,
         //range: "min",
         value: 6,
+        orientation: "horizontal"
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    })
+    .slider("float");
+
+$("#gcode_slider")       // define slider
+    .slider({
+        max: 20,
+        min: 0,
+        //range: "min",
+        value: 20,
         orientation: "horizontal"
     })
     .slider("pips", {
@@ -1455,14 +1648,16 @@ function sliders_velue_set(){
     $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
     $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
 
-    $("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
-        $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
-        save_config();
-    });
-    $("#infill_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
-        $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
-        save_config();
-    });
+    setTimeout(function(){
+        $("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+            $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
+            save_config();
+        });
+        $("#infill_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+            $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
+            save_config();
+        });
+    }, 1000);   // dealyd for not running with loading
 }
 
 function save_config(){     // save preset << user settings
@@ -1670,5 +1865,84 @@ function save_last_preset_name(){
 
 
 
+
+/*
+global_var_gcode_start = 0;
+global_var_gcode_start = 33;*/
+
+
+
+
+
+
+
+/*
+var protractor = $("#file");
+
+const dropFile = require("./drop-file.js");
+const EC = protractor.ExpectedConditions;
+
+setTimeout(function(){
+
+    browser.ignoreSynchronization = true;
+
+    describe('Upload tests', function() {
+
+      it('should drop a file to a drop area', function() {
+
+        browser.get('gcode_analyzer/index.html');
+
+        // drop an image file on the drop area
+        //dropFile($("#file"), "./output.gcode");
+        dropFile($("#file"), "./image.jpg");
+
+        // wait for the droped image to be displayed in the drop area
+        browser.wait(EC.presenceOf($("#file[style*='data:image']")));
+      });
+
+    });
+}, 4000);*/
+
+
+/*
+const {app, BrowserWindow} = require('electron');
+app.once('ready', () => {
+	let win = new BrowserWindow({ show: false }); //create a invisible window and show it later
+	win.maximize();
+	win.show();
+	win.loadURL(__dirname + '/gcode_analyzer/index.html');
+    console.log("----->>> Loadded")
+});
+*/
+
+
+
 //$( "#import_label" ).trigger( "click" );
 //$("#fileUpload").click();
+
+
+
+
+
+
+
+
+// ----- gcode analyzer ----
+
+ipc.on('print_time_send_render', function (event, arg) {  // get select preset name from save_pres js file
+    console.log("print time: ");
+    console.log(arg);
+    gcode_print_time = arg;
+    $(".gcode_view_info_msg").text("");
+    $(".gcode_print_time").text("print time: " + gcode_print_time);
+    $(".gcode_print_time").text("print time: " + parseInt(parseFloat(gcode_print_time)/60/60) + ":" + parseInt((parseFloat(gcode_print_time)/60)%60) + ":" + parseInt(parseFloat(gcode_print_time)%60));
+})
+
+
+
+
+
+
+
+
+//window.open(path.html,'_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10000, top=10000, width=10, height=10, visible=none', '');

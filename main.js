@@ -63,6 +63,11 @@ function createWindow () {
 app.on('ready', function() {
     createWindow()
 
+    /*
+setTimeout(function(){
+        create_anlWindow()
+    }, 4000)*/
+
     const { app, Menu } = require('electron')
 
     const template = [
@@ -226,6 +231,38 @@ ipc.on('pres_name_send', function (event, arg) {
     mainWindow.webContents.send('pres_name_send_render', arg)
 })
 
+ipc.on('print_time_send', function (event, arg) {
+    mainWindow.webContents.send('print_time_send_render', arg)
+})
+
+ipc.on('open_window_analyzer', function (event, arg) {
+    if(arg == "open"){
+        create_anlWindow()
+    }
+})
+
+function create_anlWindow () {
+  // Create the browser window.
+  anlWindow = new BrowserWindow({
+      width: 300,
+      height: 300,
+      show: false,
+  })
+
+  // and load the index.html of the app.
+  anlWindow.loadFile('gcode_analyzer/index.html')
+
+  // Open the DevTools.
+  //anlWindow.webContents.openDevTools()
+
+  // Emitted when the window is closed.
+  anlWindow.on('closed', function () {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    anlWindow = null
+  })
+}
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

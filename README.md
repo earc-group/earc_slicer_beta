@@ -1,4 +1,4 @@
-# earc_slicer_beta
+# earc slicer beta
 
 download from web:<br>
  - install https://nodejs.org<br>
@@ -11,4 +11,4 @@ command line:<br>
  - npm update<br>
  - npm start<br>
 <br>
-created by earc
+created by earc 2018
