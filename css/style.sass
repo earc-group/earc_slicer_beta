@@ -44,6 +44,11 @@ p
     -webkit-margin-after: 0em
     -webkit-margin-before: 0em
 
+hr
+    color: #ccc
+    border: none
+    border-bottom: 1px solid #ccc
+
 .button
     color: #fff
     background: linear-gradient(-90deg, #00FFFF, #00BAFF) no-repeat
@@ -417,7 +422,7 @@ span
     top: 8vh
     border-top: 1px solid #ccc
     border-bottom: 1px solid #ccc
-    height: 43vh
+    height: 83vh
     margin-bottom: 20px
 
 .p_hl
@@ -591,7 +596,12 @@ span
     margin-top: -12px
     margin-right: 10px
 
-#quality_slider,#infill_slider,#gcode_slider
+.deactived
+    opacity: .6
+    pointer-events: none
+    cursor: not-allowed
+
+#quality_slider,#infill_slider,#speed_slider,#temp_end_slider,#temp_bed_slider,#gcode_slider
   width: 90%
   left: 5%
   -webkit-focus-ring-color: none 0px
@@ -675,7 +685,7 @@ span
       box-shadow: 0px 0px 10px rgba(#000, .2)
 
 .easy_set_div_label
-    color: #aaa
+    color: #777
 
 //  ----- select dialog -----
 .label_preset_select
@@ -1053,4 +1063,11 @@ span
     z-index: 999 !important
     margin-top: 60px
 
-//show_gcode_ui()
+.inp_retraction
+    height: 20px
+    width: 45px
+    position: relative
+    float: right
+    right: 1px
+    margin-top: -34px
+    z-index: 20

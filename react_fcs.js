@@ -118,7 +118,7 @@ var ManualSettings = React.createClass({
                         </select>
                     </div>
 
-                    <p className="easy_set_div_label">print quality: </p>
+                    <p className="easy_set_div_label">layer height: </p>
                     <p className="slider_value slider_value_qv"></p>
                     <div id="quality_slider"></div>
                     <br />
@@ -126,6 +126,23 @@ var ManualSettings = React.createClass({
                     <p className="easy_set_div_label">infill density: </p>
                     <p className="slider_value slider_value_sp"></p>
                     <div id="infill_slider"></div>
+                    <br />
+
+                    <p className="easy_set_div_label">print speed: </p>
+                    <p className="slider_value slider_value_speed"></p>
+                    <div id="speed_slider"></div>
+                    <br />
+
+                    <hr />
+
+                    <p className="easy_set_div_label">head temperature: </p>
+                    <p className="slider_value slider_value_tp_end"></p>
+                    <div id="temp_end_slider"></div>
+                    <br />
+
+                    <p className="easy_set_div_label">bed temperature: </p>
+                    <p className="slider_value slider_value_tp_bed"></p>
+                    <div id="temp_bed_slider"></div>
                     <br />
 
                     <div className="switch_set sw_support">
@@ -145,6 +162,16 @@ var ManualSettings = React.createClass({
 
                     <p className="sw_label_set">layer fan</p>
                     <br />
+
+                    <div className="switch_set sw_retraction">
+                      <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
+                        <div className="handle"></div>
+                      </button>
+                    </div>
+
+                    <p className="sw_label_set">retration[mm]</p>
+                    <br />
+                    <input type="number" className="inp_retraction"></input>
                 </div>
             </div>
         </div>

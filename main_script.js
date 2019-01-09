@@ -52,16 +52,15 @@ function init() {
 	renderer.setSize( Math.round((window.innerWidth/100)*72), window.innerHeight );
 	document.body.appendChild( renderer.domElement );
 
-    var element_res = document.body.appendChild( renderer.domElement );
+    setTimeout(function(){
+        window.addEventListener( 'resize', onWindowResize, false );
+    }, 600);
 
-    window.onresize = function(event) {
-        renderer.setSize(element_res.width(), element_res.height());
-        camera.aspect = element_res.width() / element_res.height();
+    function onWindowResize(){
+        camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
-        controls.screen.width = window.innerWidth;
-        controls.screen.height = window.innerHeight;
-
-     }
+        renderer.setSize( window.innerWidth, window.innerHeight );
+    }
 
 	//camera = new THREE.PerspectiveCamera( 30, 800 / 500, 1, 2000 );
 	camera = new THREE.PerspectiveCamera( 30, Math.round((window.innerWidth/100)*74) / window.innerHeight, 1, 3000 );
@@ -199,55 +198,33 @@ function init() {
     var h;
 	var mesh_pos, mesh_box;
 
-    $('#fileUpload').on('change', function() {
-        /*
-var file = this.files[0];
+    setTimeout(function(){
+        $('#import_label').on('click', function() {
+            console.log('>> import model');
+            var file_path = dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] })[0];
+            console.log(file_path);
 
-        var file_path = file.path;
-        console.log(file.path);
+                var file_name = file_path.split('/');
+                file_name = file_name[file_name.length-1];
 
-        var ext = file.name.slice((file.name.lastIndexOf(".") - 1 >>> 0) + 2);
-        if(ext == "stl"){
-            console.log("ext --> ." + ext + " -> OK");
-            load_stl_model(file.path, file.name);
-        } /*
-        else if(ext == "obj"){              // EXPERIMENTAL --> disabled
-            console.log("ext --> ." + ext + " -> OK");
-            load_obj_model(f.path, f.name);
-        } */
+                console.log(file_name);
 
-        /*else {
-            console.log("ERROR --> Unsupported File --> ." + ext);
-            alert("Unsupported File --> ." + ext + "  (only .stl)");
-        }*/
+                var ext = file_name.slice((file_name.lastIndexOf(".") - 1 >>> 0) + 2);
+                if(ext == "stl"){
+                    console.log("ext --> ." + ext + " -> OK");
+                    load_stl_model(file_path, file_name);
+                } /*
+                else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+                    console.log("ext --> ." + ext + " -> OK");
+                    load_obj_model(f.path, f.name);
+                } */
 
-    });
-
-    $('#import_label').on('click', function() {
-        console.log('>> import model');
-        var file_path = dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] })[0];
-        console.log(file_path);
-
-            var file_name = file_path.split('/');
-            file_name = file_name[file_name.length-1];
-
-            console.log(file_name);
-
-            var ext = file_name.slice((file_name.lastIndexOf(".") - 1 >>> 0) + 2);
-            if(ext == "stl"){
-                console.log("ext --> ." + ext + " -> OK");
-                load_stl_model(file_path, file_name);
-            } /*
-            else if(ext == "obj"){              // EXPERIMENTAL --> disabled
-                console.log("ext --> ." + ext + " -> OK");
-                load_obj_model(f.path, f.name);
-            } */
-
-            else {
-                console.log("ERROR --> Unsupported File --> ." + ext);
-                alert("Unsupported File --> ." + ext + "  (only .stl)");
-            }
-    });
+                else {
+                    console.log("ERROR --> Unsupported File --> ." + ext);
+                    alert("Unsupported File --> ." + ext + "  (only .stl)");
+                }
+        });
+    }, 600);    // wait for react to make the element
 
     ipcRenderer.on('import_model_fc', function (ev, data) {
         console.log('>> import model');
@@ -1372,6 +1349,48 @@ $("#infill_slider")       // define slider
     })
     .slider("float");
 
+$("#speed_slider")       // define slider
+    .slider({
+        max: 11,
+        min: 0,
+        //range: "min",
+        value: 5,
+        orientation: "horizontal"
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    })
+    .slider("float");
+
+$("#temp_end_slider")       // define slider
+    .slider({
+        max: 12,
+        min: 0,
+        //range: "min",
+        value: 4,
+        orientation: "horizontal"
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    })
+    .slider("float");
+
+$("#temp_bed_slider")       // define slider
+    .slider({
+        max: 12,
+        min: 0,
+        //range: "min",
+        value: 4,
+        orientation: "horizontal"
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    })
+    .slider("float");
+
 $("#gcode_slider")       // define slider
     .slider({
         max: 20,
@@ -1387,6 +1406,9 @@ $("#gcode_slider")       // define slider
     .slider("float");
 
 
+var speed_array = [15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 80];
+var temp_end_array = [180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240];
+var temp_bed_array = [40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
 var layers_array = [0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3];
 sliders_velue_set();
 
@@ -1431,6 +1453,32 @@ function load_preset_files(){
 }
 
 $(document).on('click','.switch_set', function(){
+    setTimeout(function(){
+        save_config();
+    }, 200);
+})
+
+$(document).on('click','.sw_retraction', function(){
+
+    var config = ini.parse(fs.readFileSync("app_settings/app_config.ini", 'utf-8'))
+    var retraction_enable = config.retract_length;
+
+    setTimeout(function(){
+        if(!$(".sw_retraction .btn-toggle").hasClass("active")){
+            config.retract_length = $(".inp_retraction").val();
+            $(".inp_retraction").prop( "disabled", true );
+            $(".inp_retraction").val(0);
+        } else {
+            $(".inp_retraction").prop( "disabled", false );
+            $(".inp_retraction").val(retraction_enable);
+        }
+
+        fs.writeFileSync('./app_settings/app_config.ini', ini.stringify(config))
+
+    }, 200);
+})
+
+$(document).on('change','.inp_retraction', function(){
     setTimeout(function(){
         save_config();
     }, 200);
@@ -1523,10 +1571,17 @@ function load_preset(pres_name){
 
     var layer_height = config.layer_height;
     var infill_density = config.fill_density;
+    var print_speed = config.max_print_speed;
+    var end_temperature = config.temperature;
+    var bed_temperature = config.bed_temperature;
     var infill_pattern = config.fill_pattern;
     var support_enable = config.support_material;
+    var retraction_enable = config.retract_length;
     var layer_fan_enable = config.cooling;
     var layer_height_index = layers_array.indexOf(Number(config.layer_height));
+    var print_speed_index = speed_array.indexOf(Number(config.max_print_speed));
+    var end_temperature_index = temp_end_array.indexOf(Number(config.temperature));
+    var bed_temperature_index = temp_bed_array.indexOf(Number(config.bed_temperature));
     var infill_density_slider = infill_density.replace("%","");
     infill_density_slider = Number(infill_density_slider) / 10;
 
@@ -1559,13 +1614,34 @@ function load_preset(pres_name){
         $(".sw_layer_fan .btn-toggle").removeClass("active");
         $(".sw_layer_fan .btn-toggle").removeClass("focus");
         $(".sw_layer_fan .btn-toggle").attr("pressed","false");
+
     } else {
 
         if(!$(".sw_layer_fan .btn-toggle").hasClass("active")){
             $(".sw_layer_fan .btn-toggle").addClass("active");
             $(".sw_layer_fan .btn-toggle").addClass("focus");
         }
-        $(".sw_layer_fan .btn-toggle").attr("pressed","true")
+        $(".sw_layer_fan .btn-toggle").attr("pressed","true");
+
+    }
+
+    if(retraction_enable == 0){
+        $(".sw_retraction .btn-toggle").removeClass("active");
+        $(".sw_retraction .btn-toggle").removeClass("focus");
+        $(".sw_retraction .btn-toggle").attr("pressed","false");
+
+        //$(".inp_retraction").addClass("deactived");
+        //$(".inp_retraction").prop( "disabled", true );
+    } else {
+        //$(".inp_retraction").removeClass("deactived");
+        //$(".inp_retraction").prop( "disabled", false );
+
+        if(!$(".sw_retraction .btn-toggle").hasClass("active")){
+            $(".sw_retraction .btn-toggle").addClass("active");
+            $(".sw_retraction .btn-toggle").addClass("focus");
+        }
+        $(".sw_retraction .btn-toggle").attr("pressed","true");
+        $(".inp_retraction").val(retraction_enable);
     }
 
     $("#quality_slider")       // edit slider from preset value
@@ -1596,6 +1672,48 @@ function load_preset(pres_name){
         })
         .slider("float");
 
+    $("#speed_slider")       // define slider
+        .slider({
+            max: 11,
+            min: 0,
+            //range: "min",
+            value: print_speed_index,
+            orientation: "horizontal"
+        })
+        .slider("pips", {
+            first: "pip",
+            last: "pip"
+        })
+        .slider("float");
+
+    $("#temp_end_slider")       // define slider
+        .slider({
+            max: 12,
+            min: 0,
+            //range: "min",
+            value: end_temperature_index,
+            orientation: "horizontal"
+        })
+        .slider("pips", {
+            first: "pip",
+            last: "pip"
+        })
+        .slider("float");
+
+    $("#temp_bed_slider")       // define slider
+        .slider({
+            max: 12,
+            min: 0,
+            //range: "min",
+            value: bed_temperature_index,
+            orientation: "horizontal"
+        })
+        .slider("pips", {
+            first: "pip",
+            last: "pip"
+        })
+        .slider("float");
+
     sliders_velue_set();
 
     // save preset << user settings
@@ -1606,6 +1724,9 @@ function load_preset(pres_name){
 function sliders_velue_set(){
     $(".slider_value_qv").text(layers_array[$("#quality_slider .ui-slider-tip").html()] + " mm");
     $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
+    $(".slider_value_speed").text(speed_array[$("#speed_slider .ui-slider-tip").html()] + " mm/s");
+    $(".slider_value_tp_end").text(temp_end_array[$("#temp_end_slider .ui-slider-tip").html()] + " °C");
+    $(".slider_value_tp_bed").text(temp_bed_array[$("#temp_bed_slider .ui-slider-tip").html()] + " °C");
 
     setTimeout(function(){
         $("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
@@ -1614,6 +1735,18 @@ function sliders_velue_set(){
         });
         $("#infill_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
             $(".slider_value_sp").text($("#infill_slider .ui-slider-tip").html() * 10 + "%");
+            save_config();
+        });
+        $("#speed_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+            $(".slider_value_speed").text(speed_array[$("#speed_slider .ui-slider-tip").html()] + " mm/s");
+            save_config();
+        });
+        $("#temp_end_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+            $(".slider_value_tp_end").text(temp_end_array[$("#temp_end_slider .ui-slider-tip").html()] + " °C");
+            save_config();
+        });
+        $("#temp_bed_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+            $(".slider_value_tp_bed").text(temp_bed_array[$("#temp_bed_slider .ui-slider-tip").html()] + " °C");
             save_config();
         });
     }, 1000);   // dealyd for not running with loading
@@ -1650,10 +1783,21 @@ function save_config(){     // save preset << user settings
         config.cooling = "0";
     }
 
+    if($(".sw_retraction .btn-toggle").hasClass("active")){
+        config.retract_length !== null ? config.retract_length = $(".inp_retraction").val() : config.retract_length = "2";
+        console.log($(".inp_retraction").val());
+        //config.retract_length = $(".inp_retraction").val();
+    } else {
+        config.retract_length = "0";
+    }
+
     $(".label_preset_material").text(config.material_type);
 
     config.fill_density = $(".slider_value_sp").text();
     config.layer_height = $(".slider_value_qv").text().replace(" mm", "");
+    config.max_print_speed = $(".slider_value_speed").text().replace(" mm/s", "");
+    config.temperature = $(".slider_value_tp_end").text().replace(" °C", "");
+    config.bed_temperature = $(".slider_value_tp_bed").text().replace(" °C", "");
 
     setTimeout(function(){
         fs.writeFileSync('./app_settings/last_config.ini', ini.stringify(config))
@@ -1870,15 +2014,12 @@ setTimeout(function(){
 }, 600);
 
 function load_last_preset_name(){
-
     // load last selected preset
     var config_app = ini.parse(fs.readFileSync('./app_settings/app_config.ini', 'utf-8'))
     $(".preset_select .select-styled").html(config_app.last_selected_preset);
-
 }
 
 function save_last_preset_name(){
-
     console.log(">> saved pres name");
     // load last selected preset
     var config_app = ini.parse(fs.readFileSync('./app_settings/app_config.ini', 'utf-8'))
@@ -1886,73 +2027,7 @@ function save_last_preset_name(){
     fs.writeFileSync('./app_settings/app_config.ini', ini.stringify(config_app))
 }
 
-
-
-
-
-/*
-global_var_gcode_start = 0;
-global_var_gcode_start = 33;*/
-
-
-
-
-
-
-
-/*
-var protractor = $("#file");
-
-const dropFile = require("./drop-file.js");
-const EC = protractor.ExpectedConditions;
-
-setTimeout(function(){
-
-    browser.ignoreSynchronization = true;
-
-    describe('Upload tests', function() {
-
-      it('should drop a file to a drop area', function() {
-
-        browser.get('gcode_analyzer/index.html');
-
-        // drop an image file on the drop area
-        //dropFile($("#file"), "./output.gcode");
-        dropFile($("#file"), "./image.jpg");
-
-        // wait for the droped image to be displayed in the drop area
-        browser.wait(EC.presenceOf($("#file[style*='data:image']")));
-      });
-
-    });
-}, 4000);*/
-
-
-/*
-const {app, BrowserWindow} = require('electron');
-app.once('ready', () => {
-	let win = new BrowserWindow({ show: false }); //create a invisible window and show it later
-	win.maximize();
-	win.show();
-	win.loadURL(__dirname + '/gcode_analyzer/index.html');
-    console.log("----->>> Loadded")
-});
-*/
-
-
-
-//$( "#import_label" ).trigger( "click" );
-//$("#fileUpload").click();
-
-
-
-
-
-
-
-
 // ----- gcode analyzer ----
-
 ipc.on('print_time_send_render', function (event, arg) {  // get select preset name from save_pres js file
     console.log("print time: ");
     console.log(arg);
@@ -1961,13 +2036,6 @@ ipc.on('print_time_send_render', function (event, arg) {  // get select preset n
     $(".gcode_print_time").text("print time: " + gcode_print_time);
     $(".gcode_print_time").text("print time: " + parseInt(parseFloat(gcode_print_time)/60/60) + ":" + parseInt((parseFloat(gcode_print_time)/60)%60) + ":" + parseInt(parseFloat(gcode_print_time)%60));
 })
-
-
-
-//var tools = require('./react_fcs');
-
-//require('./react_fcs');
-
 
 $(document).on('click','#manual_btn', function(){
     load_manual_settings();
@@ -1982,12 +2050,6 @@ $(document).on('click','#easy_s_btn', function(){
 })
 
 
-
-/*
-setTimeout(function(){
-    load_manual_settings();
-}, 4000);
-*/
 
 
 
