@@ -132,6 +132,17 @@ p {
   margin-left: -23%;
 }
 
+#easy_s_btn {
+  position: absolute;
+  top: calc(100vh - 45px);
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  margin-left: -23%;
+  display: none;
+}
+
 #show_gcode {
   position: relative;
   margin-left: 4px;
@@ -462,6 +473,16 @@ span {
   position: absolute;
   width: 85%;
   top: 48.8vh;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  height: 43vh;
+  margin-bottom: 20px;
+}
+
+.manual_settings {
+  position: absolute;
+  width: 85%;
+  top: 8vh;
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
   height: 43vh;

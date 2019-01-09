@@ -241,6 +241,13 @@ ipc.on('open_window_analyzer', function (event, arg) {
     }
 })
 
+/*
+ipc.on('load_manual_settings', function (event, arg) {
+    mainWindow.webContents.send('load_manual_settings', arg)
+})*/
+
+
+
 function create_anlWindow () {
   // Create the browser window.
   anlWindow = new BrowserWindow({

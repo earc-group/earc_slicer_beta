@@ -1,0 +1,156 @@
+
+var mainElement = document.querySelector("SettingsSidePanel");
+
+
+function fcs_load_manual_settings(){
+    console.log(">>react: loading manual settings");
+    ReactDOM.render(<ManualSettings></ManualSettings>, mainElement);
+}
+
+function fcs_load_easy_settings(){
+    console.log(">>react: loading manual settings");
+    ReactDOM.render(<EasySettings></EasySettings>, mainElement);
+}
+
+
+var EasySettings = React.createClass({
+
+  render: function() {
+    return (
+        <div id="easy_setting_view">
+            <div className="models_scroll_box">
+                <p className="p_hl">models:</p>
+                <ol id="model_list_div"></ol>
+            </div>
+            <form id="upload_form">
+                <label className="label_import_btn button" id="import_label">import file</label>
+            </form>
+            <div className="easy_settings">
+                <div className="rotation_menu_manual">
+                    <p>rotaton:</p><br />
+                    <p>x: <input type="text" id="rot_x" name="rot_x" className="rotation_inp"></input></p>
+                    <p>y: <input type="text" id="rot_y" name="rot_y" className="rotation_inp"></input></p>
+                    <p>z: <input type="text" id="rot_z" name="rot_z" className="rotation_inp"></input></p>
+                    <br />
+                    <button id="set_rotation" className="button">set rotation</button>
+                </div>
+                <div className="scale_menu_manual">
+                    <p>scale:</p>
+                    <br />
+                    <button id="unify_scale" className="icon_btn unify_scale"></button>
+                    <div className="no_unify_scale_div">
+                        <p>x: <input type="text" id="scale_x" name="scale_x" className="scale_inp"></input></p>
+                        <p>y: <input type="text" id="scale_z" name="scale_z" className="scale_inp"></input></p>
+                        <p>z: <input type="text" id="scale_y" name="scale_y" className="scale_inp"></input></p>
+                    </div>
+                    <div className="unify_scale_div">
+                        <p><input type="text" id="scale_unify" name="scale_unify" className="scale_inp"></input></p>
+                    </div>
+                    <br />
+                    <button id="set_scale" className="button">set scale</button>
+                </div>
+                <div className="easy_set_div">
+                    <p className="easy_set_div_label label_preset_select">preset: </p>
+                    <p className="easy_set_div_label label_preset_material"></p>
+                    <div className="preset_select">
+                        <select id="preset">
+                        </select>
+                    </div>
+                    <p className="easy_set_div_label label_infill_type">infill: </p>
+                    <div className="infill_type">
+                        <select id="infill_type">
+                            <option value="PLA generic">Honeycomb</option>
+                            <option value="PLA smartie">Rectilinear</option>
+                            <option value="PLA generic">3D Honeycomb</option>
+                        </select>
+                    </div>
+                    <p className="easy_set_div_label">print quality: </p>
+                    <p className="slider_value slider_value_qv"></p>
+                    <div id="quality_slider"></div>
+                    <br />
+                    <p className="easy_set_div_label">infill density: </p>
+                    <p className="slider_value slider_value_sp"></p>
+                    <div id="infill_slider"></div>
+                    <br />
+                    <div className="switch_set sw_support">
+                      <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="flase">
+                        <div className="handle"></div>
+                      </button>
+                    </div>
+                    <p className="sw_label_set">generate supports</p>
+                    <br />
+                    <div className="switch_set sw_layer_fan">
+                      <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
+                        <div className="handle"></div>
+                      </button>
+                    </div>
+                    <p className="sw_label_set">layer fan</p>
+                    <br />
+                </div>
+            </div>
+        </div>
+    );
+  },
+
+});
+
+var ManualSettings = React.createClass({
+
+  render: function() {
+    return (
+        <div id="manual_setting_view">
+            <div className="manual_settings">
+                <div className="easy_set_div">
+                    <p className="easy_set_div_label label_preset_select">preset: </p>
+                    <p className="easy_set_div_label label_preset_material"></p>
+                    <div className="preset_select">
+                        <select id="preset">
+
+                        </select>
+                    </div>
+
+                    <p className="easy_set_div_label label_infill_type">infill: </p>
+                    <div className="infill_type">
+                        <select id="infill_type">
+                            <option value="PLA generic">Honeycomb</option>
+                            <option value="PLA smartie">Rectilinear</option>
+                            <option value="PLA generic">3D Honeycomb</option>
+                        </select>
+                    </div>
+
+                    <p className="easy_set_div_label">print quality: </p>
+                    <p className="slider_value slider_value_qv"></p>
+                    <div id="quality_slider"></div>
+                    <br />
+
+                    <p className="easy_set_div_label">infill density: </p>
+                    <p className="slider_value slider_value_sp"></p>
+                    <div id="infill_slider"></div>
+                    <br />
+
+                    <div className="switch_set sw_support">
+                      <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="flase">
+                        <div className="handle"></div>
+                      </button>
+                    </div>
+
+                    <p className="sw_label_set">generate supports</p>
+                    <br />
+
+                    <div className="switch_set sw_layer_fan">
+                      <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
+                        <div className="handle"></div>
+                      </button>
+                    </div>
+
+                    <p className="sw_label_set">layer fan</p>
+                    <br />
+                </div>
+            </div>
+        </div>
+    );
+  },
+
+});
+
+ReactDOM.render(<EasySettings></EasySettings>, mainElement);

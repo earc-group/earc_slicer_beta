@@ -53,97 +53,11 @@
 
 					<br /><br /><br />
 
+
                     <div id="stl_ui_side_bar">
-						<div class="models_scroll_box">
-							<p class="p_hl">models:</p>
-							<ol id="model_list_div"></ol>
-						</div>
 
-						<!--
-						<hr class="side_bar_hr" />
-						-->
-						<form id="upload_form">
-							<!--
-							<input type="file" id="fileUpload" name="fileUpload" class="import_input">
-							-->
-							<label class="label_import_btn button" id="import_label">import file</label>
-						</form>
+						<SettingsSidePanel></SettingsSidePanel>
 
-						<div class="easy_settings">
-							<div class="rotation_menu_manual">
-		                        <p>rotaton:</p><br />
-		                        <p>x: <input type="text" id="rot_x" name="rot_x" class="rotation_inp"></p>
-		                        <p>y: <input type="text" id="rot_y" name="rot_y" class="rotation_inp"></p>
-		                        <p>z: <input type="text" id="rot_z" name="rot_z" class="rotation_inp"></p>
-		                        <br />
-		                        <button id="set_rotation" class="button">set rotation</button>
-		                    </div>
-
-		                    <div class="scale_menu_manual">
-		                        <p>scale:</p>
-		                        <br />
-		                        <button id="unify_scale" class="icon_btn unify_scale"></button>
-		                        <div class="no_unify_scale_div">
-		                            <p>x: <input type="text" id="scale_x" name="scale_x" class="scale_inp"></p>
-		                            <p>y: <input type="text" id="scale_z" name="scale_z" class="scale_inp"></p>
-		                            <p>z: <input type="text" id="scale_y" name="scale_y" class="scale_inp"></p>
-		                        </div>
-		                        <div class="unify_scale_div">
-		                            <p><input type="text" id="scale_unify" name="scale_unify" class="scale_inp"></p>
-		                        </div>
-		                        <br />
-		                        <button id="set_scale" class="button">set scale</button>
-		                    </div>
-
-							<div class="easy_set_div">
-								<p class="easy_set_div_label label_preset_select">preset: </p>
-								<p class="easy_set_div_label label_preset_material"></p>
-								<div class="preset_select">
-									<select id="preset">
-
-									</select>
-								</div>
-
-								<p class="easy_set_div_label label_infill_type">infill: </p>
-								<div class="infill_type">
-									<select id="infill_type">
-									    <option value="PLA generic">Honeycomb</option>
-									    <option value="PLA smartie">Rectilinear</option>
-										<option value="PLA generic">3D Honeycomb</option>
-									</select>
-								</div>
-
-								<p class="easy_set_div_label">print quality: </p>
-								<p class="slider_value slider_value_qv"></p>
-								<div id="quality_slider"></div>
-								<br />
-
-								<p class="easy_set_div_label">infill density: </p>
-								<p class="slider_value slider_value_sp"></p>
-								<div id="infill_slider"></div>
-								<br />
-
-								<div class="switch_set sw_support">
-							      <button type="button" class="btn btn-toggle focus active" data-toggle="button" aria-pressed="flase" autocomplete="off" pressed="true">
-							        <div class="handle"></div>
-							      </button>
-							    </div>
-
-								<p class="sw_label_set">generate supports</p>
-								<br />
-
-								<div class="switch_set sw_layer_fan">
-							      <button type="button" class="btn btn-toggle focus active" data-toggle="button" aria-pressed="false" autocomplete="off" pressed="true">
-							        <div class="handle"></div>
-							      </button>
-							    </div>
-
-								<p class="sw_label_set">layer fan</p>
-								<br />
-
-
-							</div>
-						</div>
 					</div>
 
                     <div id="gcode_ui_side_bar">
@@ -166,9 +80,6 @@
 							</div>
 						</div>
 
-						<div class="easy_settings">
-
-						</div>
 					</div>
 
                     <!--
@@ -178,6 +89,7 @@
 
                     <button id="slice_btn" class="button">slice</button>
                     <button id="manual_btn" class="button w">manual</button>
+                    <button id="easy_s_btn" class="button w">< home</button>
                     <br />
                     <!--
                     <button id="exp_stl" class="button">exp_stl</button>
@@ -219,7 +131,6 @@
         <script src="js/ajax.jquery.min.js"></script>
 
 		<script src="build/three.js"></script>
-
 		<script src="js/controls/OrbitControls.js"></script>
 		<script src="js/controls/ObjectControls.js"></script>
 		<script src="js/loaders/STLLoader.js"></script>
@@ -227,28 +138,64 @@
         <script src="js/loaders/GCodeLoader.js"></script>
 		<script src="js/loaders/XYZLoader.js"></script>
         <script src="js/exporters/STLExporter.js"></script>
-
 		<script src="js/WebGL.js"></script>
 		<script src="js/libs/stats.min.js"></script>
 
-		<!--
-	<script src="TrackballControls.js" ></script>
-		<script src="stats.js"></script>
-    <script src="data.ui.js"></script>
-	-->
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-plus-ui.min.js'></script>
 		<script src='https://simeydotme.github.io/jQuery-ui-Slider-Pips/dist/js/jquery-ui-slider-pips.js'></script>
 
-		<script src="main_script.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+
+		<script type="text/javascript" src="main_script.js"></script>
+		<script type="text/babel" src="react_fcs.js"></script>
+
 
         <script>
-          // You can also require other files to run in this process
-          require('./renderer.js')
+
+			function rs_reload_select_dialog(){
+
+				$(".preset_select").html("");
+		        $(".preset_select").html("<select id=\"preset\"></select>");
+
+				load_preset_files();
+
+				setTimeout(function(){
+					//load_select_dialog();
+					reload_select_dialog_infill_type();
+		            reload_select_dialog();
+		        }, 100);
+
+				setTimeout(function(){
+					//load_select_dialog();
+		            $("#stl_ui_side_bar").fadeIn("slow");
+		        }, 200);
+
+				setTimeout(function(){
+					load_last_preset_name();
+		        }, 300);
+
+			}
+
+			function load_manual_settings(){
+				$("#stl_ui_side_bar").hide();
+				fcs_load_manual_settings();
+				rs_reload_select_dialog();
+			}
+
+			function load_easy_settings(){
+				$("#stl_ui_side_bar").hide();
+				fcs_load_easy_settings();
+				rs_reload_select_dialog();
+			}
+
+			require('./renderer.js')
+
         </script>
 	</body>
 </html>

@@ -29,51 +29,8 @@ var basepath = remote.app.getAppPath();
 var loaded_models = {};
 loaded_models.model = [];
 
-/*
-var o = {
-  model: [
-    { attribute: "value" },
-    { attribute: "value" }
-  ]
-};    */
-
-
-/*
-var xmlhttp,file,args;
-xmlhttp=new XMLHttpRequest();
-
-xmlhttp.onreadystatechange=function()
-  {
-    if (xmlhttp.readyState==4 )
-    {
-        file=xmlhttp.responseText;
-        console.log("Ready!!!");
-        ControlsLayer(ParserGcode(file));
-        console.log("finish");
-    }
-  }
-//xmlhttp.open("GET","laserholdv01.gcode",true);
-xmlhttp.open("GET","output/output.gcode",true);
-xmlhttp.send();*/
-
 var flag=false;
 var layer;
-
-/*
-
-fs.readFile( __dirname + '/output/output.gcode', function (err, data) {
-  if (err) {
-    throw err;
-  }
-  //console.log(data.toString());
-  ControlsLayer(ParserGcode(data.toString()));
-
-});
-*/
-
-
-
-
 
 setTimeout(function(){
     init();
@@ -1460,7 +1417,10 @@ fs.readdir(directoryPath, function (err, files) {
 });
 
 setTimeout(function(){
+    load_preset_files();
+}, 200);
 
+function load_preset_files(){
     for(var i = 0; i < settings_files.length; i++){
         var preset_name = settings_files[i].replace("-", " ");
         $(".preset_select select").append("<option value=" + preset_name + ">" + preset_name + "</option>");
@@ -1468,8 +1428,7 @@ setTimeout(function(){
     console.log("loaded presets:");
     console.log(settings_files);
     console.log(settings_file_names);
-
-}, 200);
+}
 
 $(document).on('click','.switch_set', function(){
     setTimeout(function(){
@@ -1836,6 +1795,71 @@ function reload_select_dialog(){
     });
 }
 
+function reload_select_dialog_infill_type(){
+    $('.infill_type select').each(function(){
+        var $this = $(this), numberOfOptions = $(this).children('option').length;
+
+        $this.addClass('select-hidden');
+        $this.wrap('<div class="select"></div>');
+        $this.after('<div class="select-styled"></div>');
+
+        var $styledSelect = $this.next('div.select-styled');
+        $styledSelect.text($this.children('option').eq(0).text());
+
+        var $list = $('<ul />', {
+            'class': 'select-options'
+        }).insertAfter($styledSelect);
+
+        for (var i = 0; i < numberOfOptions; i++) {
+            $('<li />', {
+                text: $this.children('option').eq(i).text(),
+                rel: $this.children('option').eq(i).val()
+            }).appendTo($list);
+        }
+
+        var $listItems = $list.children('li');
+
+        $styledSelect.click(function(e) {
+            e.stopPropagation();
+            $('div.select-styled.active').not(this).each(function(){
+                $(this).removeClass('active').next('ul.select-options').hide();
+            });
+            $(this).toggleClass('active').next('ul.select-options').toggle();
+        });
+
+        $listItems.click(function(e) {
+            e.stopPropagation();
+            $styledSelect.text($(this).text()).removeClass('active');
+            $this.val($(this).attr('rel'));
+            $list.hide();
+
+            if($this.parent().parent().attr('class') == "infill_type"){
+                console.log("select: " + $(".select-styled").html());
+                load_preset($(".select-styled").html());
+
+                save_last_preset_name();
+            }
+            save_config();
+        });
+
+        $(document).click(function() {
+            $styledSelect.removeClass('active');
+            $list.hide();
+        });
+
+        console.log(">> reload preset select");
+        console.log(">> PRESET RELOADED");
+
+        setTimeout(function(){
+            load_preset();
+            setTimeout(function(){
+                $(".infill_type .select-styled").html(saved_pres_name);
+            }, 200);
+        }, 300);
+
+    });
+}
+
 ipc.on('pres_name_send_render', function (event, arg) {  // get select preset name from save_pres js file
     console.log(arg);
     saved_pres_name = arg;
@@ -1937,6 +1961,35 @@ ipc.on('print_time_send_render', function (event, arg) {  // get select preset n
     $(".gcode_print_time").text("print time: " + gcode_print_time);
     $(".gcode_print_time").text("print time: " + parseInt(parseFloat(gcode_print_time)/60/60) + ":" + parseInt((parseFloat(gcode_print_time)/60)%60) + ":" + parseInt(parseFloat(gcode_print_time)%60));
 })
+
+
+
+//var tools = require('./react_fcs');
+
+//require('./react_fcs');
+
+
+$(document).on('click','#manual_btn', function(){
+    load_manual_settings();
+    $("#easy_s_btn").show();
+    $("#manual_btn").hide();
+})
+
+$(document).on('click','#easy_s_btn', function(){
+    load_easy_settings();
+    $("#easy_s_btn").hide();
+    $("#manual_btn").show();
+})
+
+
+
+/*
+setTimeout(function(){
+    load_manual_settings();
+}, 4000);
+*/
+
+
 
 
 
