@@ -1,6 +1,6 @@
 
 var mainElement = document.querySelector("SettingsSidePanel");
-
+var infoScreenElement = document.querySelector("HelpInfoScreen");
 
 function fcs_load_manual_settings(){
     console.log(">>react: loading manual settings");
@@ -10,6 +10,16 @@ function fcs_load_manual_settings(){
 function fcs_load_easy_settings(){
     console.log(">>react: loading manual settings");
     ReactDOM.render(<EasySettings></EasySettings>, mainElement);
+}
+
+function fcs_load_help_screen(){
+    console.log(">>react: info help screen show");
+    ReactDOM.render(<InfoHelpScreen></InfoHelpScreen>, infoScreenElement);
+}
+
+function fcs_hide_help_screen(){
+    console.log(">>react: info help screen show");
+    ReactDOM.render(<InfoHelpScreenHide></InfoHelpScreenHide>, infoScreenElement);
 }
 
 
@@ -64,27 +74,27 @@ var EasySettings = React.createClass({
                             <option value="PLA generic">3D Honeycomb</option>
                         </select>
                     </div>
-                    <p className="easy_set_div_label">print quality: </p>
+                    <p className="easy_set_div_label" id="help_info" data="print_quality">print quality: </p>
                     <p className="slider_value slider_value_qv"></p>
                     <div id="quality_slider"></div>
                     <br />
-                    <p className="easy_set_div_label">infill density: </p>
+                    <p className="easy_set_div_label" id="help_info" data="infill_density">infill density: </p>
                     <p className="slider_value slider_value_sp"></p>
                     <div id="infill_slider"></div>
                     <br />
-                    <div className="switch_set sw_support">
+                    <div className="switch_set sw_support" id="help_info" data="generate_supports">
                       <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="flase">
                         <div className="handle"></div>
                       </button>
                     </div>
-                    <p className="sw_label_set">generate supports</p>
+                    <p className="sw_label_set" id="help_info" data="generate_supports">generate supports</p>
                     <br />
-                    <div className="switch_set sw_layer_fan">
+                    <div className="switch_set sw_layer_fan" id="help_info" data="layer_fan">
                       <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
                         <div className="handle"></div>
                       </button>
                     </div>
-                    <p className="sw_label_set">layer fan</p>
+                    <p className="sw_label_set" id="help_info" data="layer_fan">layer fan</p>
                     <br />
                 </div>
             </div>
@@ -118,31 +128,36 @@ var ManualSettings = React.createClass({
                         </select>
                     </div>
 
-                    <p className="easy_set_div_label">layer height: </p>
+                    <p className="easy_set_div_label" id="help_info" data="print_quality">layer height: </p>
                     <p className="slider_value slider_value_qv"></p>
                     <div id="quality_slider"></div>
                     <br />
 
-                    <p className="easy_set_div_label">infill density: </p>
+                    <p className="easy_set_div_label" id="help_info" data="infill_density">infill density: </p>
                     <p className="slider_value slider_value_sp"></p>
                     <div id="infill_slider"></div>
                     <br />
 
-                    <p className="easy_set_div_label">print speed: </p>
+                    <p className="easy_set_div_label" id="help_info" data="print_quality">print speed: </p>
                     <p className="slider_value slider_value_speed"></p>
                     <div id="speed_slider"></div>
                     <br />
 
                     <hr />
 
-                    <p className="easy_set_div_label">head temperature: </p>
+                    <p className="easy_set_div_label" id="help_info" data="head_temperature">nozzle temperature: </p>
                     <p className="slider_value slider_value_tp_end"></p>
                     <div id="temp_end_slider"></div>
                     <br />
 
-                    <p className="easy_set_div_label">bed temperature: </p>
+                    <p className="easy_set_div_label" id="help_info" data="bed_temperature">bed temperature: </p>
                     <p className="slider_value slider_value_tp_bed"></p>
                     <div id="temp_bed_slider"></div>
+                    <br />
+
+                    <p className="easy_set_div_label" id="help_info" data="extrude_multipler">extruder multipler: </p>
+                    <p className="slider_value slider_value_ext_mpt"></p>
+                    <div id="ext_mpt_slider"></div>
                     <br />
 
                     <div className="switch_set sw_support">
@@ -151,7 +166,7 @@ var ManualSettings = React.createClass({
                       </button>
                     </div>
 
-                    <p className="sw_label_set">generate supports</p>
+                    <p className="sw_label_set" id="help_info" data="generate_supports">generate supports</p>
                     <br />
 
                     <div className="switch_set sw_layer_fan">
@@ -160,7 +175,7 @@ var ManualSettings = React.createClass({
                       </button>
                     </div>
 
-                    <p className="sw_label_set">layer fan</p>
+                    <p className="sw_label_set" id="help_info" data="layer_fan">layer fan</p>
                     <br />
 
                     <div className="switch_set sw_retraction">
@@ -169,15 +184,59 @@ var ManualSettings = React.createClass({
                       </button>
                     </div>
 
-                    <p className="sw_label_set">retration[mm]</p>
+                    <p className="sw_label_set" id="help_info" data="retration">retration[mm]</p>
                     <br />
                     <input type="number" className="inp_retraction"></input>
+
+                    <div className="switch_set sw_brim">
+                      <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
+                        <div className="handle"></div>
+                      </button>
+                    </div>
+
+                    <p className="sw_label_set" id="help_info" data="brim">brim</p>
+                    <br />
+
+                    <div className="switch_set sw_raft">
+                      <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
+                        <div className="handle"></div>
+                      </button>
+                    </div>
+
+                    <p className="sw_label_set" id="help_info" data="raft">raft</p>
+                    <br />
+
                 </div>
             </div>
         </div>
     );
   },
 
+});
+
+var InfoHelpScreen = React.createClass({
+  render: function() {
+    return (
+        <div id="info_help_screen">
+            <button id="close_info_help"></button>
+            <h2 className="info_headline">hello world</h2>
+            <hr className="info_view_hr" />
+            <br />
+            <p className="info_help_text"></p>
+            <img className="info_help_img"/>
+        </div>
+    );
+  },
+});
+
+var InfoHelpScreenHide = React.createClass({
+  render: function() {
+    return (
+        <div id="info_help_screen_hidden" className="info_help_screen_hidden">
+
+        </div>
+    );
+  },
 });
 
 ReactDOM.render(<EasySettings></EasySettings>, mainElement);

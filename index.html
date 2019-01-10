@@ -53,11 +53,8 @@
 
 					<br /><br /><br />
 
-
                     <div id="stl_ui_side_bar">
-
 						<SettingsSidePanel></SettingsSidePanel>
-
 					</div>
 
                     <div id="gcode_ui_side_bar">
@@ -101,14 +98,9 @@
                 </div>
     		</div>
 
-			<!--  			<iframe id="iframe_analyzer" src="gcode_analyzer/index.html"></iframe>			 -->
-
-
-            <!--
-
-            <input id="f02" type="file" placeholder="Add profile picture" />
-            <label for="f02" class="drop_label__" id="dropZone__">Add profile picture</label>
-            -->
+			<div id="info_help_div">
+				<HelpInfoScreen></HelpInfoScreen>
+			</div>
 
 			<div class="loading_screen_slice">
 				<div class="loader_slicer">
@@ -193,6 +185,15 @@
 				$("#stl_ui_side_bar").hide();
 				fcs_load_easy_settings();
 				rs_reload_select_dialog();
+				define_inport_click_var();	// fc in var defined in main_script
+			}
+
+			function load_help_screen(){
+				fcs_load_help_screen();
+			}
+
+			function hide_help_screen(){
+				fcs_hide_help_screen();
 			}
 
 			require('./renderer.js')

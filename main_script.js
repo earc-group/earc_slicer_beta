@@ -5,6 +5,7 @@ var cameraTarget, selected_object, exporter, container, stats;
 var selected_object_obj, saveString, gcode_view;
 
 var hover_over_element = "";
+var hover_over_element_text = "";
 var gcode_print_time;
 
 let mainWindow = null;
@@ -28,6 +29,8 @@ var basepath = remote.app.getAppPath();
 
 var loaded_models = {};
 loaded_models.model = [];
+
+var define_inport_click_var;
 
 var flag=false;
 var layer;
@@ -199,6 +202,10 @@ function init() {
 	var mesh_pos, mesh_box;
 
     setTimeout(function(){
+        define_inport_click();
+    }, 600);    // wait for react to make the element
+
+    define_inport_click_var = function() {
         $('#import_label').on('click', function() {
             console.log('>> import model');
             var file_path = dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] })[0];
@@ -224,7 +231,35 @@ function init() {
                     alert("Unsupported File --> ." + ext + "  (only .stl)");
                 }
         });
-    }, 600);    // wait for react to make the element
+    };
+
+    function define_inport_click(){
+        $('#import_label').on('click', function() {
+            console.log('>> import model');
+            var file_path = dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] })[0];
+            console.log(file_path);
+
+                var file_name = file_path.split('/');
+                file_name = file_name[file_name.length-1];
+
+                console.log(file_name);
+
+                var ext = file_name.slice((file_name.lastIndexOf(".") - 1 >>> 0) + 2);
+                if(ext == "stl"){
+                    console.log("ext --> ." + ext + " -> OK");
+                    load_stl_model(file_path, file_name);
+                } /*
+                else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+                    console.log("ext --> ." + ext + " -> OK");
+                    load_obj_model(f.path, f.name);
+                } */
+
+                else {
+                    console.log("ERROR --> Unsupported File --> ." + ext);
+                    alert("Unsupported File --> ." + ext + "  (only .stl)");
+                }
+        });
+    }
 
     ipcRenderer.on('import_model_fc', function (ev, data) {
         console.log('>> import model');
@@ -986,8 +1021,6 @@ function scale_set(){     // --> set scale of model
         delete_obj(object_to_delete);
     })
 
-
-
     $(document).on('click','#set_scale', function(){     // --> set scale of model
         scale_set();
     })
@@ -1011,24 +1044,6 @@ function scale_set(){     // --> set scale of model
 	ObjectControl5.mouseout = function () {
 		control.enabled = true;
 	}
-
-
-
-
-
-
-
-    /*
-
-    setTimeout(function(){
-
-    }, 2000);
-
-    */
-
-
-
-
 
 }
 
@@ -1110,13 +1125,6 @@ function animate() {
 
 function render() {
 
-    /*
-    if( effectController && layers &&flag ) {
-        LayerMinMax(effectController.minlayer,effectController.maxlayer);
-    }*/
-
-    //LayerMinMax(effectController.minlayer,effectController.maxlayer);
-
 	ObjectControl1.update();
 	ObjectControl2.update();
 	//ObjectControl3.update();
@@ -1124,9 +1132,7 @@ function render() {
 	ObjectControl5.update();
 
 	control.update();
-    //renderer.clear();   // added
 	renderer.render(scene, camera);
-    //animate();  // added
 
 }
 
@@ -1292,21 +1298,34 @@ model_li_menu.append(new MenuItem({ label: 'remove', click() {
     console.log('removed');
 } }))
 
+const help_info_menu = new Menu()
+help_info_menu.append(new MenuItem({ label: 'info', click() {
+    help_info_show(hover_over_element_text);
+} }))
+
 window.addEventListener('contextmenu', (e) => {
 
     item_selected_ctx = $(e.target).text();
     hover_over_element = $(e.target).attr('id');
+    var hover_over_element_text_intern = $(e.target).attr("data");
 
     if(hover_over_element == "side_bar"){
         //menu_1.popup({ window: remote.getCurrentWindow() })
     } else if(hover_over_element == "canvas"){
-
+        //nothing
     } else if(hover_over_element == "model_li_p"){
         model_li_menu.popup({ window: remote.getCurrentWindow() })
+        hover_over_element = "";
+    } else if(hover_over_element == "help_info"){   // help info menu
+        hover_over_element_text = hover_over_element_text_intern;
+        help_info_menu.popup({ window: remote.getCurrentWindow() })
         hover_over_element = "";
     } else {
         //menu_1.popup({ window: remote.getCurrentWindow() })
     }
+
+    console.log("hover: ", hover_over_element);
+    console.log("text: ", hover_over_element_text);
 
     //console.log(hover_over_element);
     e.preventDefault()
@@ -1320,6 +1339,58 @@ $("canvas").hover(function() {      // no right click on canvas 3D view
     hover_over_element = "";
 });
 
+function help_info_show(element_text){
+    load_help_screen();
+    setTimeout(function(){
+
+        if(element_text == "print_quality"){
+            $(".info_headline").text("print quality");
+            $(".info_help_text").text("Print quality depends on print layer height and print speed. Lower the layer height, better will be details.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_1.jpg");
+        } else if(element_text == "infill_density"){
+            $(".info_headline").text("infill density");
+            $(".info_help_text").text("Infill density is how many plastic will be used for printing part.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_2.jpg");
+        } else if(element_text == "generate_supports"){
+            $(".info_headline").text("generate supports");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_3.png");
+        } else if(element_text == "layer_fan"){
+            $(".info_headline").text("layer fan");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "head_temperature"){
+            $(".info_headline").text("nozzle temperature");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "bed_temperature"){
+            $(".info_headline").text("bed temperature");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "retration"){
+            $(".info_headline").text("retration");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "brim"){
+            $(".info_headline").text("brim");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "raft"){
+            $(".info_headline").text("raft");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "extrude_multipler"){
+            $(".info_headline").text("extrude multipler");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        }
+
+        $(document).on('click','#close_info_help', function(){
+            hide_help_screen();
+        })
+
+    }, 100);
+}
 
 $("#quality_slider")       // define slider
     .slider({
@@ -1391,6 +1462,20 @@ $("#temp_bed_slider")       // define slider
     })
     .slider("float");
 
+$("#ext_mpt_slider")       // define slider
+    .slider({
+        max: 10,
+        min: 0,
+        //range: "min",
+        value: 5,
+        orientation: "horizontal"
+    })
+    .slider("pips", {
+        first: "pip",
+        last: "pip"
+    })
+    .slider("float");
+
 $("#gcode_slider")       // define slider
     .slider({
         max: 20,
@@ -1406,6 +1491,7 @@ $("#gcode_slider")       // define slider
     .slider("float");
 
 
+var ext_mpt_array = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
 var speed_array = [15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 80];
 var temp_end_array = [180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240];
 var temp_bed_array = [40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
@@ -1454,8 +1540,30 @@ function load_preset_files(){
 
 $(document).on('click','.switch_set', function(){
     setTimeout(function(){
+
+        if($(".sw_brim .btn-toggle").hasClass("active")){
+            $(".sw_raft .btn-toggle").removeClass("active");
+        }
+
+        if($(".sw_raft .btn-toggle").hasClass("active")){
+            $(".sw_brim .btn-toggle").removeClass("active");
+        }
+
         save_config();
     }, 200);
+
+})
+
+$(document).on('click','.sw_brim', function(){
+    if($(".sw_brim .btn-toggle").hasClass("active")){
+        $(".sw_raft .btn-toggle").removeClass("active");
+    }
+})
+
+$(document).on('click','.sw_raft', function(){
+    if($(".sw_raft .btn-toggle").hasClass("active")){
+        $(".sw_brim .btn-toggle").removeClass("active");
+    }
 })
 
 $(document).on('click','.sw_retraction', function(){
@@ -1578,10 +1686,13 @@ function load_preset(pres_name){
     var support_enable = config.support_material;
     var retraction_enable = config.retract_length;
     var layer_fan_enable = config.cooling;
+    var brim_enable = config.brim_width;
+    var raft_enable = config.raft_layers;
     var layer_height_index = layers_array.indexOf(Number(config.layer_height));
     var print_speed_index = speed_array.indexOf(Number(config.max_print_speed));
     var end_temperature_index = temp_end_array.indexOf(Number(config.temperature));
     var bed_temperature_index = temp_bed_array.indexOf(Number(config.bed_temperature));
+    var ext_mpt_index = ext_mpt_array.indexOf(Number(config.extrusion_multiplier * 100));
     var infill_density_slider = infill_density.replace("%","");
     infill_density_slider = Number(infill_density_slider) / 10;
 
@@ -1622,6 +1733,36 @@ function load_preset(pres_name){
             $(".sw_layer_fan .btn-toggle").addClass("focus");
         }
         $(".sw_layer_fan .btn-toggle").attr("pressed","true");
+
+    }
+
+    if(brim_enable == 0){
+        $(".sw_brim .btn-toggle").removeClass("active");
+        $(".sw_brim .btn-toggle").removeClass("focus");
+        $(".sw_brim .btn-toggle").attr("pressed","false");
+
+    } else {
+
+        if(!$(".sw_brim .btn-toggle").hasClass("active")){
+            $(".sw_brim .btn-toggle").addClass("active");
+            $(".sw_brim .btn-toggle").addClass("focus");
+        }
+        $(".sw_brim .btn-toggle").attr("pressed","true");
+
+    }
+
+    if(raft_enable == 0){
+        $(".sw_raft .btn-toggle").removeClass("active");
+        $(".sw_raft .btn-toggle").removeClass("focus");
+        $(".sw_raft .btn-toggle").attr("pressed","false");
+
+    } else {
+
+        if(!$(".sw_raft .btn-toggle").hasClass("active")){
+            $(".sw_raft .btn-toggle").addClass("active");
+            $(".sw_raft .btn-toggle").addClass("focus");
+        }
+        $(".sw_raft .btn-toggle").attr("pressed","true");
 
     }
 
@@ -1714,6 +1855,20 @@ function load_preset(pres_name){
         })
         .slider("float");
 
+    $("#ext_mpt_slider")       // define slider
+        .slider({
+            max: 10,
+            min: 0,
+            //range: "min",
+            value: ext_mpt_index,
+            orientation: "horizontal"
+        })
+        .slider("pips", {
+            first: "pip",
+            last: "pip"
+        })
+        .slider("float");
+
     sliders_velue_set();
 
     // save preset << user settings
@@ -1727,6 +1882,7 @@ function sliders_velue_set(){
     $(".slider_value_speed").text(speed_array[$("#speed_slider .ui-slider-tip").html()] + " mm/s");
     $(".slider_value_tp_end").text(temp_end_array[$("#temp_end_slider .ui-slider-tip").html()] + " °C");
     $(".slider_value_tp_bed").text(temp_bed_array[$("#temp_bed_slider .ui-slider-tip").html()] + " °C");
+    $(".slider_value_ext_mpt").text(ext_mpt_array[$("#ext_mpt_slider .ui-slider-tip").html()] + " %");
 
     setTimeout(function(){
         $("#quality_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
@@ -1749,6 +1905,10 @@ function sliders_velue_set(){
             $(".slider_value_tp_bed").text(temp_bed_array[$("#temp_bed_slider .ui-slider-tip").html()] + " °C");
             save_config();
         });
+        $("#ext_mpt_slider .ui-slider-tip").on('DOMSubtreeModified', function () {
+            $(".slider_value_ext_mpt").text(ext_mpt_array[$("#ext_mpt_slider .ui-slider-tip").html()] + " %");
+            save_config();
+        });
     }, 1000);   // dealyd for not running with loading
 }
 
@@ -1762,6 +1922,7 @@ function save_config(){     // save preset << user settings
     var selected_preset_name = settings_file_names[index];
 
     var config = ini.parse(fs.readFileSync('./user_settings/' + selected_preset_name, 'utf-8')) // load selected preset file
+    var app_config = ini.parse(fs.readFileSync('./app_settings/app_config.ini', 'utf-8'))
 
     if($(".infill_type .select-styled").html() == "Honeycomb"){
         config.fill_pattern = 'honeycomb';
@@ -1783,6 +1944,18 @@ function save_config(){     // save preset << user settings
         config.cooling = "0";
     }
 
+    if($(".sw_brim .btn-toggle").hasClass("active")){
+        config.brim_width = app_config.brim_width;
+    } else {
+        config.brim_width = "0";
+    }
+
+    if($(".sw_raft .btn-toggle").hasClass("active")){
+        config.raft_layers = app_config.raft_layers;
+    } else {
+        config.raft_layers = "0";
+    }
+
     if($(".sw_retraction .btn-toggle").hasClass("active")){
         config.retract_length !== null ? config.retract_length = $(".inp_retraction").val() : config.retract_length = "2";
         console.log($(".inp_retraction").val());
@@ -1798,6 +1971,7 @@ function save_config(){     // save preset << user settings
     config.max_print_speed = $(".slider_value_speed").text().replace(" mm/s", "");
     config.temperature = $(".slider_value_tp_end").text().replace(" °C", "");
     config.bed_temperature = $(".slider_value_tp_bed").text().replace(" °C", "");
+    config.extrusion_multiplier = $(".slider_value_ext_mpt").text().replace(" %", "") / 100;
 
     setTimeout(function(){
         fs.writeFileSync('./app_settings/last_config.ini', ini.stringify(config))

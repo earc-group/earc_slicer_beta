@@ -1,25 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Lato:100')
-//@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400')
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400')
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600|Source+Sans+Pro:200,300,400')
 
-@font-face
-    font-family: 'Roboto'
-    font-style: normal
-    font-weight: 100
-    src: local('Roboto Thin'), local('Roboto-Thin'), url('../assets/fonts/Roboto-Thin.ttf') format('ttf')
-
-@font-face
-    font-family: 'Roboto'
-    font-style: normal
-    font-weight: 300
-    src: local('Roboto Light'), local('Roboto-Light'), url('../assets/fonts/Roboto-Light.ttf') format('ttf')
-
-@font-face
-    font-family: 'Roboto'
-    font-style: normal
-    font-weight: 400
-    src: local('Roboto Regular'), local('Roboto-Regular'), url('../assets/fonts/Roboto-Regular.ttf') format('ttf')
-
+//@font-face    font-family: 'Roboto'    font-style: normal    font-weight: 100    src: local('Roboto Thin'), local('Roboto-Thin'), url('../assets/fonts/Roboto-Thin.ttf') format('ttf')@font-face    font-family: 'Roboto'    font-style: normal    font-weight: 300    src: local('Roboto Light'), local('Roboto-Light'), url('../assets/fonts/Roboto-Light.ttf') format('ttf')@font-face    font-family: 'Roboto'    font-style: normal    font-weight: 400    src: local('Roboto Regular'), local('Roboto-Regular'), url('../assets/fonts/Roboto-Regular.ttf') format('ttf')
 
 //$main_color: #694CE8
 $main_color: #00BAFF
@@ -32,6 +15,8 @@ body
     margin: 0px
     overflow: hidden
     color: #00BAFF
+    -webkit-font-smoothing: subpixel-antialiased
+    text-rendering: optimizeSpeed
 
 canvas
     position: absolute
@@ -586,6 +571,8 @@ span
 .easy_set_div
     text-align: left
     margin-top: 10px
+    max-height: 80vh
+    overflow-y: auto
     & p
         margin-left: 10px
 
@@ -601,7 +588,7 @@ span
     pointer-events: none
     cursor: not-allowed
 
-#quality_slider,#infill_slider,#speed_slider,#temp_end_slider,#temp_bed_slider,#gcode_slider
+#quality_slider,#infill_slider,#speed_slider,#temp_end_slider,#temp_bed_slider,#gcode_slider,#ext_mpt_slider
   width: 90%
   left: 5%
   -webkit-focus-ring-color: none 0px
@@ -1071,3 +1058,75 @@ span
     right: 1px
     margin-top: -34px
     z-index: 20
+
+.info_headline
+    font-family: Roboto, sans-serif
+    font-size: 1.6em
+    font-weight: 200
+    margin-top: 14px
+    -webkit-font-smoothing: antialiased
+
+.info_view_hr
+    border-image: linear-gradient(90deg, #00BAFF 20%, #00FFFF 100%) !important
+    border-image-slice: 1 !important
+    border-width: 2px !important
+    border-bottom: 2px solid !important
+    width: 80% !important
+    float: left
+    position: absolute
+    top: 40px
+
+.info_help_text
+    font-size: 1.1em
+    color: #888
+    margin-top: -20px
+    padding-left: 10px
+    max-width: 60%
+    width: 60%
+
+.info_help_img
+    width: 32%
+    position: absolute
+    right: 22px
+    top: 70px
+
+#close_info_help
+    position: absolute
+    top: 16px
+    right: 16px
+    height: 16px
+    width: 16px
+    background-image: url("../assets/img/cross_icon.svg")
+    background-repeat: no-repeat
+    background-size: contain
+    cursor: pointer
+    border: none
+
+#help_info
+    cursor: default
+
+#info_help_screen
+    position: fixed
+    top: 25vh
+    left: 25vw
+    opacity: 1
+    z-index: 100
+    height: 50vh
+    width: 50vw
+    border-radius: 6px
+    padding: 0px 20px
+    background-color: #fff
+    box-shadow: 0px 6px 20px rgba(#000, .16)
+    animation-name: info_help_screen
+    animation-duration: .7s
+    -webkit-font-smoothing: antialiased
+
+@keyframes info_help_screen
+  0%
+    opacity: 0
+
+  40%
+    opacity: 0
+
+  100%
+    opacity: 1
