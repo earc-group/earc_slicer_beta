@@ -66,7 +66,7 @@ var EasySettings = React.createClass({
                         <select id="preset">
                         </select>
                     </div>
-                    <p className="easy_set_div_label label_infill_type">infill: </p>
+                    <p className="easy_set_div_label label_infill_type" id="help_info" data="infill">infill: </p>
                     <div className="infill_type">
                         <select id="infill_type">
                             <option value="PLA generic">Honeycomb</option>
@@ -119,7 +119,7 @@ var ManualSettings = React.createClass({
                         </select>
                     </div>
 
-                    <p className="easy_set_div_label label_infill_type">infill: </p>
+                    <p className="easy_set_div_label label_infill_type" id="help_info" data="infill">infill: </p>
                     <div className="infill_type">
                         <select id="infill_type">
                             <option value="PLA generic">Honeycomb</option>

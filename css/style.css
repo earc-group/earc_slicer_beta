@@ -663,6 +663,7 @@ span {
   margin-top: 10px;
   max-height: 80vh;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .easy_set_div p {
@@ -1342,11 +1343,15 @@ span {
   width: 50vw;
   border-radius: 6px;
   padding: 0px 20px;
-  background-color: #fff;
-  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.16);
+  background: #fff;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
   animation-name: info_help_screen;
   animation-duration: .7s;
   -webkit-font-smoothing: antialiased;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-image: linear-gradient(135deg, #00FFFF, #00BAFF);
+  border-image-slice: 1;
 }
 
 @keyframes info_help_screen {

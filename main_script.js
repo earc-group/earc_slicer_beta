@@ -1303,6 +1303,20 @@ help_info_menu.append(new MenuItem({ label: 'info', click() {
     help_info_show(hover_over_element_text);
 } }))
 
+var app_config = ini.parse(fs.readFileSync("app_settings/app_config.ini", 'utf-8'))
+if(app_config.show_help == 1){
+    setTimeout(function(){
+        $(document).on('click','#help_info', function(){
+            var hover_over_element_text_intern = $(this).attr("data");
+            if($(".info_help_text").text() == ""){
+                help_info_show(hover_over_element_text_intern);
+            } else {
+                hide_help_screen();
+            }
+        });
+    }, 800);
+}
+
 window.addEventListener('contextmenu', (e) => {
 
     item_selected_ctx = $(e.target).text();
@@ -1383,6 +1397,10 @@ function help_info_show(element_text){
             $(".info_headline").text("extrude multipler");
             $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
             $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "infill"){
+            $(".info_headline").text("infill");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
         }
 
         $(document).on('click','#close_info_help', function(){
@@ -1436,7 +1454,7 @@ $("#speed_slider")       // define slider
 
 $("#temp_end_slider")       // define slider
     .slider({
-        max: 12,
+        max: 14,
         min: 0,
         //range: "min",
         value: 4,
@@ -1450,7 +1468,7 @@ $("#temp_end_slider")       // define slider
 
 $("#temp_bed_slider")       // define slider
     .slider({
-        max: 12,
+        max: 14,
         min: 0,
         //range: "min",
         value: 4,
@@ -1493,8 +1511,8 @@ $("#gcode_slider")       // define slider
 
 var ext_mpt_array = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
 var speed_array = [15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 80];
-var temp_end_array = [180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240];
-var temp_bed_array = [40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+var temp_end_array = [170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240];
+var temp_bed_array = [0, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110];
 var layers_array = [0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3];
 sliders_velue_set();
 
@@ -1696,6 +1714,8 @@ function load_preset(pres_name){
     var infill_density_slider = infill_density.replace("%","");
     infill_density_slider = Number(infill_density_slider) / 10;
 
+    $(".label_preset_material").text(config.material_type);
+
     $(".infill_type .select-styled").html("Rectilinear");
     if(infill_pattern == "honeycomb"){
         $(".infill_type .select-styled").html("Honeycomb");
@@ -1829,7 +1849,7 @@ function load_preset(pres_name){
 
     $("#temp_end_slider")       // define slider
         .slider({
-            max: 12,
+            max: 14,
             min: 0,
             //range: "min",
             value: end_temperature_index,
@@ -1843,7 +1863,7 @@ function load_preset(pres_name){
 
     $("#temp_bed_slider")       // define slider
         .slider({
-            max: 12,
+            max: 14,
             min: 0,
             //range: "min",
             value: bed_temperature_index,
