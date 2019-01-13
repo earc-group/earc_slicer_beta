@@ -34,6 +34,9 @@ hr
     border: none
     border-bottom: 1px solid #ccc
 
+textarea
+    resize: none
+
 .button
     color: #fff
     background: linear-gradient(-90deg, #00FFFF, #00BAFF) no-repeat
@@ -675,6 +678,10 @@ span
 .easy_set_div_label
     color: #777
 
+.div_label_pref
+    color: #777
+    margin-left: 10px
+
 //  ----- select dialog -----
 .label_preset_select
     margin-top: 6px
@@ -697,6 +704,23 @@ span
     transform: translateX(-50%)
     text-align: center
     margin-top: 20px
+
+.label_pref_note
+    position: absolute
+    left: 50%
+    transform: translateX(-50%)
+    text-align: center
+    //top: calc(100vh - 20px)
+    bottom: 54px
+
+.pref_win_app
+    position: absolute
+    width: 100vw
+    height: 100vh
+    left: 0px
+    top: 0px
+    padding: 20px
+    transition: filter .4s
 
 .label_preset_note_as
     position: relative
@@ -723,13 +747,76 @@ span
     display: block
     position: relative
     left: 50% !important
-    transform: translateX(-50%) !important
     text-align: center
     margin-bottom: 6px
     z-index: 99
     margin-left: -4px
     .select
         width: 60% !important
+
+.printer_select_pref,.gcode_flavor_select_pref
+    margin-top: 4px
+    display: block
+    position: relative
+    left: 30px
+    text-align: left
+    margin-bottom: 6px
+    z-index: 99
+    margin-left: -4px
+    .select
+        width: 36vw !important
+        .select-options
+            max-height: 62vh
+            overflow-y: auto
+
+.inp_nozzle_daim, .inp_fil_daim
+    color: #888
+    margin-left: -14px
+    margin-top: 4px
+    width: 60px
+    display: inline-block
+    &:focus
+        outline: none
+
+.inp_brim_width, .inp_raft_layers
+    color: #888
+    margin-left: -14px
+    margin-top: 4px
+    width: 60px
+    display: inline-block
+    &:focus
+        outline: none
+
+.div_label_pref_inline
+    color: #777
+    margin-left: 10px
+    width: 42%
+    display: inline-block
+    &.sm
+        width: 30%
+
+.div_label_pref_inline_mm
+    color: #777
+    margin-left: 4px
+    width: 4em
+    display: inline-block
+
+.sw_show_help
+    margin-left: 23px !important
+
+.left_part_pref_win
+    position: absolute
+    width: calc(50vw - 20px)
+    height: 67vh
+    max-height: 67vh
+
+.right_part_pref_win
+    position: absolute
+    width: calc(50vw - 20px)
+    left: 50%
+    border-left: solid 1px #ccc
+    height: 67vh
+    max-height: 67vh
 
 .infill_type
     margin-top: -20px
@@ -994,7 +1081,32 @@ span
     transform: translateX(-50%)
     top: -6px
 
+.pref_win_app_h2
+    font-family: Roboto, sans-serif
+    font-weight: 300
+    position: absolute
+    text-align: left
+    left: 30px
+    font-size: 1.8em
+    top: -14px
+
+.pref_win_hr
+    border-image: linear-gradient(90deg, #00BAFF 20%, #00FFFF 100%) !important
+    border-image-slice: 1 !important
+    border-width: 2px !important
+    border-bottom: 2px solid !important
+    width: 60% !important
+    float: left
+    position: absolute
+    top: 40px
+
 .app_content_save_pres
+    position: relative
+    width: 100%
+    height: auto
+    top: 50px
+
+.app_content_pref_win
     position: relative
     width: 100%
     height: auto
@@ -1010,6 +1122,32 @@ span
     left: 50%
     margin-top: 10px
     transform: translateX(-50%)
+
+.pref_win_btn_group
+    position: absolute
+    width: 61%
+    left: 50%
+    bottom: 80px
+    transform: translateX(-50%)
+
+.pref_win_btn
+    width: 30vw
+    margin-left: 6px
+    margin-right: 6px
+    position: relative
+
+.confirm_dialog_btn_group
+    position: absolute
+    width: 100%
+    left: 50%
+    transform: translateX(-50%)
+    bottom: 30px
+
+.confirm_dialog_btn
+    width: 30%
+    margin-left: 6px
+    margin-right: 6px
+    position: relative
 
 .inp_name_pres_save
     width: 60%
@@ -1135,3 +1273,90 @@ span
 
   100%
     opacity: 1
+
+.printer_select_pref
+    .select
+        .select-options
+            z-index: 110
+            position: absolute
+
+.gcode_flavor_select_pref
+    position: absolute
+    z-index: 20
+
+.marg_bot_sel_abs
+    margin-top: 36px
+
+.pref_tar
+    border: solid 1px #ccc
+    width: 80%
+    height: 4em
+    color: #888
+    position: relative
+    margin-left: 20px
+    margin-top: 6px
+    &:focus
+        outline: none
+
+.build_area_pref
+    position: relative
+    width: 44vw
+    margin-top: 4px
+    margin-left: 26px
+    .pref_b_area_line
+        position: relative
+        display: inline-block
+        width: 30%
+        p
+            display: inline-block
+        input
+            width: 69%
+            margin-left: 10px
+            position: relative
+            display: inline-block
+            color: #888
+            &:focus
+                outline: none
+                -webkit-focus-ring-color: none 0px
+
+.filter_pref
+    width: 100vw
+    height: 100vh
+    z-index: 790
+    background: rgba(#fff, .2)
+    position: fixed
+    display: none
+
+.filter_pref_msg
+    width: 100vw
+    height: 100vh
+    z-index: 790
+    background: rgba(#fff, .2)
+    position: fixed
+    display: none
+    & h2
+        width: 100vw
+        text-align: center
+        position: fixed
+        top: 38vh
+        font-family: Roboto, sans-serif
+        font-size: 2em !important
+        font-weight: 300
+
+.confirm_dialog
+    width: 50vw
+    height: 26vh
+    background-color: #fff
+    border-radius: 6px
+    box-shadow: 0px 6px 20px rgba(#000, .16)
+    z-index: 800
+    position: fixed
+    left: 50%
+    top: 50%
+    transform: translate(-50%, -50%)
+    padding: 20px
+    text-align: center
+    color: #777
+    & p
+        font-size: 1.2em
+        line-height: 1.8em

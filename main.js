@@ -173,7 +173,13 @@ setTimeout(function(){
                   }),
           },
           { type: 'separator' },
-          { role: 'services' },
+          {
+              label: "preferences",
+              accelerator: "Cmd+,",
+              click: function (menuItem, currentWindow) {
+                  currentWindow.webContents.send('preferences_fc_menu')
+              }
+          },
           { type: 'separator' },
           { role: 'hide' },
           { role: 'hideothers' },

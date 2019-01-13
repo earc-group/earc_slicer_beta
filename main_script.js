@@ -2017,6 +2017,24 @@ ipcRenderer.on('save_pres_fc_menu', function () {
     }
 });
 
+ipcRenderer.on('preferences_fc_menu', function () {
+    //window.open('save_pres.html', '_blank', 'nodeIntegration=yes, resizable=0, width=400, height=220');
+
+    var child = window.open('pref_winodw.html', '_blank', 'nodeIntegration=yes, resizable=0, width=800, height=500');
+    var timer = setInterval(checkChild, 500);
+
+    function checkChild() {
+        if (child.closed) {
+            console.log(">> reload presets");
+            setTimeout(function(){
+                //reload_presets_select();
+                console.log("pres_saved");
+            }, 400);
+            clearInterval(timer);
+        }
+    }
+});
+
 function reload_presets_select(){   // this works dont touch it !!
     console.log("----reload preset----");
     settings_files = [];

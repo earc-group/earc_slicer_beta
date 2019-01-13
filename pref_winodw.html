@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>preferences - earc slicer</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel='stylesheet' href='css/jqueryui.css'>
+		<link rel='stylesheet' href='css/jquery-ui-slider-pips.css'>
+	</head>
+	<body>
+
+		<div class="loading_screen_app"></div>
+		<div class="done_screen_app">
+			<h2>saved</h2>
+		</div>
+		<div class="error_screen_app">
+			<h2>error</h2>
+		</div>
+
+        <div class="filter_pref">
+            <div class="confirm_dialog">
+                <p>Are you shure that you want to restore default settings?</p>
+                <div class="confirm_dialog_btn_group">
+                    <button id="confirm_dialog_btn_cancel" class="button w confirm_dialog_btn">cancel</button>
+                    <button id="confirm_dialog_btn_restore" class="button confirm_dialog_btn">restore</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter_pref_msg">
+            <h2>save sucessfull</h2>
+        </div>
+
+		<div id="app">
+			<div class="pref_win_app">
+				<h2 class="pref_win_app_h2">settings</h2>
+                <hr class="pref_win_hr"/>
+				<div class="app_content_pref_win">
+					<div class="left_part_pref_win">
+                        <p class="div_label_pref">printer type: </p>
+    					<div class="printer_select_pref">
+    						<select id="pref_printer_type">
+                                <option value="earc e-one">earc e-one</option>
+                                <option value="Ultimaker">Ultimaker</option>
+                                <option value="Luzbot">Luzbot</option>
+                                <option value="MakerBot">MakerBot</option>
+                                <option value="Makergear">Makergear</option>
+                                <option value="Prusa i3">Prusa i3</option>
+                                <option value="CraftBot">CraftBot</option>
+                                <option value="Creality">Creality</option>
+                                <option value="Tevo">Tevo</option>
+                                <option value="other">other</option>
+    						</select>
+    					</div>
+                        <br />
+    					<p class="div_label_pref">build area: [mm]</p>
+    					<div class="build_area_pref">
+                            <div class="pref_b_area_line"><p>x: </p><input type="text" id="buil_area_x" class="input_pref_b_area"/></div>
+                            <div class="pref_b_area_line"><p>y: </p><input type="text" id="buil_area_y" class="input_pref_b_area"/></div>
+                            <div class="pref_b_area_line"><p>z: </p><input type="text" id="buil_area_z" class="input_pref_b_area"/></div>
+    					</div>
+                        <br />
+                        <p class="div_label_pref">gcode flavor: </p>
+    					<div class="gcode_flavor_select_pref">
+    						<select id="pref_gcode_flavor">
+                                <option value="reprap">RepRap(Marlin)</option>
+                                <option value="repertier">Repertier</option>
+                                <option value="makerware">MakerWare (MakerBot)</option>
+                                <option value="sailfish">Sailfish (MakerBot)</option>
+                                <option value="machinekit">Machinekit</option>
+                                <option value="no-extrusion">no extrusion</option>
+    						</select>
+    					</div>
+                        <br />
+                        <p class="div_label_pref_inline marg_bot_sel_abs">nozzle diameter: </p>
+    					<input type="number" class="inp_nozzle_daim" step="0.1"></input>
+                        <p class="div_label_pref_inline_mm"> mm</p>
+                        <br />
+                        <br />
+                        <p class="div_label_pref_inline">filament diameter: </p>
+    					<input type="number" class="inp_fil_daim" step="0.5"></input>
+                        <p class="div_label_pref_inline_mm"> mm</p>
+                        <br />
+                    </div>
+
+					<div class="right_part_pref_win">
+                        <p class="div_label_pref" style="margin-bottom: 6px;">show help info: </p>
+                        <div class="switch_set sw_show_help">
+                          <button type="button" class="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
+                            <div class="handle"></div>
+                          </button>
+                        </div>
+                        <p class="sw_label_set">show help</p>
+                        <br />
+                        <p class="div_label_pref_inline sm">brim width: </p>
+    					<input type="number" class="inp_brim_width" step="1"></input>
+                        <br />
+                        <br />
+                        <p class="div_label_pref_inline sm">raft layers: </p>
+    					<input type="number" class="inp_raft_layers" step="1"></input>
+                        <br />
+                        <br />
+                        <p class="div_label_pref">start gcode: </p>
+                        <textarea class="pref_start_gcode pref_tar"></textarea>
+                        <br />
+                        <p class="div_label_pref">end gcode: </p>
+                        <textarea class="pref_end_gcode pref_tar"></textarea>
+                        <br />
+
+
+                    </div>
+				</div>
+
+                <div class="pref_win_btn_group">
+                    <button id="pref_win_btn_save" class="button pref_win_btn">save</button>
+                    <button id="pref_win_btn_restore" class="button w pref_win_btn">restore default</button>
+                </div>
+                <p class="easy_set_div_label label_pref_note">earc technology group 2018</p>
+			</div>
+        </div>
+
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="js/ajax.jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+		<script src='js/jquery-plus-ui.min.js'></script>
+		<script src='js/jquery-ui-slider-pips.js'></script>
+
+		<script src="js/react.js"></script>
+        <script src="js/react-dom.js"></script>
+        <script src="js/babel.min.js"></script>
+
+		<script src="pref_win_script.js"></script>
+
+	</body>
+</html>
