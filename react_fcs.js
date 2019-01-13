@@ -82,14 +82,14 @@ var EasySettings = React.createClass({
                     <p className="slider_value slider_value_sp"></p>
                     <div id="infill_slider"></div>
                     <br />
-                    <div className="switch_set sw_support" id="help_info" data="generate_supports">
+                    <div className="switch_set sw_support" data="generate_supports">
                       <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="flase">
                         <div className="handle"></div>
                       </button>
                     </div>
                     <p className="sw_label_set" id="help_info" data="generate_supports">generate supports</p>
                     <br />
-                    <div className="switch_set sw_layer_fan" id="help_info" data="layer_fan">
+                    <div className="switch_set sw_layer_fan" data="layer_fan">
                       <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
                         <div className="handle"></div>
                       </button>

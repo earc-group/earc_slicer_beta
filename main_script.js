@@ -813,11 +813,34 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         var group = new THREE.Group();      // create group from objects for export
         for(var i = 0; i < loaded_models.model.length; i++){
             var addObject = scene.getObjectByName(loaded_models.model[i].name);
+            console.log(loaded_models.model[i].name);
 
             selected_object_obj = scene.getObjectByName(loaded_models.model[i].name);
             selected_object = loaded_models.model[i].name;
             $("#rot_x").val($("#rot_x").val() + 90);        // set rotaion dimestions for slicer_core
             rotation_set();
+
+            // NOTE: Maybe roation set it could be !!
+
+
+        //    addObject.position.set( addObject.position.x, 0, addObject.position.z );
+            console.log("addObject.position");
+            //console.log(addObject.position);
+
+            /*
+var box = new THREE.Box3().setFromObject( addObject );
+
+            if(box.min.y < 0){
+                addObject.position.set( addObject.position.x, -(box.min.y), addObject.position.z );
+            } else if(box.min.y > 0){
+                addObject.position.set( addObject.position.x, -(box.min.y), addObject.position.z );
+            } else {
+                addObject.position.set( addObject.position.x, 0, addObject.position.z );
+            }*/
+
+
+
+            //var box = new THREE.Box3().setFromObject( addObject );
 
             var cloneObject = addObject.clone();            // group delete original --> clone object same name
             cloneObject.name = loaded_models.model[i].name;
@@ -826,7 +849,20 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
             cloneObject.rotation.set((cloneObject.rotation.x - (Math.PI / 2)), cloneObject.rotation.y, cloneObject.rotation.z);
             cloneObject.position.set(addObject.position.x, addObject.position.y, addObject.position.z);
 
+
+            addObject.position.set(addObject.position.x, addObject.position.y, addObject.position.z);
+
+
             group.add( addObject );
+
+            //console.log(group.children[i].position);
+            //group.children[i].position.set(0,0,0);
+            //console.log(group.children[i].position);
+        }
+
+        for(var i = 0; i < group.children.length; i++){
+            console.log(group.children[i].name);
+            console.log(group.children[i].position);
         }
 
         setTimeout(function(){      // export objects to one stl output
@@ -874,6 +910,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 				var mesh_move_y = 100 + selected_object_obj.position.z;
 				console.log("x: " + mesh_move_x);
 				console.log("y: " + mesh_move_y);
+				console.log(selected_object_obj.position);
 				//console.log(mesh_pos.position);
 
 			}
@@ -1551,9 +1588,9 @@ function load_preset_files(){
         var preset_name = settings_files[i].replace("-", " ");
         $(".preset_select select").append("<option value=" + preset_name + ">" + preset_name + "</option>");
     }
-    console.log("loaded presets:");
-    console.log(settings_files);
-    console.log(settings_file_names);
+    //console.log("loaded presets:");
+    //console.log(settings_files);
+    //console.log(settings_file_names);
 }
 
 $(document).on('click','.switch_set', function(){
@@ -1993,6 +2030,14 @@ function save_config(){     // save preset << user settings
     config.bed_temperature = $(".slider_value_tp_bed").text().replace(" °C", "");
     config.extrusion_multiplier = $(".slider_value_ext_mpt").text().replace(" %", "") / 100;
 
+    config.bed_shape = "0x0," + app_config.build_area_x + "x0," + app_config.build_area_x + "x" + app_config.build_area_y + ",0x" + app_config.build_area_y + "";
+    config.max_print_height = app_config.build_area_z;
+    config.gcode_flavor = app_config.gcode_flavor;
+    config.start_gcode = app_config.start_gcode;
+    config.end_gcode = app_config.end_gcode;
+    config.filament_diameter = app_config.filament_diameter;
+    config.nozzle_diameter = app_config.nozzle_diameter;
+
     setTimeout(function(){
         fs.writeFileSync('./app_settings/last_config.ini', ini.stringify(config))
     }, 600);
@@ -2027,8 +2072,8 @@ ipcRenderer.on('preferences_fc_menu', function () {
         if (child.closed) {
             console.log(">> reload presets");
             setTimeout(function(){
-                //reload_presets_select();
-                console.log("pres_saved");
+                console.log(">> preference saved");
+                save_config();
             }, 400);
             clearInterval(timer);
         }
