@@ -198,6 +198,11 @@ function init() {
 
 	}
 
+// axis helper
+    var axesHelper = new THREE.AxesHelper( 40 );
+    axesHelper.position.set(-100,0,-100);
+    scene.add( axesHelper );
+
     var h;
 	var mesh_pos, mesh_box;
 
@@ -297,6 +302,70 @@ function init() {
         }
 
         $("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + model_file_name + "</p><div class='cross_icon del_model_btn' id='" + model_file_name + "'></div></li>");
+
+        loaded_models.model.push({ name: model_file_name, path: file_path });   // add object to array with properties
+
+        console.log(loaded_models);
+
+        var loader = new THREE.STLLoader();
+		loader.load( file_path, function ( geometry ) {
+
+			var material = new THREE.MeshPhongMaterial( { color: 0x00BAFF, specular: 0x111111, shininess: 200 } );
+			var mesh = new THREE.Mesh( geometry, material );
+
+            model_file_name == "gcode_view" ? model_file_name = "gcode_model" : model_file_name = model_file_name;
+            mesh.name = model_file_name;
+
+            console.log(model_file_name);
+            selected_object = model_file_name;
+
+			mesh.rotation.set( Math.PI*1.5, 0, 0 );
+			mesh.scale.set( 1, 1, 1 );
+
+			mesh.castShadow = true;
+			mesh.receiveShadow = true;
+
+			var box = new THREE.Box3().setFromObject( mesh );
+
+            console.log("---> - height: " + box.min.y);
+            console.log("---> + height: " + box.max.y);
+
+            if(box.min.y < 0){
+                mesh.position.set( 0, -(box.min.y), 0 );
+            } else if(box.min.y > 0){
+                mesh.position.set( 0, -(box.min.y), 0 );
+            } else {
+                mesh.position.set( 0, 0, 0 );
+            }
+
+            console.log("------ ");
+            console.log("---> pos: " + mesh.position.y);
+
+            var box = new THREE.Box3().setFromObject( mesh );
+
+            var helper = new THREE.Box3Helper( box, 0xffff00 );
+            //scene.add( helper );
+            //console.log(helper.position);
+
+			scene.add( mesh ); ObjectControl1.attach( mesh );
+
+			if ( mesh instanceof THREE.Mesh ) {
+               mesh_pos = mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
+        	}
+
+            selected_object_obj = mesh_pos;
+
+		} );
+
+    }
+
+    function load_stl_model_output(model_file_path, model_file_name){
+
+        var file_path = model_file_path;
+
+        model_file_name = model_file_name;
+
+        //$("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + model_file_name + "</p><div class='cross_icon del_model_btn' id='" + model_file_name + "'></div></li>");
 
         loaded_models.model.push({ name: model_file_name, path: file_path });   // add object to array with properties
 
@@ -813,62 +882,39 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         var group = new THREE.Group();      // create group from objects for export
         for(var i = 0; i < loaded_models.model.length; i++){
             var addObject = scene.getObjectByName(loaded_models.model[i].name);
-            console.log(loaded_models.model[i].name);
-
-            selected_object_obj = scene.getObjectByName(loaded_models.model[i].name);
-            selected_object = loaded_models.model[i].name;
-            $("#rot_x").val($("#rot_x").val() + 90);        // set rotaion dimestions for slicer_core
-            rotation_set();
-
-            // NOTE: Maybe roation set it could be !!
-
-
-        //    addObject.position.set( addObject.position.x, 0, addObject.position.z );
-            console.log("addObject.position");
-            //console.log(addObject.position);
-
-            /*
-var box = new THREE.Box3().setFromObject( addObject );
-
-            if(box.min.y < 0){
-                addObject.position.set( addObject.position.x, -(box.min.y), addObject.position.z );
-            } else if(box.min.y > 0){
-                addObject.position.set( addObject.position.x, -(box.min.y), addObject.position.z );
-            } else {
-                addObject.position.set( addObject.position.x, 0, addObject.position.z );
-            }*/
-
-
-
-            //var box = new THREE.Box3().setFromObject( addObject );
+            var addObject_pos = scene.getObjectByName(loaded_models.model[i].name);
+            //console.log(loaded_models.model[i].name);
 
             var cloneObject = addObject.clone();            // group delete original --> clone object same name
             cloneObject.name = loaded_models.model[i].name;
             scene.add(cloneObject); ObjectControl1.attach( cloneObject );
                                                             // set rotation and position for cloned object
-            cloneObject.rotation.set((cloneObject.rotation.x - (Math.PI / 2)), cloneObject.rotation.y, cloneObject.rotation.z);
+            //cloneObject.rotation.set((cloneObject.rotation.x - (Math.PI / 2)), cloneObject.rotation.y, cloneObject.rotation.z);
+            cloneObject.rotation.set(cloneObject.rotation.x, cloneObject.rotation.y, cloneObject.rotation.z);
             cloneObject.position.set(addObject.position.x, addObject.position.y, addObject.position.z);
-
-
-            addObject.position.set(addObject.position.x, addObject.position.y, addObject.position.z);
-
 
             group.add( addObject );
 
-            //console.log(group.children[i].position);
-            //group.children[i].position.set(0,0,0);
-            //console.log(group.children[i].position);
-        }
-
-        for(var i = 0; i < group.children.length; i++){
-            console.log(group.children[i].name);
-            console.log(group.children[i].position);
         }
 
         setTimeout(function(){      // export objects to one stl output
             var result = exporter.parse( group );
             saveString( result, 'output/output.stl' );
-        }, 200);
+        }, 100);
+
+        setTimeout(function(){      // export objects to one stl output
+            load_stl_model_output('output/output.stl', 'output.stl');
+
+            setTimeout(function(){      // export objects to one stl output
+                var output_obj = scene.getObjectByName('output.stl');
+                output_obj.rotation.set( (Math.PI / 2), 0, 0);
+                setTimeout(function(){
+                    var result = exporter.parse( output_obj );
+                    saveString( result, 'output/output.stl' );
+                    scene.remove( output_obj );
+                }, 100);
+            }, 300);
+        }, 400);
 
     }
 
