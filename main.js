@@ -62,7 +62,7 @@ function createWindow () {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', function() {
-    createWindow()
+    createWindow();
 
     /*
 setTimeout(function(){
@@ -255,7 +255,7 @@ ipc.on('load_manual_settings', function (event, arg) {
 
 
 
-function create_anlWindow () {
+function create_anlWindow() {
   // Create the browser window.
   anlWindow = new BrowserWindow({
       width: 300,

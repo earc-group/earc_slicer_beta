@@ -85,7 +85,7 @@
         //document.getElementByClassName('p_print_time').innerHTML = printTime;
 
         //console.log(model);
-        //console.log("printTime -- end ---");
+        console.log("printTime -- end ---");
 
 
         self.postMessage({

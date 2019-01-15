@@ -279,13 +279,12 @@ GCODE.gCodeReader = (function(){
             extrusionSpeeds = msg.extrusionSpeeds;
             extrusionSpeedsByLayer = msg.extrusionSpeedsByLayer;
 
+            console.log(">>printTime");
             console.log(printTime);
 
             gcode_load_print_time = printTime;
 
             //load_print_time_fc();
-
-
 
             //getElementById('p_print_time').innerHTML =  modelInfo.printTime;
 

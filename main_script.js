@@ -597,23 +597,33 @@ function init() {
             animate();
         }
 
-        //effectController.minlayer
-        //global_var_gcode_end = effectController.maxlayer;
+        // replace " in gcode from config
+        fs.readFile("output/output.gcode", 'utf8', function (err,data) {
+          if (err) {
+            return console.log(err);
+          }
+          var result = data.replace(/"/g, '');
+          fs.writeFile("output/output.gcode", result, 'utf8', function (err) {
+             if (err) return console.log(err);
+          });
+        });
 
-        var loader = new THREE.GCodeLoader();
-    	loader.load( 'output/output.gcode', function ( gcode_view_mesh ) {
+        setTimeout(function(){
+            var loader = new THREE.GCodeLoader();
+        	loader.load( 'output/output.gcode', function ( gcode_view_mesh ) {
 
-    		gcode_view_mesh.position.set( -100, 0, 100 );
-            gcode_view_mesh.name = "gcode_view";
-    		scene.add( gcode_view_mesh );
+        		gcode_view_mesh.position.set( -100, 0, 100 );
+                gcode_view_mesh.name = "gcode_view";
+        		scene.add( gcode_view_mesh );
 
-            if ( gcode_view_mesh instanceof THREE.Mesh ) {
-               gcode_view = gcode_view_mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
-        	}
+                if ( gcode_view_mesh instanceof THREE.Mesh ) {
+                   gcode_view = gcode_view_mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
+            	}
 
-    	} );
+        	} );
 
-        ipc.send("open_window_analyzer", "open");
+            ipc.send("open_window_analyzer", "open");
+        }, 100);
 
     }
 
@@ -956,9 +966,9 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 				var mesh_move_y = 100 + selected_object_obj.position.z;
 				console.log("x: " + mesh_move_x);
 				console.log("y: " + mesh_move_y);
-				console.log(selected_object_obj.position);
+				//console.log(selected_object_obj.position);
 				//console.log(mesh_pos.position);
-
+                
 			}
 		}
 	}
@@ -972,8 +982,6 @@ function rotation_set(){     // --> set rotation of model
     var rot_x = $('#rot_x').val();
     var rot_y = $("#rot_y").val();
     var rot_z = $("#rot_z").val();
-
-    //console.log("rot_x_y_z: " + rot_x +"-"+ rot_y +"-"+ rot_z);
 
     selected_object_obj.rotation.x = (270 + parseInt(rot_x)) * (Math.PI / 180);
     selected_object_obj.rotation.y = rot_y * (Math.PI / 180);
@@ -2074,7 +2082,8 @@ function save_config(){     // save preset << user settings
     config.max_print_speed = $(".slider_value_speed").text().replace(" mm/s", "");
     config.temperature = $(".slider_value_tp_end").text().replace(" °C", "");
     config.bed_temperature = $(".slider_value_tp_bed").text().replace(" °C", "");
-    config.extrusion_multiplier = $(".slider_value_ext_mpt").text().replace(" %", "") / 100;
+
+    $(".slider_value_ext_mpt").text().replace(" %", "") !== "" ? config.extrusion_multiplier = $(".slider_value_ext_mpt").text().replace(" %", "") / 100 : config.extrusion_multiplier = 1;
 
     config.bed_shape = "0x0," + app_config.build_area_x + "x0," + app_config.build_area_x + "x" + app_config.build_area_y + ",0x" + app_config.build_area_y + "";
     config.max_print_height = app_config.build_area_z;

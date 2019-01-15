@@ -27,8 +27,8 @@ function load_data_gcode_fc(){
             var window = remote.getCurrentWindow();
             window.close();
         }, 3000);
-        
-    }, 160);
+
+    }, 200);
 }
 
 
