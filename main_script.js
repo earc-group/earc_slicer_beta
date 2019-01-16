@@ -31,6 +31,7 @@ var loaded_models = {};
 loaded_models.model = [];
 
 var define_inport_click_var;
+var last_save_path;
 
 var flag=false;
 var layer;
@@ -671,6 +672,9 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         var feedback_slicer_array = feedback_slicer.split(" ");
         var fil_required = "";
 
+        var config = ini.parse(fs.readFileSync("app_settings/app_config.ini", 'utf-8'))
+        var config_last = ini.parse(fs.readFileSync("app_settings/last_config.ini", 'utf-8'))
+
         for(var i = 0; i < feedback_slicer_array.length; i++){
             if(feedback_slicer_array[i] == "required:"){
                 console.log(feedback_slicer_array[i + 1]);
@@ -682,6 +686,83 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                 }
             }
         }
+
+        $(document).on('click','#save_gcode', function(){       // ---------->> load gcode <<------
+            save_gcode();
+        });
+
+        var sd_path;
+
+        function save_gcode() {
+            var gcode_sting;
+            fs.readFile("output/output.gcode", 'utf8', function (err,data) {
+              if (err) {
+                return console.log(err);
+              }
+              gcode_sting = data;
+            });
+            var file_name = loaded_models.model[0].name.split(".");
+            file_name = file_name[0];
+            dialog.showSaveDialog({
+                title: file_name,
+                defaultPath: '~/' + file_name + '.gcode',
+                filters: [{
+                    name: file_name,
+                    extensions: ['gcode']
+                }]},
+            function (fileName) {
+                if (fileName === undefined) return;
+                last_save_path = fileName;
+                find_sd_path();
+                fs.writeFile(fileName, gcode_sting, function (err) {
+                });
+            });
+
+            function find_sd_path(){
+                console.log(last_save_path);
+                sd_path = last_save_path.split('/');
+                console.log(sd_path[1]);
+
+                if(sd_path[1] == "Volumes"){
+                    sd_path = "/Volumes/" + sd_path[2];
+                } else {
+                    sd_path = "";
+                }
+
+                sd_path = sd_path.replace(/ /g, "\\ ");
+                console.log(sd_path);
+
+                if(os.platform() == "darwin"){
+                    $("#eject_btn").fadeIn("slow");
+                    console.log("darwin");
+                    $(document).on('click','#eject_btn', function(){       // ---------->> load gcode <<------
+                        eject_sd_card_mac();
+                        $("#eject_btn").fadeOut("slow");
+                    });
+                }
+
+                //diskutil unmount /Volumes/NO\ NAME
+            }
+
+            function eject_sd_card_mac(){
+                execute('diskutil unmount ' + sd_path, (output) => {
+                    console.log(output);
+                });
+            }
+
+            //  /Volumes/NO NAME/fan nozzle v2.gcode
+            //  drutil eject /Volumes/NO NAME
+            //  diskutil unmount /Volumes/NO NAME
+
+        }
+
+        var fil_volume = Math.PI * Math.sqrt(config.filament_diameter/2) * Number(fil_required.replace("mm",""));
+        var fil_mass = (fil_volume/1000) * config.fill_density;
+        var fil_cost = (fil_mass/1000) * config_last.filament_cost;
+
+        $(".fil_volume").text("filament volume: " + (fil_volume/1000).toFixed(2) + "cm³");
+        $(".fil_mass").text("model mass: " + fil_mass.toFixed(2) + "g");
+        $(".fil_cost").text("filament cost: " + fil_cost.toFixed(2));
 
         console.log("Filament required: " + fil_required);
         $(".fil_required").text("filament required: " + fil_required);
@@ -711,9 +792,13 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         setTimeout(function(){
             for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
                 var object = scene.getObjectByName( loaded_models.model[i].name, true );
-                object.visible = true;
+                if(typeof object !== "undefined"){
+                    object.visible = true;
+                }
             }
         }, 100);
+
+        //init();
 
         $("#slice_btn").show();
         $("#back_to_models").hide();
@@ -735,13 +820,17 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 
         for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
             var object = scene.getObjectByName( loaded_models.model[i].name, true );
-            object.visible = false;
+            if(typeof object !== "undefined"){
+                object.visible = false;
+            }
         }
 
         setTimeout(function(){
             var gcode_view = scene.getObjectByName( "gcode_view", true );
-            gcode_view.visible = true;
-        }, 1000);
+            if(typeof gcode_view !== "undefined"){
+                gcode_view.visible = true;
+            }
+        }, 800);
 
         if($("#model_li").length !== 0){    // check if models exist
             console.log(">> start slicing");
@@ -884,35 +973,67 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 
         console.log("object.model --> export ");
 
-        for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
-            var object = scene.getObjectByName( loaded_models.model[i].name, true );
-            object.visible = false;
-        }
-
-        var group = new THREE.Group();      // create group from objects for export
         for(var i = 0; i < loaded_models.model.length; i++){
-            var addObject = scene.getObjectByName(loaded_models.model[i].name);
-            var addObject_pos = scene.getObjectByName(loaded_models.model[i].name);
-            //console.log(loaded_models.model[i].name);
-
-            var cloneObject = addObject.clone();            // group delete original --> clone object same name
-            cloneObject.name = loaded_models.model[i].name;
-            scene.add(cloneObject); ObjectControl1.attach( cloneObject );
-                                                            // set rotation and position for cloned object
-            //cloneObject.rotation.set((cloneObject.rotation.x - (Math.PI / 2)), cloneObject.rotation.y, cloneObject.rotation.z);
-            cloneObject.rotation.set(cloneObject.rotation.x, cloneObject.rotation.y, cloneObject.rotation.z);
-            cloneObject.position.set(addObject.position.x, addObject.position.y, addObject.position.z);
-
-            group.add( addObject );
-
+            var object = scene.getObjectByName(loaded_models.model[i].name);
+            if(typeof object !== "undefined"){
+                object.visible = false;
+            }
         }
 
-        setTimeout(function(){      // export objects to one stl output
-            var result = exporter.parse( group );
-            saveString( result, 'output/output.stl' );
-        }, 100);
+        if(loaded_models.model.length == 1){
+            console.log(">> single object");
+            var single_object = scene.getObjectByName( loaded_models.model[0].name, true );
+            //single_object.rotation.set( (Math.PI / 2), 0, 0);
 
-        setTimeout(function(){      // export objects to one stl output
+            setTimeout(function(){      // export object to one stl output
+                var result = exporter.parse( single_object );
+                //saveString( result, 'output/output.stl' );
+                fs.writeFile("output/output.stl", result, function(err) {
+                    if(err) {
+                        return console.log(err);
+                    }
+                    setTimeout(function(){
+                        load_and_rotate_stl();
+                    }, 100);
+                });
+            }, 100);
+        } else {
+            console.log(">> multiple objects: " + loaded_models.model.length);
+            console.log(loaded_models.model);
+            var group = new THREE.Group();      // create group from objects for export
+            for(var i = 0; i < loaded_models.model.length; i++){
+
+                var addObject = scene.getObjectByName(loaded_models.model[i].name);
+                var addObject_pos = scene.getObjectByName(loaded_models.model[i].name);
+                //console.log(loaded_models.model[i].name);
+
+                var cloneObject = addObject.clone();            // group delete original --> clone object same name
+                cloneObject.name = loaded_models.model[i].name;
+                scene.add(cloneObject); ObjectControl1.attach( cloneObject );
+                                                                // set rotation and position for cloned object
+                //cloneObject.rotation.set((cloneObject.rotation.x - (Math.PI / 2)), cloneObject.rotation.y, cloneObject.rotation.z);
+                cloneObject.rotation.set(cloneObject.rotation.x, cloneObject.rotation.y, cloneObject.rotation.z);
+                cloneObject.position.set(addObject.position.x, addObject.position.y, addObject.position.z);
+
+                group.add( addObject );
+
+                setTimeout(function(){      // export objects to one stl output
+                    var result = exporter.parse( group );
+                    //saveString( result, 'output/output.stl' );
+
+                    fs.writeFile("output/output.stl", result, function(err) {
+                        if(err) {
+                            return console.log(err);
+                        }
+                        setTimeout(function(){
+                            load_and_rotate_stl();
+                        }, 100);
+                    });
+                }, 100);
+            }
+        }
+
+        function load_and_rotate_stl(){
             load_stl_model_output('output/output.stl', 'output.stl');
 
             setTimeout(function(){      // export objects to one stl output
@@ -920,11 +1041,21 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                 output_obj.rotation.set( (Math.PI / 2), 0, 0);
                 setTimeout(function(){
                     var result = exporter.parse( output_obj );
-                    saveString( result, 'output/output.stl' );
-                    scene.remove( output_obj );
+                    //saveString( result, 'output/output.stl' );
+                    fs.writeFile("output/output.stl", result, function(err) {
+                        if(err) {
+                            return console.log(err);
+                        }
+                        setTimeout(function(){
+                            var output_obj = scene.getObjectByName('output.stl');
+                            scene.remove( output_obj );
+                            var index_item = loaded_models.model.findIndex(x => x.name == output_obj);
+                            loaded_models.model.splice(index_item, 1);
+                        }, 100);
+                    });
                 }, 100);
-            }, 300);
-        }, 400);
+            }, 200);
+        }
 
     }
 
@@ -968,7 +1099,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 				console.log("y: " + mesh_move_y);
 				//console.log(selected_object_obj.position);
 				//console.log(mesh_pos.position);
-                
+
 			}
 		}
 	}
@@ -1684,7 +1815,7 @@ $(document).on('click','.sw_retraction', function(){
         if(!$(".sw_retraction .btn-toggle").hasClass("active")){
             config.retract_length = $(".inp_retraction").val();
             $(".inp_retraction").prop( "disabled", true );
-            $(".inp_retraction").val(0);
+            $(".inp_retraction").val(retraction_enable);
         } else {
             $(".inp_retraction").prop( "disabled", false );
             $(".inp_retraction").val(retraction_enable);
@@ -2055,36 +2186,39 @@ function save_config(){     // save preset << user settings
         config.cooling = "0";
     }
 
-    if($(".sw_brim .btn-toggle").hasClass("active")){
-        config.brim_width = app_config.brim_width;
-    } else {
-        config.brim_width = "0";
-    }
-
-    if($(".sw_raft .btn-toggle").hasClass("active")){
-        config.raft_layers = app_config.raft_layers;
-    } else {
-        config.raft_layers = "0";
-    }
-
-    if($(".sw_retraction .btn-toggle").hasClass("active")){
-        config.retract_length !== null ? config.retract_length = $(".inp_retraction").val() : config.retract_length = "2";
-        console.log($(".inp_retraction").val());
-        //config.retract_length = $(".inp_retraction").val();
-    } else {
-        config.retract_length = "0";
-    }
-
     $(".label_preset_material").text(config.material_type);
+
+    // if manual settings is active
+    if($("#easy_s_btn").is(":visible")){
+        //console.log(">> manual settings");
+        config.max_print_speed = $(".slider_value_speed").text().replace(" mm/s", "");
+        config.temperature = $(".slider_value_tp_end").text().replace(" °C", "");
+        config.bed_temperature = $(".slider_value_tp_bed").text().replace(" °C", "");
+        config.extrusion_multiplier = $(".slider_value_ext_mpt").text().replace(" %", "") / 100;
+
+        if($(".sw_retraction .btn-toggle").hasClass("active")){
+            config.retract_length !== null ? config.retract_length = $(".inp_retraction").val() : config.retract_length = "2";
+        } else {
+            config.retract_length = "0";
+        }
+
+        if($(".sw_brim .btn-toggle").hasClass("active")){
+            config.brim_width = app_config.brim_width;
+        } else {
+            config.brim_width = "0";
+        }
+
+        if($(".sw_raft .btn-toggle").hasClass("active")){
+            config.raft_layers = app_config.raft_layers;
+        } else {
+            config.raft_layers = "0";
+        }
+    }
 
     config.fill_density = $(".slider_value_sp").text();
     config.layer_height = $(".slider_value_qv").text().replace(" mm", "");
-    config.max_print_speed = $(".slider_value_speed").text().replace(" mm/s", "");
-    config.temperature = $(".slider_value_tp_end").text().replace(" °C", "");
-    config.bed_temperature = $(".slider_value_tp_bed").text().replace(" °C", "");
 
-    $(".slider_value_ext_mpt").text().replace(" %", "") !== "" ? config.extrusion_multiplier = $(".slider_value_ext_mpt").text().replace(" %", "") / 100 : config.extrusion_multiplier = 1;
-
+    // settings from general app settings
     config.bed_shape = "0x0," + app_config.build_area_x + "x0," + app_config.build_area_x + "x" + app_config.build_area_y + ",0x" + app_config.build_area_y + "";
     config.max_print_height = app_config.build_area_z;
     config.gcode_flavor = app_config.gcode_flavor;

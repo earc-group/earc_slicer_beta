@@ -219,7 +219,7 @@ var InfoHelpScreen = React.createClass({
     return (
         <div id="info_help_screen">
             <button id="close_info_help"></button>
-            <h2 className="info_headline">hello world</h2>
+            <h2 className="info_headline">help screen</h2>
             <hr className="info_view_hr" />
             <br />
             <p className="info_help_text"></p>

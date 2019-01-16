@@ -362,6 +362,9 @@ span
 #model_li_p
     user-select: none
 
+#eject_btn
+    display: none
+
 .models_scroll_box
     position: relative
     width: 100%
@@ -370,6 +373,18 @@ span
     border-bottom: 1px solid #ccc
     height: 30vh
     max-height: 30vh
+    word-wrap: break-word
+    margin-bottom: 20px
+    overflow-y: auto
+
+.gcode_info_scroll_box
+    position: relative
+    width: 100%
+    top: -11px
+    border-top: 1px solid #ccc
+    border-bottom: 1px solid #ccc
+    height: 50vh
+    max-height: 50vh
     word-wrap: break-word
     margin-bottom: 20px
     overflow-y: auto
@@ -1184,6 +1199,7 @@ span
 .print_info_box
     margin-top: 20px
     text-align: left
+    line-height: 1.4em
 
 .dg.main
     z-index: 999 !important
@@ -1342,7 +1358,7 @@ span
         font-family: Roboto, sans-serif
         font-size: 2em !important
         font-weight: 300
-        
+
 .confirm_dialog
     width: 50vw
     height: 26vh
