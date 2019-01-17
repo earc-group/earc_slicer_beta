@@ -38,23 +38,23 @@ var EasySettings = React.createClass({
             <div className="easy_settings">
                 <div className="rotation_menu_manual">
                     <p>rotaton:</p><br />
-                    <p>x: <input type="text" id="rot_x" name="rot_x" className="rotation_inp"></input></p>
-                    <p>y: <input type="text" id="rot_y" name="rot_y" className="rotation_inp"></input></p>
-                    <p>z: <input type="text" id="rot_z" name="rot_z" className="rotation_inp"></input></p>
+                    <p>x: <input type="text" id="rot_x" name="rot_x" className="rotation_inp" placeholder="0"></input></p>
+                    <p>y: <input type="text" id="rot_y" name="rot_y" className="rotation_inp" placeholder="0"></input></p>
+                    <p>z: <input type="text" id="rot_z" name="rot_z" className="rotation_inp" placeholder="0"></input></p>
                     <br />
                     <button id="set_rotation" className="button">set rotation</button>
                 </div>
                 <div className="scale_menu_manual">
-                    <p>scale:</p>
+                    <p>scale: [%]</p>
                     <br />
                     <button id="unify_scale" className="icon_btn unify_scale"></button>
                     <div className="no_unify_scale_div">
-                        <p>x: <input type="text" id="scale_x" name="scale_x" className="scale_inp"></input></p>
-                        <p>y: <input type="text" id="scale_z" name="scale_z" className="scale_inp"></input></p>
-                        <p>z: <input type="text" id="scale_y" name="scale_y" className="scale_inp"></input></p>
+                        <p>x: <input type="text" id="scale_x" name="scale_x" className="scale_inp" placeholder="100"></input></p>
+                        <p>y: <input type="text" id="scale_z" name="scale_z" className="scale_inp" placeholder="100"></input></p>
+                        <p>z: <input type="text" id="scale_y" name="scale_y" className="scale_inp" placeholder="100"></input></p>
                     </div>
                     <div className="unify_scale_div">
-                        <p><input type="text" id="scale_unify" name="scale_unify" className="scale_inp"></input></p>
+                        <p><input type="text" id="scale_unify" name="scale_unify" className="scale_inp" placeholder="100"></input></p>
                     </div>
                     <br />
                     <button id="set_scale" className="button">set scale</button>

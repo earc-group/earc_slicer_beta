@@ -36,9 +36,11 @@ var last_save_path;
 var flag=false;
 var layer;
 
+
 setTimeout(function(){
     init();
     animate();
+    require('electron').remote.getCurrentWindow().setVibrancy('medium-light');
 }, 400);
 
 function init() {
@@ -49,11 +51,12 @@ function init() {
     var space_y = 200;
     var space_height = 200;
 
-	renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setClearColor( 0xffffff );
+	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+	//renderer.setClearColor( 0xffffff, 0.6 );
+	renderer.setClearColor( 0xffffff, 1 );
 	//renderer.setSize( 800, 500 );
 	//renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.setSize( Math.round((window.innerWidth/100)*72), window.innerHeight );
+	renderer.setSize( Math.round((window.innerWidth/100)*80), window.innerHeight );
 	document.body.appendChild( renderer.domElement );
 
     setTimeout(function(){
@@ -68,7 +71,7 @@ function init() {
 
 	//camera = new THREE.PerspectiveCamera( 30, 800 / 500, 1, 2000 );
 	camera = new THREE.PerspectiveCamera( 30, Math.round((window.innerWidth/100)*74) / window.innerHeight, 1, 3000 );
-	camera.position.set( 260, 280, 360 );
+	camera.position.set( 260, 280, 320 );
     //camera.up = new THREE.Vector3( 0, 0, 1 ); // x y z
 
     exporter = new THREE.STLExporter();
@@ -305,8 +308,7 @@ function init() {
         $("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + model_file_name + "</p><div class='cross_icon del_model_btn' id='" + model_file_name + "'></div></li>");
 
         loaded_models.model.push({ name: model_file_name, path: file_path });   // add object to array with properties
-
-        console.log(loaded_models);
+        //console.log(loaded_models);
 
         var loader = new THREE.STLLoader();
 		loader.load( file_path, function ( geometry ) {
@@ -328,8 +330,8 @@ function init() {
 
 			var box = new THREE.Box3().setFromObject( mesh );
 
-            console.log("---> - height: " + box.min.y);
-            console.log("---> + height: " + box.max.y);
+            //console.log("---> - height: " + box.min.y);
+            //console.log("---> + height: " + box.max.y);
 
             if(box.min.y < 0){
                 mesh.position.set( 0, -(box.min.y), 0 );
@@ -339,8 +341,7 @@ function init() {
                 mesh.position.set( 0, 0, 0 );
             }
 
-            console.log("------ ");
-            console.log("---> pos: " + mesh.position.y);
+            //console.log("---> pos: " + mesh.position.y);
 
             var box = new THREE.Box3().setFromObject( mesh );
 
@@ -370,7 +371,7 @@ function init() {
 
         loaded_models.model.push({ name: model_file_name, path: file_path });   // add object to array with properties
 
-        console.log(loaded_models);
+        //console.log(loaded_models);
 
         var loader = new THREE.STLLoader();
 		loader.load( file_path, function ( geometry ) {
@@ -392,8 +393,8 @@ function init() {
 
 			var box = new THREE.Box3().setFromObject( mesh );
 
-            console.log("---> - height: " + box.min.y);
-            console.log("---> + height: " + box.max.y);
+            //console.log("---> - height: " + box.min.y);
+            //console.log("---> + height: " + box.max.y);
 
             if(box.min.y < 0){
                 mesh.position.set( 0, -(box.min.y), 0 );
@@ -403,8 +404,7 @@ function init() {
                 mesh.position.set( 0, 0, 0 );
             }
 
-            console.log("------ ");
-            console.log("---> pos: " + mesh.position.y);
+            //console.log("---> pos: " + mesh.position.y);
 
             var box = new THREE.Box3().setFromObject( mesh );
 
@@ -456,8 +456,8 @@ function init() {
 
     			var box = new THREE.Box3().setFromObject( mesh );
 
-                console.log("---> - height: " + box.min.y);
-                console.log("---> + height: " + box.max.y);
+                //console.log("---> - height: " + box.min.y);
+                //console.log("---> + height: " + box.max.y);
 
                 if(box.min.y < 0){
                     mesh.position.set( 0, -(box.min.y), 0 );
@@ -467,8 +467,7 @@ function init() {
                     mesh.position.set( 0, 0, 0 );
                 }
 
-                console.log("------ ");
-                console.log("---> pos: " + mesh.position.y);
+                //console.log("---> pos: " + mesh.position.y);
 
                 var box = new THREE.Box3().setFromObject( mesh );
 
@@ -818,20 +817,6 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 
         // load preset << user settings
 
-        for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
-            var object = scene.getObjectByName( loaded_models.model[i].name, true );
-            if(typeof object !== "undefined"){
-                object.visible = false;
-            }
-        }
-
-        setTimeout(function(){
-            var gcode_view = scene.getObjectByName( "gcode_view", true );
-            if(typeof gcode_view !== "undefined"){
-                gcode_view.visible = true;
-            }
-        }, 800);
-
         if($("#model_li").length !== 0){    // check if models exist
             console.log(">> start slicing");
 
@@ -841,9 +826,23 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                 	$(".loading_screen_slice").addClass("show");
                 	$(".loading_screen_slice").removeClass("hide");
                 }
-                setTimeout(show_div_load_slice, 500);
+                setTimeout(show_div_load_slice, 100);
             }
-            setTimeout(show_div_load_slice, 100);
+            setTimeout(show_div_load_slice, 10);
+
+            for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
+                var object = scene.getObjectByName( loaded_models.model[i].name, true );
+                if(typeof object !== "undefined"){
+                    object.visible = false;
+                }
+            }
+
+            setTimeout(function(){
+                var gcode_view = scene.getObjectByName( "gcode_view", true );
+                if(typeof gcode_view !== "undefined"){
+                    gcode_view.visible = true;
+                }
+            }, 800);
 
             exportASCII();  // export stl with right rotation
 
@@ -854,7 +853,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
             if(loaded_models.model.length == 1){
                 var slingle_obj = scene.getObjectByName( loaded_models.model[0].name, true );
                 single_obj_pos = "-m --print-center " + (space_y - Math.abs(slingle_obj.position.x - space_y / 2)) + "," + Math.abs(slingle_obj.position.z - space_x / 2);
-                console.log(single_obj_pos);
+                //console.log(single_obj_pos);
             } else {
                 single_obj_pos = "";
             }
@@ -970,8 +969,6 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
     });
 
     function exportASCII() {    // export stl with right rotation
-
-        console.log("object.model --> export ");
 
         for(var i = 0; i < loaded_models.model.length; i++){
             var object = scene.getObjectByName(loaded_models.model[i].name);
@@ -1201,6 +1198,9 @@ function scale_set(){     // --> set scale of model
 
     set_floor(selected_object);
     $(".scale_menu_manual").removeClass("active");
+    //$(".easy_set_div").hide();
+    $('.easy_set_div').css('display') == 'none' ? $('.easy_set_div').css('display','block') : $('.easy_set_div').css('display','none');
+    $(".no_unify_scale_div").hide();
 }
 
     $(document).on('click','#set_rotation', function(){     // --> set rotation of model
@@ -1396,20 +1396,36 @@ $(document).on('click','#rotate_object', function(){
     $(".rotation_menu").toggleClass("active");
 })
 
+$(document).on('click','#settings_btn', function(){
+    open_settings();
+})
+
 $(document).on('click','#rotate_object_manual', function(){
     $(".rotation_menu_manual").toggleClass("active");
     $(".rotation_menu").toggleClass("active");
+
+    $('.easy_set_div').is(":hidden") ? $('.easy_set_div').show() : $('.easy_set_div').hide();
+    if ($('.scale_menu_manual').hasClass('active')){
+        $('.scale_menu_manual').removeClass('active');
+        $('.easy_set_div').hide();
+    }
 })
 
 $(document).on('click','#scale_object', function(){
     $(".scale_menu_manual").toggleClass("active");
+    //$(".easy_set_div").hide();
+    $('.easy_set_div').is(":hidden") ? $('.easy_set_div').show() : $('.easy_set_div').hide();
+    $(".no_unify_scale_div").hide();
+
+    if ($('.rotation_menu_manual').hasClass('active')){
+        $('.rotation_menu_manual').removeClass('active');
+        $('.easy_set_div').hide();
+    }
 })
 
 $(document).on('click','#model_li_p', function(){
     selected_object = $(this).text();
 })
-
-$(".no_unify_scale_div").hide();
 
 $(document).on('click','#unify_scale', function(){
     $(this).toggleClass("unify_scale");
@@ -2253,7 +2269,10 @@ ipcRenderer.on('save_pres_fc_menu', function () {
 
 ipcRenderer.on('preferences_fc_menu', function () {
     //window.open('save_pres.html', '_blank', 'nodeIntegration=yes, resizable=0, width=400, height=220');
+    open_settings();
+});
 
+function open_settings(){
     var child = window.open('pref_winodw.html', '_blank', 'nodeIntegration=yes, resizable=0, width=800, height=500');
     var timer = setInterval(checkChild, 500);
 
@@ -2267,7 +2286,7 @@ ipcRenderer.on('preferences_fc_menu', function () {
             clearInterval(timer);
         }
     }
-});
+}
 
 function reload_presets_select(){   // this works dont touch it !!
     console.log("----reload preset----");

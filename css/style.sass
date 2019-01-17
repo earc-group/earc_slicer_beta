@@ -11,7 +11,7 @@ $dark_color: #555555
 
 body
     font-family: Monospace
-    background-color: #fff
+    //background-color: #fff
     margin: 0px
     overflow: hidden
     color: #00BAFF
@@ -36,6 +36,11 @@ hr
 
 textarea
     resize: none
+
+input[type="text"]
+    color: #888
+    &:focus
+        outline: none
 
 .button
     color: #fff
@@ -159,7 +164,7 @@ span
     visibility: hidden
 
 .side_bar
-    width: 24vw
+    width: 22vw
     height: 100vw
     top: 0px
     left: 0px
@@ -170,7 +175,7 @@ span
     border-image-slice: 1
     border-width: 2px
     border-right: 2px solid
-    background-color: #fff
+    background-color: rgba(#fff, 1)
     box-shadow: 0px 0px 24px rgba(#000, .14)
 
 .side_bar_hr
@@ -258,10 +263,21 @@ span
     background: url('../assets/img/scale_icon.svg') no-repeat
 
 .unify_scale
-    background: url('../assets/img/scale_icon.svg') no-repeat
+    background: url('../assets/img/lock.svg') no-repeat
 
 .no_unify_scale
-    background: url('../assets/img/manula_rotate_icon.svg') no-repeat
+    background: url('../assets/img/lock.svg') no-repeat
+
+.settings_btn
+    background: url('../assets/img/settings.svg') no-repeat
+
+#unify_scale
+    margin-top: 6px
+
+.settings_btn
+    position: absolute
+    right: 3px
+    top: 23px
 
 .rotation_menu
     position: absolute
@@ -383,8 +399,8 @@ span
     top: -11px
     border-top: 1px solid #ccc
     border-bottom: 1px solid #ccc
-    height: 50vh
-    max-height: 50vh
+    height: 34vh
+    max-height: 34vh
     word-wrap: break-word
     margin-bottom: 20px
     overflow-y: auto
@@ -392,7 +408,7 @@ span
 .top_text_beta
     position: relative
     float: right
-    right: 20px
+    right: 30px
     margin-top: -3px
 
 .cross_icon
@@ -445,7 +461,7 @@ span
   right: 0px
   opacity: 0
   z-index: 50
-  transition: all .6s
+  transition: all .3s
   &.hide
       opacity: 0
   &.show
@@ -832,6 +848,9 @@ span
     border-left: solid 1px #ccc
     height: 67vh
     max-height: 67vh
+
+.scale_inp,.rotation_inp
+    margin-bottom: 4px
 
 .infill_type
     margin-top: -20px

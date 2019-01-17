@@ -3,7 +3,6 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600|Source+Sans+Pro:200,300,400");
 body {
   font-family: Monospace;
-  background-color: #fff;
   margin: 0px;
   overflow: hidden;
   color: #00BAFF;
@@ -33,6 +32,14 @@ hr {
 
 textarea {
   resize: none;
+}
+
+input[type="text"] {
+  color: #888;
+}
+
+input[type="text"]:focus {
+  outline: none;
 }
 
 .button {
@@ -179,7 +186,7 @@ span {
 }
 
 .side_bar {
-  width: 24vw;
+  width: 22vw;
   height: 100vw;
   top: 0px;
   left: 0px;
@@ -190,7 +197,7 @@ span {
   border-image-slice: 1;
   border-width: 2px;
   border-right: 2px solid;
-  background-color: #fff;
+  background-color: white;
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.14);
 }
 
@@ -296,11 +303,25 @@ span {
 }
 
 .unify_scale {
-  background: url("../assets/img/scale_icon.svg") no-repeat;
+  background: url("../assets/img/lock.svg") no-repeat;
 }
 
 .no_unify_scale {
-  background: url("../assets/img/manula_rotate_icon.svg") no-repeat;
+  background: url("../assets/img/lock.svg") no-repeat;
+}
+
+.settings_btn {
+  background: url("../assets/img/settings.svg") no-repeat;
+}
+
+#unify_scale {
+  margin-top: 6px;
+}
+
+.settings_btn {
+  position: absolute;
+  right: 3px;
+  top: 23px;
 }
 
 .rotation_menu {
@@ -446,8 +467,8 @@ span {
   top: -11px;
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
-  height: 50vh;
-  max-height: 50vh;
+  height: 34vh;
+  max-height: 34vh;
   word-wrap: break-word;
   margin-bottom: 20px;
   overflow-y: auto;
@@ -456,7 +477,7 @@ span {
 .top_text_beta {
   position: relative;
   float: right;
-  right: 20px;
+  right: 30px;
   margin-top: -3px;
 }
 
@@ -513,7 +534,7 @@ span {
   right: 0px;
   opacity: 0;
   z-index: 50;
-  transition: all .6s;
+  transition: all .3s;
 }
 
 .loading_screen_slice.hide {
@@ -998,6 +1019,10 @@ span {
   border-left: solid 1px #ccc;
   height: 67vh;
   max-height: 67vh;
+}
+
+.scale_inp, .rotation_inp {
+  margin-bottom: 4px;
 }
 
 .infill_type {

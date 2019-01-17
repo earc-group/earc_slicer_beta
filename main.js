@@ -34,6 +34,7 @@ function createWindow () {
       height: 667,
       minWidth: 1060,
       minHeight: 629,
+      //vibrancy: 'light-medium',
       icon: path.join(__dirname, 'assets/icons/earc_slicer_icon/icon.icns'),
       //icon: path.join('img/icons/png/64x64.png'),
       //icon: path.join(__dirname, 'assets/icons/png/64x64.png')
@@ -41,7 +42,6 @@ function createWindow () {
      // icon: __dirname +  'assets/icons/earc_slicer_icon/icon.icns'
       //icon: path.join('assets/icons/png/64x64.png')
   })
-
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
@@ -61,7 +61,15 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+let window
+
 app.on('ready', function() {
+
+    /*
+window = new BrowserWindow()
+    window.loadURL(`file://${__dirname}/bg_blur.html`)
+*/
+
     createWindow();
 
     /*
