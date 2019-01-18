@@ -370,6 +370,11 @@ function init() {
             console.log(Math.round(count_i / 100) * 100);
             console.log((1/count_i)*100);
 
+            var box_2 = new THREE.Box3().setFromObject( mesh );
+            var volume_obj = box_2.getSize().x * box_2.getSize().y * box_2.getSize().z;
+            console.log(volume_obj);
+            console.log(count_i - (volume_obj/1000));
+
             wireframe.position.set(0,20,0);
 
             scene.add( wireframe );
