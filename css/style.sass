@@ -9,14 +9,25 @@ $main_color: #00BAFF
 $second_color: #56e1fa
 $dark_color: #555555
 
+html
+    -webkit-app-region: drag
+
+*
+    -webkit-app-region: drag
+
+canvas
+    -webkit-app-region: no-drag
+
 body
     font-family: Monospace
     //background-color: #fff
     margin: 0px
+    padding-top: 10px
     overflow: hidden
     color: #00BAFF
     -webkit-font-smoothing: subpixel-antialiased
     text-rendering: optimizeSpeed
+    -webkit-app-region: drag
 
 canvas
     position: absolute
@@ -57,6 +68,7 @@ input[type="text"]
     font-size: 1.1em
     transition: filter .6s, -webkit-filter .6s, box-shadow .6s
     letter-spacing: 1.6px
+    -webkit-app-region: no-drag
     &:hover
       filter: brightness(112%)
       -webkit-filter: brightness(112%)

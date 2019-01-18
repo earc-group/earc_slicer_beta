@@ -349,6 +349,31 @@ function init() {
             //scene.add( helper );
             //console.log(helper.position);
 
+            var geo = new THREE.WireframeGeometry( geometry )
+
+            var mat = new THREE.LineBasicMaterial( { color: 0x00D8ED, linewidth: 2 } );
+
+            var wireframe = new THREE.LineSegments( geo, mat );
+
+            var count_i = 0;
+
+            let position = geo.getAttribute("position").array;
+
+            for (let i = 0; i < position.length; i++)
+            {
+            	//let counter = i / position.length;
+                count_i = i;
+            }
+
+            console.log(count_i);
+        //    console.log(count_i.toFixed(0.02));
+            console.log(Math.round(count_i / 100) * 100);
+            console.log((1/count_i)*100);
+
+            wireframe.position.set(0,20,0);
+
+            scene.add( wireframe );
+
 			scene.add( mesh ); ObjectControl1.attach( mesh );
 
 			if ( mesh instanceof THREE.Mesh ) {
@@ -2513,6 +2538,21 @@ $(document).on('click','#easy_s_btn', function(){
     $("#easy_s_btn").hide();
     $("#manual_btn").show();
 })
+
+
+/*
+var clear = drag_window('.top_bar');
+
+// Call the returned function to make the element undraggable again.
+clear();*/
+
+
+
+/*
+if(!drag.supported) {
+	document.querySelector('.top_bar').style['-webkit-app-region'] = 'drag';
+}*/
+
 
 
 

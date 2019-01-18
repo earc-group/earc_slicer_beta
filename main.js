@@ -35,6 +35,7 @@ function createWindow () {
       minWidth: 1060,
       minHeight: 629,
       //vibrancy: 'light-medium',
+      titleBarStyle: 'hidden',
       icon: path.join(__dirname, 'assets/icons/earc_slicer_icon/icon.icns'),
       //icon: path.join('img/icons/png/64x64.png'),
       //icon: path.join(__dirname, 'assets/icons/png/64x64.png')
