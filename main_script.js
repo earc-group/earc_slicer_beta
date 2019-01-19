@@ -32,6 +32,9 @@ loaded_models.model = [];
 
 var define_inport_click_var;
 var last_save_path;
+var vector_count = 0;
+var volume_obj;
+var obj_volume_proc;
 
 var flag=false;
 var layer;
@@ -229,15 +232,12 @@ function init() {
                 if(ext == "stl"){
                     console.log("ext --> ." + ext + " -> OK");
                     load_stl_model(file_path, file_name);
-                } /*
-                else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+                } else if(ext == "obj"){              // EXPERIMENTAL --> disabled
                     console.log("ext --> ." + ext + " -> OK");
-                    load_obj_model(f.path, f.name);
-                } */
-
-                else {
+                    load_obj_model(file_path, file_name);
+                } else {
                     console.log("ERROR --> Unsupported File --> ." + ext);
-                    alert("Unsupported File --> ." + ext + "  (only .stl)");
+                    alert("Unsupported File --> ." + ext + "  (only .stl, .obj)");
                 }
         });
     };
@@ -257,15 +257,12 @@ function init() {
                 if(ext == "stl"){
                     console.log("ext --> ." + ext + " -> OK");
                     load_stl_model(file_path, file_name);
-                } /*
-                else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+                } else if(ext == "obj"){              // EXPERIMENTAL --> disabled
                     console.log("ext --> ." + ext + " -> OK");
-                    load_obj_model(f.path, f.name);
-                } */
-
-                else {
+                    load_obj_model(file_path, file_name);
+                } else {
                     console.log("ERROR --> Unsupported File --> ." + ext);
-                    alert("Unsupported File --> ." + ext + "  (only .stl)");
+                    alert("Unsupported File --> ." + ext + "  (only .stl, .obj)");
                 }
         });
     }
@@ -284,13 +281,10 @@ function init() {
             if(ext == "stl"){
                 console.log("ext --> ." + ext + " -> OK");
                 load_stl_model(file_path, file_name);
-            } /*
-            else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+            } else if(ext == "obj"){              // EXPERIMENTAL --> disabled
                 console.log("ext --> ." + ext + " -> OK");
-                load_obj_model(f.path, f.name);
-            } */
-
-            else {
+                load_obj_model(file_path, file_name);
+            } else {
                 console.log("ERROR --> Unsupported File --> ." + ext);
                 alert("Unsupported File --> ." + ext + "  (only .stl)");
             }
@@ -348,41 +342,6 @@ function init() {
             var helper = new THREE.Box3Helper( box, 0xffff00 );
             //scene.add( helper );
             //console.log(helper.position);
-
-            var geo = new THREE.WireframeGeometry( geometry )
-
-            var mat = new THREE.LineBasicMaterial( { color: 0x00D8ED, linewidth: 2 } );
-
-            var wireframe = new THREE.LineSegments( geo, mat );
-
-            var vector_count = 0;
-
-            let position = geo.getAttribute("position").array;
-
-            for (let i = 0; i < position.length; i++)
-            {
-            	//let counter = i / position.length;
-                vector_count = i;
-            }
-
-            console.log(vector_count);
-        //    console.log(vector_count.toFixed(0.02));
-            console.log(Math.round(vector_count / 100) * 100);
-            console.log((1/vector_count)*100);
-            var max_volume = 8000000; // 200x200x200
-            var box_2 = new THREE.Box3().setFromObject( mesh );
-            var volume_obj = box_2.getSize().x * box_2.getSize().y * box_2.getSize().z;
-            var obj_volume_proc = (volume_obj * 100) / max_volume;   // get % of maximum volume
-            if(obj_volume_proc == 100){obj_volume_proc = 90}
-            var obj_id_blueprint = vector_count * (1 - (obj_volume_proc / 100)); // vectors - vol_proc %
-            console.log(volume_obj);
-            console.log(obj_volume_proc + "%");
-            console.log("--------");
-            console.log(obj_id_blueprint);
-
-            wireframe.position.set(0,20,0);
-
-            scene.add( wireframe );
 
 			scene.add( mesh ); ObjectControl1.attach( mesh );
 
@@ -455,21 +414,52 @@ function init() {
 
             selected_object_obj = mesh_pos;
 
-		} );
+		},
+        // called when loading is in progresses
+    	function ( xhr ) {
 
+    		//console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+            if(( xhr.loaded / xhr.total * 100 ) == 100){
+                setTimeout(function(){      // export objects to one stl output
+                    var output_obj = scene.getObjectByName('output.stl');
+                    output_obj.rotation.set( (Math.PI / 2), 0, 0);
+                    console.log(">> rotated");
+                    setTimeout(function(){
+                        var result = exporter.parse( output_obj );
+                        //saveString( result, 'output/output.stl' );
+                        fs.writeFile("output/output.stl", result, function(err) {
+                            if(err) {
+                                return console.log(err);
+                            }
+                            setTimeout(function(){
+                                var output_obj = scene.getObjectByName('output.stl');
+                                scene.remove( output_obj );
+                                var index_item = loaded_models.model.findIndex(x => x.name == output_obj);
+                                loaded_models.model.splice(index_item, 1);
+                            }, 100);
+                        });
+                    }, 200);
+                }, 200);
+            }
+    	});
     }
 
     function load_obj_model(model_file_path, model_file_name){      // EXPERIMENTAL --> disabled
 
-        $("#model_list_div").append("<li id='model_li' class=''>" + model_file_name + "</li>");
+        var file_path = model_file_path;
+
+        for(var i = 0; i < loaded_models.model.length; i++){
+            loaded_models.model[i].name == model_file_name ? model_file_name = "(cp)" + model_file_name : model_file_name = model_file_name;
+        }
+
+        $("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + model_file_name + "</p><div class='cross_icon del_model_btn' id='" + model_file_name + "'></div></li>");
 
         loaded_models.model.push({ name: model_file_name, path: file_path });   // add object to array with properties
-
-        console.log(loaded_models);
-
+        //console.log(loaded_models);
 
         var loader = new THREE.OBJLoader()
-            loader.load( file_path, function ( mesh ) {
+            loader.load( model_file_path, function ( mesh ) {
 
                 var color = new THREE.Color( 0x00BAFF );
                 mesh.traverse( function ( child ) {
@@ -487,7 +477,6 @@ function init() {
 
     			mesh.castShadow = true;
     			mesh.receiveShadow = true;
-
 
     			var box = new THREE.Box3().setFromObject( mesh );
 
@@ -592,12 +581,11 @@ function init() {
                 if(ext == "stl"){
                     console.log("ext --> ." + ext + " -> OK");
                     load_stl_model(f.path, f.name);
-                } /*
-                else if(ext == "obj"){              // EXPERIMENTAL --> disabled
+                }
+                else if(ext == "obj"){              // EXPERIMENTAL --> enabled
                     console.log("ext --> ." + ext + " -> OK");
                     load_obj_model(f.path, f.name);
-                } */
-
+                }
                 else {
                     console.log("ERROR --> Unsupported File --> ." + ext);
                     alert("Unsupported File --> ." + ext + "  (only .stl)");
@@ -702,6 +690,23 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         setTimeout(function(){
             $("#gcode_ui_side_bar").fadeIn("slow");
         }, 200);
+
+        // ML blueprint -> start
+        var obj_id_blueprint = vector_count * (1 - (obj_volume_proc / 100)); // vectors - vol_proc %
+        var obj_id_blueprint_ml = 1 / obj_id_blueprint;
+
+        console.log("vector:");
+        console.log(vector_count);
+        console.log("voluem:");
+        //console.log(box_2.getSize().x + "-" + box_2.getSize().y + "-" + box_2.getSize().z);
+        console.log(volume_obj);
+        console.log(obj_volume_proc + "%");
+        console.log("--------");
+        console.log(obj_id_blueprint);
+        console.log(Math.round(obj_id_blueprint / 100) * 100);
+        console.log(obj_id_blueprint_ml);
+        console.log("--------");
+        // ML blueprint -> end
 
         var feedback_slicer_array = feedback_slicer.split(" ");
         var fil_required = "";
@@ -868,6 +873,38 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 
             for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
                 var object = scene.getObjectByName( loaded_models.model[i].name, true );
+
+                // ML blueprint -> start
+                var object_geometry;
+                object.traverse( function ( child ) {   // get object geometry
+                    object_geometry = child.geometry;
+                } );
+                var geo = new THREE.EdgesGeometry( object_geometry );   // or WireframeGeometry() --> count more (214 -> 71 ...)
+                var mat = new THREE.LineBasicMaterial( { color: 0x00D8ED, linewidth: 2 } );
+                var wireframe = new THREE.LineSegments( geo, mat );
+                var vector_count_int = 0;
+                let position = geo.getAttribute("position").array;
+
+                for (let i = 0; i < position.length; i++)
+                {
+                    //let counter = i / position.length;
+                    vector_count_int = i;
+                }
+
+                vector_count = vector_count + vector_count_int;
+                console.log(vector_count);
+
+                wireframe.position.set(0,100,0);
+                wireframe.rotation.set( -(Math.PI / 2), 0, 0);
+                scene.add( wireframe );
+
+                var max_volume = 8000000; // 200x200x200
+                var box_2 = new THREE.Box3().setFromObject( object );
+                volume_obj = volume_obj + (box_2.getSize().x * box_2.getSize().y * box_2.getSize().z);
+                obj_volume_proc = obj_volume_proc + ((volume_obj * 100) / max_volume);   // get % of maximum volume
+                //if(obj_volume_proc == 100){obj_volume_proc = 90}
+                // ML blueprint -> end
+
                 if(typeof object !== "undefined"){
                     object.visible = false;
                     ObjectControl1.detach( object );
@@ -1070,7 +1107,8 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         function load_and_rotate_stl(){
             load_stl_model_output('output/output.stl', 'output.stl');
 
-            setTimeout(function(){      // export objects to one stl output
+            /*
+setTimeout(function(){      // export objects to one stl output
                 var output_obj = scene.getObjectByName('output.stl');
                 output_obj.rotation.set( (Math.PI / 2), 0, 0);
                 setTimeout(function(){
@@ -1087,8 +1125,10 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                             loaded_models.model.splice(index_item, 1);
                         }, 100);
                     });
-                }, 100);
-            }, 200);
+                }, 300);
+            }, 300);*/
+
+
         }
 
     }
@@ -1122,12 +1162,9 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                 selected_object = this.focused.name;
                 selected_object_obj = this.focused;
                 console.log( "selected: " + selected_object );
-                console.log( selected_object_obj );
-
+                //console.log( selected_object_obj );
                 //this.focused.material.color.setHex( 0x00BAFF );   // issue with .obj
-
                 //delete_obj(this.focused.name);
-
 				var mesh_move_x = 100 + selected_object_obj.position.x;
 				var mesh_move_y = 100 + selected_object_obj.position.z;
 				console.log("x: " + mesh_move_x);

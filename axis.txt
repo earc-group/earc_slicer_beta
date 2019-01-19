@@ -49,4 +49,44 @@ z: 5.599999904632569
 
 
 
-after back to models still model invisble 
+after back to models still model invisble
+
+
+DirectionalLight {uuid: "D0AF6517-A082-49DC-82C9-15409680AE11", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "45A841D2-7117-4E82-87EC-7BB8E6E0E7AD", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "6F124D43-8C80-429D-A562-229D67A115C9", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "0BF12350-C9C0-48F2-9CC6-19F8AF302E56", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 AmbientLight {uuid: "B3B11C42-2596-41A8-ACED-DF1E5FABB5A5", name: "", type: "AmbientLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 Mesh {uuid: "EDD29E9D-536E-41EC-B5E4-3E70B66E8CE2", name: "", type: "Mesh", parent: Scene, children: Array(0), …}
+main_script.js:2543 Line {uuid: "3537032C-8C4A-4CA6-8C72-1C7F511D7E30", name: "", type: "Line", parent: Scene, children: Array(0), …}
+main_script.js:2543 Object3D {uuid: "13ABCF2B-666A-4B27-ACC6-46343706EE6D", name: "", type: "Object3D", parent: Scene, children: Array(2), …}
+main_script.js:2543 AxesHelper {uuid: "9129C2E8-A395-436F-8246-0487219263A9", name: "", type: "LineSegments", parent: Scene, children: Array(0), …}
+
+
+DirectionalLight {uuid: "FD53DA01-CF1E-404F-9B3D-A1D749316B21", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "2ED6555C-8F48-47E1-A619-1354FFF51470", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "F91E5804-7B43-4664-9EEE-EB70FAE21E8E", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "08766B0E-D711-4131-86F0-DD1DB0152FD7", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 AmbientLight {uuid: "6ADEAE7E-4439-482E-993D-9EDDE943A07F", name: "", type: "AmbientLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 Mesh {uuid: "10B119A8-3AE4-4555-A77A-DA051D4FC33F", name: "", type: "Mesh", parent: Scene, children: Array(0), …}
+main_script.js:2543 Line {uuid: "384ACE64-8140-4D5E-BD3F-00FB66F129E9", name: "", type: "Line", parent: Scene, children: Array(0), …}
+main_script.js:2543 Object3D {uuid: "ECD753E9-B408-459F-9BA6-A6E72C85A05F", name: "", type: "Object3D", parent: Scene, children: Array(2), …}
+main_script.js:2543 AxesHelper {uuid: "4072C7F7-131C-4215-93DE-C9663E84B62C", name: "", type: "LineSegments", parent: Scene, children: Array(0), …}
+main_script.js:2543 LineSegments {uuid: "BF4AFA45-BD45-4B60-8C79-35D133FA1970", name: "", type: "LineSegments", parent: Scene, children: Array(0), …}
+main_script.js:2543 Mesh {uuid: "CCB7F09F-05E8-4AF2-88F7-018AC287B0BC", name: "earc_logo_stl_on_printer_v2.stl", type: "Mesh", parent: Scene, children: Array(0), …}
+
+
+DirectionalLight {uuid: "FD53DA01-CF1E-404F-9B3D-A1D749316B21", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "2ED6555C-8F48-47E1-A619-1354FFF51470", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "F91E5804-7B43-4664-9EEE-EB70FAE21E8E", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 DirectionalLight {uuid: "08766B0E-D711-4131-86F0-DD1DB0152FD7", name: "", type: "DirectionalLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 AmbientLight {uuid: "6ADEAE7E-4439-482E-993D-9EDDE943A07F", name: "", type: "AmbientLight", parent: Scene, children: Array(0), …}
+main_script.js:2543 Mesh {uuid: "10B119A8-3AE4-4555-A77A-DA051D4FC33F", name: "", type: "Mesh", parent: Scene, children: Array(0), …}
+main_script.js:2543 Line {uuid: "384ACE64-8140-4D5E-BD3F-00FB66F129E9", name: "", type: "Line", parent: Scene, children: Array(0), …}
+main_script.js:2543 Object3D {uuid: "ECD753E9-B408-459F-9BA6-A6E72C85A05F", name: "", type: "Object3D", parent: Scene, children: Array(2), …}
+main_script.js:2543 AxesHelper {uuid: "4072C7F7-131C-4215-93DE-C9663E84B62C", name: "", type: "LineSegments", parent: Scene, children: Array(0), …}
+main_script.js:2543 LineSegments {uuid: "BF4AFA45-BD45-4B60-8C79-35D133FA1970", name: "", type: "LineSegments", parent: Scene, children: Array(0), …}
+
+
+Mesh {uuid: "8BEBA026-668C-4FE1-9658-72CB6E41ED9E", name: "earc_logo_stl_on_printer.stl", type: "Mesh", parent: Scene, children: Array(0), …}
+Mesh {uuid: "8BEBA026-668C-4FE1-9658-72CB6E41ED9E", name: "earc_logo_stl_on_printer.stl", type: "Mesh", parent: null, children: Array(0), …}

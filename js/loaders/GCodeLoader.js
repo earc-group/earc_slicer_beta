@@ -57,7 +57,7 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 	var pathMaterial = new THREE.LineBasicMaterial( { color: 0xE89C2A } );
 	pathMaterial.name = 'path';
 
-	var extrudingMaterial = new THREE.LineBasicMaterial( { color: 0x00E9E9 } );
+	var extrudingMaterial = new THREE.LineBasicMaterial( { color: 0x00D8ED } );
 	extrudingMaterial.name = 'extruded';
 
 	function newLayer( line ) {
