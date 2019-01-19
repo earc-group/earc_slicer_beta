@@ -35,7 +35,10 @@ function createWindow () {
       minWidth: 1060,
       minHeight: 629,
       //vibrancy: 'light-medium',
+      frameLess: true,
       titleBarStyle: 'hidden',
+      show: true,
+      //titleBarStyle: 'hidden',
       icon: path.join(__dirname, 'assets/icons/earc_slicer_icon/icon.icns'),
       //icon: path.join('img/icons/png/64x64.png'),
       //icon: path.join(__dirname, 'assets/icons/png/64x64.png')
@@ -44,11 +47,12 @@ function createWindow () {
       //icon: path.join('assets/icons/png/64x64.png')
   })
 
+
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

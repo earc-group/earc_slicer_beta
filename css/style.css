@@ -14,6 +14,7 @@ canvas {
 }
 
 body {
+  -webkit-app-region: drag;
   font-family: Monospace;
   margin: 0px;
   padding-top: 10px;
@@ -21,7 +22,6 @@ body {
   color: #00BAFF;
   -webkit-font-smoothing: subpixel-antialiased;
   text-rendering: optimizeSpeed;
-  -webkit-app-region: drag;
 }
 
 canvas {

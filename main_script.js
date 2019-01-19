@@ -355,25 +355,30 @@ function init() {
 
             var wireframe = new THREE.LineSegments( geo, mat );
 
-            var count_i = 0;
+            var vector_count = 0;
 
             let position = geo.getAttribute("position").array;
 
             for (let i = 0; i < position.length; i++)
             {
             	//let counter = i / position.length;
-                count_i = i;
+                vector_count = i;
             }
 
-            console.log(count_i);
-        //    console.log(count_i.toFixed(0.02));
-            console.log(Math.round(count_i / 100) * 100);
-            console.log((1/count_i)*100);
-
+            console.log(vector_count);
+        //    console.log(vector_count.toFixed(0.02));
+            console.log(Math.round(vector_count / 100) * 100);
+            console.log((1/vector_count)*100);
+            var max_volume = 8000000; // 200x200x200
             var box_2 = new THREE.Box3().setFromObject( mesh );
             var volume_obj = box_2.getSize().x * box_2.getSize().y * box_2.getSize().z;
+            var obj_volume_proc = (volume_obj * 100) / max_volume;   // get % of maximum volume
+            if(obj_volume_proc == 100){obj_volume_proc = 90}
+            var obj_id_blueprint = vector_count * (1 - (obj_volume_proc / 100)); // vectors - vol_proc %
             console.log(volume_obj);
-            console.log(count_i - (volume_obj/1000));
+            console.log(obj_volume_proc + "%");
+            console.log("--------");
+            console.log(obj_id_blueprint);
 
             wireframe.position.set(0,20,0);
 
@@ -823,6 +828,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                 var object = scene.getObjectByName( loaded_models.model[i].name, true );
                 if(typeof object !== "undefined"){
                     object.visible = true;
+                    ObjectControl1.attach( object );
                 }
             }
         }, 100);
@@ -864,6 +870,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                 var object = scene.getObjectByName( loaded_models.model[i].name, true );
                 if(typeof object !== "undefined"){
                     object.visible = false;
+                    ObjectControl1.detach( object );
                 }
             }
 
@@ -1115,6 +1122,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                 selected_object = this.focused.name;
                 selected_object_obj = this.focused;
                 console.log( "selected: " + selected_object );
+                console.log( selected_object_obj );
 
                 //this.focused.material.color.setHex( 0x00BAFF );   // issue with .obj
 
@@ -1302,20 +1310,21 @@ function scale_set(){     // --> set scale of model
 // ----- end of three js ini() ------
 
 function delete_obj(objName){
-  var selectedObject = scene.getObjectByName(objName);
-  scene.remove( selectedObject );
+    var selectedObject = scene.getObjectByName(objName);
+    //scene.remove( selectedObject );
+    scene.remove(selectedObject);
+    ObjectControl1.detach( selectedObject );
+    animate();
 
-  $('#model_list_div li:contains("' + objName + '")').remove();
+    $('#model_list_div li:contains("' + objName + '")').remove();
 
+    var index_item = loaded_models.model.findIndex(x => x.name == objName);
+    //console.log(index);
+    loaded_models.model.splice(index_item, 1);
 
-  var index_item = loaded_models.model.findIndex(x => x.name == objName);
-  //console.log(index);
-  loaded_models.model.splice(index_item, 1);
+    console.log("object deleted");
+    console.log(loaded_models);
 
-  console.log("object deleted");
-  console.log(loaded_models);
-
-  animate();
 }
 
 function set_floor_00(objName){
@@ -2533,6 +2542,11 @@ ipc.on('print_time_send_render', function (event, arg) {  // get select preset n
 })
 
 $(document).on('click','#manual_btn', function(){
+
+    for(var i = 0; i < scene.children.length; i++ ){
+        console.log(scene.children[i]);
+    }
+
     load_manual_settings();
     $("#easy_s_btn").show();
     $("#manual_btn").hide();
