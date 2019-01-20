@@ -33,7 +33,7 @@ loaded_models.model = [];
 var define_inport_click_var;
 var last_save_path;
 var vector_count = 0;
-var volume_obj;
+var volume_obj = 0;
 var obj_volume_proc;
 
 var flag=false;
@@ -54,7 +54,7 @@ function init() {
     var space_y = 200;
     var space_height = 200;
 
-	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true, preserveDrawingBuffer: true } );
 	//renderer.setClearColor( 0xffffff, 0.6 );
 	renderer.setClearColor( 0xffffff, 1 );
 	//renderer.setSize( 800, 500 );
@@ -71,6 +71,57 @@ function init() {
         camera.updateProjectionMatrix();
         renderer.setSize( window.innerWidth, window.innerHeight );
     }
+
+    window.addEventListener("keyup", function(e){
+        var imgData, imgNode, camera_pos;
+        //Listen to 'P' key
+        //imgData = renderer.domElement.toDataURL();
+
+        /*
+    camera_pos = camera.position;
+        console.log(camera_pos);
+    */
+
+
+        setTimeout(function(){
+            camera.position.set( 260, 280, 360 );
+        }, 50);
+        setTimeout(function(){
+            imgData = renderer.domElement.toDataURL();
+            //console.log(imgData);
+        }, 200);
+
+        /*
+
+        if(e.which !== 80) return;
+        try {
+
+            camera_pos = camera.position;
+            console.log(camera_pos);
+            setTimeout(function(){
+                camera.position.set( 260, 280, 360 );
+                setTimeout(function(){
+                    imgData = renderer.domElement.toDataURL();
+                    //console.log(imgData);
+                }, 400);
+            }, 50);
+            //camera.position.set( camera_pos.x, camera_pos.y, camera_pos.z );
+        }
+        catch(e) {
+            console.log("Browser does not support taking screenshot of 3d context");
+            return;
+        }
+        */
+
+
+       //imgNode = document.createElement("img");
+       //imgNode = document.getElementById("rate_img");
+       //imgNode.src = imgData;
+      // $("#rate_img").attr("src",imgData);
+       $('#rate_img').attr('src',imgData);
+       //document.body.appendChild(imgNode);
+    });
+
 
 	//camera = new THREE.PerspectiveCamera( 30, 800 / 500, 1, 2000 );
 	camera = new THREE.PerspectiveCamera( 30, Math.round((window.innerWidth/100)*74) / window.innerHeight, 1, 3000 );
@@ -854,186 +905,246 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         slice_model();
     });
 
+    //$(".rating_message").hide();
+
+    $(document).on('click', '#hide_rate_message', function(){
+        $(".rating_message").fadeOut("fast");
+    });
+
+    (function($){
+      var star = $('.rating span');
+      var starSelected = $('.rating span.active');
+      var input = $('#rating');
+
+      $('#rating').val(starSelected.attr('data-score'));
+
+      star.hover(function(){
+        star.removeClass('active');
+      }, function(){
+        starSelected.addClass('active');
+      });
+
+      star.on('click',function(){
+        star.removeClass('active');
+        $(this).addClass('active');
+        starSelected = $(this);
+        input.val($(this).attr('data-score'));
+        send_print_rate();
+      });
+    })(jQuery);
+
+    function send_print_rate(){
+        $(".thx_rate_message").fadeIn("slow");
+        setTimeout(function(){
+            console.log("rating: " + $('#rating').val() + "/5");
+            $(".rating_message").fadeOut("slow");
+            $(".thx_rate_message").fadeIn("slow");
+        }, 1000);
+    }
+
     function slice_model(){
+
+        camera.position.set( 260, 280, 360 );
+        setTimeout(function(){
+            make_screen_shot();
+        }, 100);
+
+        function make_screen_shot(){
+            var imgData, imgNode, camera_pos;
+            imgData = renderer.domElement.toDataURL();
+
+            var slice_history = ini.parse(fs.readFileSync("app_settings/slice_history.ini", 'utf-8'));
+            $('#rate_img').attr('src',slice_history.slice_img);
+
+            setTimeout(function(){
+                slice_history.slice_img = imgData;
+                fs.writeFileSync('./app_settings/slice_history.ini', ini.stringify(slice_history));
+            }, 100);
+
+            $(".rating_message").fadeIn("slow");
+
+        }
 
         // load preset << user settings
 
-        if($("#model_li").length !== 0){    // check if models exist
-            console.log(">> start slicing");
+        setTimeout(function(){
+            if($("#model_li").length !== 0){    // check if models exist
+                console.log(">> start slicing");
 
-            function show_div_load_slice(){    // Animated loading / slicing screen
-            	$(".loading_screen_slice").show();
-                function show_div_load_slice(){
-                	$(".loading_screen_slice").addClass("show");
-                	$(".loading_screen_slice").removeClass("hide");
+                function show_div_load_slice(){    // Animated loading / slicing screen
+                	$(".loading_screen_slice").show();
+                    function show_div_load_slice(){
+                    	$(".loading_screen_slice").addClass("show");
+                    	$(".loading_screen_slice").removeClass("hide");
+                    }
+                    setTimeout(show_div_load_slice, 100);
                 }
-                setTimeout(show_div_load_slice, 100);
-            }
-            setTimeout(show_div_load_slice, 10);
+                setTimeout(show_div_load_slice, 10);
 
-            for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
-                var object = scene.getObjectByName( loaded_models.model[i].name, true );
+                for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
+                    var object = scene.getObjectByName( loaded_models.model[i].name, true );
 
-                // ML blueprint -> start
-                var object_geometry;
-                object.traverse( function ( child ) {   // get object geometry
-                    object_geometry = child.geometry;
-                } );
-                var geo = new THREE.EdgesGeometry( object_geometry );   // or WireframeGeometry() --> count more (214 -> 71 ...)
-                var mat = new THREE.LineBasicMaterial( { color: 0x00D8ED, linewidth: 2 } );
-                var wireframe = new THREE.LineSegments( geo, mat );
-                var vector_count_int = 0;
-                let position = geo.getAttribute("position").array;
+                    // ML blueprint -> start
+                    var object_geometry;
+                    object.traverse( function ( child ) {   // get object geometry
+                        object_geometry = child.geometry;
+                    } );
+                    var geo = new THREE.EdgesGeometry( object_geometry );   // or WireframeGeometry() --> count more (214 -> 71 ...)
+                    var mat = new THREE.LineBasicMaterial( { color: 0x00D8ED, linewidth: 2 } );
+                    var wireframe = new THREE.LineSegments( geo, mat );
+                    var vector_count_int = 0;
+                    let position = geo.getAttribute("position").array;
 
-                for (let i = 0; i < position.length; i++)
-                {
-                    //let counter = i / position.length;
-                    vector_count_int = i;
+                    for (let i = 0; i < position.length; i++)
+                    {
+                        //let counter = i / position.length;
+                        vector_count_int = i;
+                    }
+
+                    vector_count = vector_count + vector_count_int;
+                    //console.log(vector_count);
+
+                    wireframe.position.set(0,100,0);
+                    wireframe.rotation.set( -(Math.PI / 2), 0, 0);
+                    scene.add( wireframe );
+
+                    var max_volume = 8000000; // 200x200x200
+                    var box_2 = new THREE.Box3().setFromObject( object );
+                    volume_obj = box_2.getSize().x * box_2.getSize().y * box_2.getSize().z + volume_obj;
+                    obj_volume_proc = (volume_obj * 100) / max_volume;   // get % of maximum volume
+                    //if(obj_volume_proc == 100){obj_volume_proc = 90}
+                    // ML blueprint -> end
+
+                    if(typeof object !== "undefined"){
+                        object.visible = false;
+                        ObjectControl1.detach( object );
+                    }
                 }
 
-                vector_count = vector_count + vector_count_int;
-                console.log(vector_count);
+                setTimeout(function(){
+                    var gcode_view = scene.getObjectByName( "gcode_view", true );
+                    if(typeof gcode_view !== "undefined"){
+                        gcode_view.visible = true;
+                    }
+                }, 800);
 
-                wireframe.position.set(0,100,0);
-                wireframe.rotation.set( -(Math.PI / 2), 0, 0);
-                scene.add( wireframe );
+                exportASCII();  // export stl with right rotation
 
-                var max_volume = 8000000; // 200x200x200
-                var box_2 = new THREE.Box3().setFromObject( object );
-                volume_obj = volume_obj + (box_2.getSize().x * box_2.getSize().y * box_2.getSize().z);
-                obj_volume_proc = obj_volume_proc + ((volume_obj * 100) / max_volume);   // get % of maximum volume
-                //if(obj_volume_proc == 100){obj_volume_proc = 90}
-                // ML blueprint -> end
+                var path_to_file = "output/output.stl"; // get prepared stl file
 
-                if(typeof object !== "undefined"){
-                    object.visible = false;
-                    ObjectControl1.detach( object );
-                }
-            }
+                var single_obj_pos = "";
 
-            setTimeout(function(){
-                var gcode_view = scene.getObjectByName( "gcode_view", true );
-                if(typeof gcode_view !== "undefined"){
-                    gcode_view.visible = true;
-                }
-            }, 800);
-
-            exportASCII();  // export stl with right rotation
-
-            var path_to_file = "output/output.stl"; // get prepared stl file
-
-            var single_obj_pos = "";
-
-            if(loaded_models.model.length == 1){
-                var slingle_obj = scene.getObjectByName( loaded_models.model[0].name, true );
-                single_obj_pos = "-m --print-center " + (space_y - Math.abs(slingle_obj.position.x - space_y / 2)) + "," + Math.abs(slingle_obj.position.z - space_x / 2);
-                //console.log(single_obj_pos);
-            } else {
-                single_obj_pos = "";
-            }
-
-            $("#slice_btn").hide();
-            $("#back_to_models").show();
-
-            setTimeout(function(){    // send comand to slicer core
-                if(os.platform() == "darwin"){  // os.type Darwin >> mac os
-                    cmd.get(
-                        //'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
-                        'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
-                        function(err, data, stderr){
-                            console.log(data);  // get feedback from slicer core
-                            feedback_slicer = data;
-                            if (data !== null) {
-                              console.log(">> Done");       // script if sucess
-                              show_gcode_ui();
-                              //alert("Done!");
-                              setTimeout(function(){
-                                  show_gcode();
-                                  $("#slice_btn").hide();
-                                  $("#back_to_models").show();
-
-                                  function show_div_load_slice(){
-                                  	$(".loading_screen_slice").addClass("hide");
-                                    $(".loading_screen_slice").removeClass("show");
-                                      function show_div_load_slice(){
-                                      	$(".loading_screen_slice").hide();
-                                      }
-                                      setTimeout(show_div_load_slice, 600);
-                                  }
-                                  setTimeout(show_div_load_slice, 200);
-
-                              }, 500);
-                            }
-                        }
-                    );
-                } else if(os.platform() == "win32"){    // windows slicer core
-                    cmd.get(
-                        basepath + '/slicer_core/win/Slic3r-console.exe --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
-                        function(err, data, stderr){
-                            console.log(data);  // get feedback from slicer core
-                            feedback_slicer = data;
-                            if (data !== null) {
-                              console.log(">> Done");       // script if sucess
-                              show_gcode_ui();
-                              //alert("Done!");
-                              setTimeout(function(){
-                                  show_gcode();
-                                  $("#slice_btn").hide();
-                                  $("#back_to_models").show();
-
-                                  function show_div_load_slice(){
-                                  	$(".loading_screen_slice").addClass("hide");
-                                    $(".loading_screen_slice").removeClass("show");
-                                      function show_div_load_slice(){
-                                      	$(".loading_screen_slice").hide();
-                                      }
-                                      setTimeout(show_div_load_slice, 600);
-                                  }
-                                  setTimeout(show_div_load_slice, 200);
-
-                              }, 500);
-                            }
-                        }
-                    );
-                } else if(os.platform() == "linux"){    // linux slicer core
-                    console.warn(">> Linux slicer core is not finished");
-                    cmd.get(
-                        'slicer_core/linux/Slic3r/Slic3r --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
-                        function(err, data, stderr){
-                            console.log(data);  // get feedback from slicer core
-                            feedback_slicer = data;
-                            if (data !== null) {
-                              console.log(">> Done");       // script if sucess
-                              show_gcode_ui();
-                              //alert("Done!");
-                              setTimeout(function(){
-                                  show_gcode();
-                                  $("#slice_btn").hide();
-                                  $("#back_to_models").show();
-
-                                  function show_div_load_slice(){
-                                  	$(".loading_screen_slice").addClass("hide");
-                                    $(".loading_screen_slice").removeClass("show");
-                                      function show_div_load_slice(){
-                                      	$(".loading_screen_slice").hide();
-                                      }
-                                      setTimeout(show_div_load_slice, 600);
-                                  }
-                                  setTimeout(show_div_load_slice, 200);
-
-                              }, 500);
-                            }
-                        }
-                    );
+                if(loaded_models.model.length == 1){
+                    var slingle_obj = scene.getObjectByName( loaded_models.model[0].name, true );
+                    single_obj_pos = "-m --print-center " + (space_y - Math.abs(slingle_obj.position.x - space_y / 2)) + "," + Math.abs(slingle_obj.position.z - space_x / 2);
+                    //console.log(single_obj_pos);
                 } else {
-                    console.warn(">> error: unknown platform");
+                    single_obj_pos = "";
                 }
-            }, 1000);
 
-            console.log(">> working ...");
-        } else {
-            console.log(">> no models");
-        }
+                $("#slice_btn").hide();
+                $("#back_to_models").show();
+
+                setTimeout(function(){    // send comand to slicer core
+                    if(os.platform() == "darwin"){  // os.type Darwin >> mac os
+                        cmd.get(
+                            //'perl slicer_core/mac/slic3r.pl -o output/output.gcode output/output.stl ',
+                            'slicer_core/mac/Slic3r.app/Contents/MacOS/slic3r --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
+                            function(err, data, stderr){
+                                console.log(data);  // get feedback from slicer core
+                                feedback_slicer = data;
+                                if (data !== null) {
+                                  console.log(">> Done");       // script if sucess
+                                  show_gcode_ui();
+                                  //alert("Done!");
+                                  setTimeout(function(){
+                                      show_gcode();
+                                      $("#slice_btn").hide();
+                                      $("#back_to_models").show();
+
+                                      function show_div_load_slice(){
+                                      	$(".loading_screen_slice").addClass("hide");
+                                        $(".loading_screen_slice").removeClass("show");
+                                          function show_div_load_slice(){
+                                          	$(".loading_screen_slice").hide();
+                                          }
+                                          setTimeout(show_div_load_slice, 600);
+                                      }
+                                      setTimeout(show_div_load_slice, 200);
+
+                                  }, 500);
+                                }
+                            }
+                        );
+                    } else if(os.platform() == "win32"){    // windows slicer core
+                        cmd.get(
+                            basepath + '/slicer_core/win/Slic3r-console.exe --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
+                            function(err, data, stderr){
+                                console.log(data);  // get feedback from slicer core
+                                feedback_slicer = data;
+                                if (data !== null) {
+                                  console.log(">> Done");       // script if sucess
+                                  show_gcode_ui();
+                                  //alert("Done!");
+                                  setTimeout(function(){
+                                      show_gcode();
+                                      $("#slice_btn").hide();
+                                      $("#back_to_models").show();
+
+                                      function show_div_load_slice(){
+                                      	$(".loading_screen_slice").addClass("hide");
+                                        $(".loading_screen_slice").removeClass("show");
+                                          function show_div_load_slice(){
+                                          	$(".loading_screen_slice").hide();
+                                          }
+                                          setTimeout(show_div_load_slice, 600);
+                                      }
+                                      setTimeout(show_div_load_slice, 200);
+
+                                  }, 500);
+                                }
+                            }
+                        );
+                    } else if(os.platform() == "linux"){    // linux slicer core
+                        console.warn(">> Linux slicer core is not finished");
+                        cmd.get(
+                            'slicer_core/linux/Slic3r/Slic3r --load app_settings/last_config.ini ' + single_obj_pos + ' -o output/output.gcode output/output.stl',
+                            function(err, data, stderr){
+                                console.log(data);  // get feedback from slicer core
+                                feedback_slicer = data;
+                                if (data !== null) {
+                                  console.log(">> Done");       // script if sucess
+                                  show_gcode_ui();
+                                  //alert("Done!");
+                                  setTimeout(function(){
+                                      show_gcode();
+                                      $("#slice_btn").hide();
+                                      $("#back_to_models").show();
+
+                                      function show_div_load_slice(){
+                                      	$(".loading_screen_slice").addClass("hide");
+                                        $(".loading_screen_slice").removeClass("show");
+                                          function show_div_load_slice(){
+                                          	$(".loading_screen_slice").hide();
+                                          }
+                                          setTimeout(show_div_load_slice, 600);
+                                      }
+                                      setTimeout(show_div_load_slice, 200);
+
+                                  }, 500);
+                                }
+                            }
+                        );
+                    } else {
+                        console.warn(">> error: unknown platform");
+                    }
+                }, 1000);
+
+                console.log(">> working ...");
+            } else {
+                console.log(">> no models");
+            }
+        }, 200);
     }
 
     $(".loading_screen_slice").hide();
