@@ -28,6 +28,16 @@
             </div>
         </div>
 
+        <div class="filter_pref_shure">
+            <div class="confirm_dialog">
+                <p><br>Are you shure?</p>
+                <div class="confirm_dialog_btn_group">
+                    <button id="confirm_dialog_btn_cancel_continue" class="button w confirm_dialog_btn">save me</button>
+                    <button id="confirm_dialog_btn_continue" class="button confirm_dialog_btn">continue</button>
+                </div>
+            </div>
+        </div>
+
         <div class="filter_pref_msg">
             <h2>save sucessfull</h2>
         </div>
@@ -46,7 +56,6 @@
                                 <option value="Luzbot">Luzbot</option>
                                 <option value="MakerBot">MakerBot</option>
                                 <option value="Makergear">Makergear</option>
-                                <!--<option value="Prusa i3">GO FUCK YOURSELF (Prusa trash)</option>-->
                                 <option value="Prusa i3">Prusa i3</option>
                                 <option value="CraftBot">CraftBot</option>
                                 <option value="Creality">Creality</option>
@@ -83,6 +92,17 @@
     					<input type="number" class="inp_fil_daim" step="0.5"></input>
                         <p class="div_label_pref_inline_mm"> mm</p>
                         <br />
+                        <br />
+						<p class="div_label_pref" style="margin-bottom: 6px;">window background: </p>
+                        <div class="switch_set sw_backdrop_blur">
+                          <button type="button" class="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">
+                            <div class="handle"></div>
+                          </button>
+                        </div>
+                        <p class="sw_label_set_pref">background blur</p>
+						<br />
+                        <p class="div_label_pref sw_backdrop_blur_help">(changes will take place after app restart)</p>
+                        <br />
                     </div>
 
 					<div class="right_part_pref_win">
@@ -92,7 +112,7 @@
                             <div class="handle"></div>
                           </button>
                         </div>
-                        <p class="sw_label_set">show help</p>
+                        <p class="sw_label_set_pref">show help</p>
                         <br />
                         <p class="div_label_pref_inline sm">brim width: </p>
     					<input type="number" class="inp_brim_width" step="1"></input>

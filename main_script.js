@@ -55,11 +55,25 @@ function init() {
     var space_height = 200;
 
 	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true, preserveDrawingBuffer: true } );
-	//renderer.setClearColor( 0xffffff, 0.6 );
-	renderer.setClearColor( 0xffffff, 1 );
+	//renderer.setClearColor( 0xffffff, 1 );
+
+    var config = ini.parse(fs.readFileSync("app_settings/app_config.ini", 'utf-8'));
+    if(config.blur_background == 1){
+        renderer.setClearColor( 0xffffff, 0.6 );
+    } else {
+        renderer.setClearColor( 0xffffff, 1 );
+    }
+
+    if(config.unique_id == 0 || config.unique_id == null){
+        var unique_id = Math.floor((Math.random() * 100000) + 1);
+        console.log("new id: " + unique_id);
+        config.unique_id = unique_id;
+        fs.writeFileSync('./app_settings/app_config.ini', ini.stringify(config));
+    }
+
 	//renderer.setSize( 800, 500 );
 	//renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.setSize( Math.round((window.innerWidth/100)*80), window.innerHeight );
+	renderer.setSize( Math.round((window.innerWidth/100)*78) - 36, window.innerHeight - 47 );
 	document.body.appendChild( renderer.domElement );
 
     setTimeout(function(){
@@ -69,59 +83,8 @@ function init() {
     function onWindowResize(){
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize( Math.round((window.innerWidth/100)*78) - 36, window.innerHeight - 47 );
     }
-
-    window.addEventListener("keyup", function(e){
-        var imgData, imgNode, camera_pos;
-        //Listen to 'P' key
-        //imgData = renderer.domElement.toDataURL();
-
-        /*
-    camera_pos = camera.position;
-        console.log(camera_pos);
-    */
-
-
-        setTimeout(function(){
-            camera.position.set( 260, 280, 360 );
-        }, 50);
-        setTimeout(function(){
-            imgData = renderer.domElement.toDataURL();
-            //console.log(imgData);
-        }, 200);
-
-        /*
-
-        if(e.which !== 80) return;
-        try {
-
-            camera_pos = camera.position;
-            console.log(camera_pos);
-            setTimeout(function(){
-                camera.position.set( 260, 280, 360 );
-                setTimeout(function(){
-                    imgData = renderer.domElement.toDataURL();
-                    //console.log(imgData);
-                }, 400);
-            }, 50);
-            //camera.position.set( camera_pos.x, camera_pos.y, camera_pos.z );
-        }
-        catch(e) {
-            console.log("Browser does not support taking screenshot of 3d context");
-            return;
-        }
-        */
-
-
-       //imgNode = document.createElement("img");
-       //imgNode = document.getElementById("rate_img");
-       //imgNode.src = imgData;
-      // $("#rate_img").attr("src",imgData);
-       $('#rate_img').attr('src',imgData);
-       //document.body.appendChild(imgNode);
-    });
-
 
 	//camera = new THREE.PerspectiveCamera( 30, 800 / 500, 1, 2000 );
 	camera = new THREE.PerspectiveCamera( 30, Math.round((window.innerWidth/100)*74) / window.innerHeight, 1, 3000 );
@@ -153,6 +116,8 @@ function init() {
 	control.enableZoom = true;
 	control.zoomSpeed = 1.2;
 	control.enableDamping = false;
+    control.minDistance = 10;
+    control.maxDistance = 2048;
 	//control.minPolarAngle = Math.PI / 3;
 	//control.maxPolarAngle = Math.PI / 3;
 
@@ -177,12 +142,15 @@ function init() {
 	var light = new THREE.AmbientLight( 0x222222 );
 	scene.add( light );
 
-
-	// world
-
-	var Texture = new THREE.ImageUtils.loadTexture( 'assets/img/grid.png' );
-	Texture.wrapS = Texture.wrapT = THREE.RepeatWrapping;
-	Texture.repeat.set( 1, 1 );	Texture.offset.set( 0, 0 );
+	//var Texture = new THREE.ImageUtils.loadTexture( 'assets/img/grid.png' );
+	//var Texture = new THREE.TextureLoader( 'assets/img/grid.png' );
+    if(config.blur_background == 1){
+        var Texture = new THREE.TextureLoader().load( 'assets/img/grid_light.png' );
+    } else {
+        var Texture = new THREE.TextureLoader().load( 'assets/img/grid.png' );
+    }
+	//Texture.wrapS = Texture.wrapT = THREE.RepeatWrapping;
+	//Texture.repeat.set( 1, 1 );	Texture.offset.set( 0, 0 );
 
 	var Material = new THREE.MeshBasicMaterial( { map: Texture, side: THREE.DoubleSide } );
 	var Geometry = new THREE.PlaneGeometry( space_x, space_y, 1, 1 );
@@ -847,7 +815,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         }
 
         var fil_volume = Math.PI * Math.sqrt(config.filament_diameter/2) * Number(fil_required.replace("mm",""));
-        var fil_mass = (fil_volume/1000) * config.fill_density;
+        var fil_mass = (fil_volume/1000) * config_last.filament_density;
         var fil_cost = (fil_mass/1000) * config_last.filament_cost;
 
         $(".fil_volume").text("filament volume: " + (fil_volume/1000).toFixed(2) + "cm³");
@@ -942,6 +910,11 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         }, 1000);
     }
 
+    function restart_slice(){
+        console.log(">> error -> reload slicing ");
+        slice_model();
+    }
+
     function slice_model(){
 
         camera.position.set( 260, 280, 360 );
@@ -1006,7 +979,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 
                     wireframe.position.set(0,100,0);
                     wireframe.rotation.set( -(Math.PI / 2), 0, 0);
-                    scene.add( wireframe );
+                    //scene.add( wireframe );
 
                     var max_volume = 8000000; // 200x200x200
                     var box_2 = new THREE.Box3().setFromObject( object );
@@ -1073,7 +1046,9 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                                       setTimeout(show_div_load_slice, 200);
 
                                   }, 500);
-                                }
+                              } else {
+                                  restart_slice();
+                              }
                             }
                         );
                     } else if(os.platform() == "win32"){    // windows slicer core
@@ -1102,6 +1077,8 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                                       setTimeout(show_div_load_slice, 200);
 
                                   }, 500);
+                                } else {
+                                    restart_slice();
                                 }
                             }
                         );
@@ -1132,6 +1109,8 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                                       setTimeout(show_div_load_slice, 200);
 
                                   }, 500);
+                                } else {
+                                    restart_slice();
                                 }
                             }
                         );
@@ -1696,9 +1675,9 @@ jQuery(document).ready(function($) {
             function hide_div_load(){
             	$(".loading_screen").hide();
             }
-            setTimeout(hide_div_load, 600);
+            setTimeout(hide_div_load, 200);
         }
-        setTimeout(hide_div_load, 600);
+        setTimeout(hide_div_load, 200);
     })
 
 });
@@ -1824,6 +1803,14 @@ function help_info_show(element_text){
             $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
         } else if(element_text == "infill"){
             $(".info_headline").text("infill");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "filament_cost"){
+            $(".info_headline").text("filament cost");
+            $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
+            $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
+        } else if(element_text == "filament_density"){
+            $(".info_headline").text("filament density");
             $(".info_help_text").text("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.");
             $(".info_help_img").prop("src", "assets/img/info_img/img_4.jpg");
         }
@@ -2035,6 +2022,18 @@ $(document).on('change','.inp_retraction', function(){
     }, 200);
 })
 
+$(document).on('change','.input_filament_density', function(){
+    setTimeout(function(){
+        save_config();
+    }, 200);
+})
+
+$(document).on('change','.input_filament_cost', function(){
+    setTimeout(function(){
+        save_config();
+    }, 200);
+})
+
 //  ----- select dialog -----
 setTimeout(function(){
 
@@ -2119,6 +2118,7 @@ function load_preset(pres_name){
     }
 
     var config = ini.parse(fs.readFileSync(selected_preset_name, 'utf-8'))
+    var app_config = ini.parse(fs.readFileSync("app_settings/app_config.ini", 'utf-8'))
 
     var layer_height = config.layer_height;
     var infill_density = config.fill_density;
@@ -2138,6 +2138,8 @@ function load_preset(pres_name){
     var ext_mpt_index = ext_mpt_array.indexOf(Number(config.extrusion_multiplier * 100));
     var infill_density_slider = infill_density.replace("%","");
     infill_density_slider = Number(infill_density_slider) / 10;
+    var filament_cost = config.filament_cost;
+    var fill_density = config.filament_density;
 
     $(".label_preset_material").text(config.material_type);
 
@@ -2152,6 +2154,9 @@ function load_preset(pres_name){
         $(".infill_type .select-styled").html("Honeycomb");
         console.log("infil type not found >> default")
     }
+
+    $("#filament_cost").val(filament_cost);
+    $("#fill_density").val(fill_density);
 
     if(support_enable == 0){
         $(".sw_support .btn-toggle").removeClass("active");
@@ -2398,6 +2403,9 @@ function save_config(){     // save preset << user settings
         config.temperature = $(".slider_value_tp_end").text().replace(" °C", "");
         config.bed_temperature = $(".slider_value_tp_bed").text().replace(" °C", "");
         config.extrusion_multiplier = $(".slider_value_ext_mpt").text().replace(" %", "") / 100;
+
+        config.filament_cost = $("#filament_cost").val();
+        config.filament_density = $("#fill_density").val();
 
         if($(".sw_retraction .btn-toggle").hasClass("active")){
             config.retract_length !== null ? config.retract_length = $(".inp_retraction").val() : config.retract_length = "2";
@@ -2690,11 +2698,10 @@ ipc.on('print_time_send_render', function (event, arg) {  // get select preset n
 })
 
 $(document).on('click','#manual_btn', function(){
-
+    /*
     for(var i = 0; i < scene.children.length; i++ ){
         console.log(scene.children[i]);
-    }
-
+    }*/
     load_manual_settings();
     $("#easy_s_btn").show();
     $("#manual_btn").hide();

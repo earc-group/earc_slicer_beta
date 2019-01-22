@@ -22,20 +22,36 @@ jQuery(document).ready(function($) {
         load_pref_config();
     }, 600);
 
+    $(document).on('click','.sw_backdrop_blur', function(){
+        $(".sw_backdrop_blur_help").show();
+    });
+
     $(document).on('click','#pref_win_btn_restore', function(){
         $(".pref_win_app").css("filter","blur(10px)");
         $(".filter_pref").fadeIn("slow");
-    })
+    });
 
     $(document).on('click','#pref_win_btn_save', function(){
         save_pref_config();
         console.log(">> saving config");
-    })
+    });
 
     $(document).on('click','#confirm_dialog_btn_cancel', function(){
         $(".pref_win_app").css("filter","blur(0px)");
         $(".filter_pref").fadeOut("slow");
-    })
+    });
+
+    $(document).on('click','#confirm_dialog_btn_continue', function(){
+        $(".pref_win_app").css("filter","blur(0px)");
+        $(".filter_pref_shure").fadeOut("slow");
+    });
+
+    $(document).on('click','#confirm_dialog_btn_cancel_continue', function(){
+        var config = ini.parse(fs.readFileSync('./app_settings/app_config.ini', 'utf-8'));
+        $(".printer_select_pref .select-styled").html("earc e-one");
+        $(".pref_win_app").css("filter","blur(0px)");
+        $(".filter_pref_shure").fadeOut("slow");
+    });
 
     $(document).on('click','#confirm_dialog_btn_restore', function(){   // restore dafault settings
         $(".pref_win_app").css("filter","blur(0px)");
@@ -43,7 +59,7 @@ jQuery(document).ready(function($) {
 
         var config = ini.parse(fs.readFileSync('./app_settings/app_config_default.ini', 'utf-8'));
         fs.writeFileSync('./app_settings/app_config.ini', ini.stringify(config));
-    })
+    });
 
     //  ----- select dialog -----
     setTimeout(function(){
@@ -85,9 +101,11 @@ jQuery(document).ready(function($) {
                 $this.val($(this).attr('rel'));
                 $list.hide();
 
-                if($this.parent().parent().attr('class') == "preset_select"){
-                    console.log("select: " + $(".select-styled").html());
-                    load_preset($(".select-styled").html());
+                console.log("select: " + $this.val());
+
+                if($this.val() == "Prusa i3"){
+                    $(".pref_win_app").css("filter","blur(10px)");
+                    $(".filter_pref_shure").fadeIn("slow");
                 }
 
                 //console.log($this.val());
@@ -132,6 +150,19 @@ jQuery(document).ready(function($) {
             $(".sw_show_help .btn-toggle").attr("pressed","true")
         }
 
+        if(config.blur_background == 0){
+            $(".sw_backdrop_blur .btn-toggle").removeClass("active");
+            $(".sw_backdrop_blur .btn-toggle").removeClass("focus");
+            $(".sw_backdrop_blur .btn-toggle").attr("pressed","false");
+        } else {
+
+            if(!$(".sw_backdrop_blur .btn-toggle").hasClass("active")){
+                $(".sw_backdrop_blur .btn-toggle").addClass("active");
+                $(".sw_backdrop_blur .btn-toggle").addClass("focus");
+            }
+            $(".sw_backdrop_blur .btn-toggle").attr("pressed","true")
+        }
+
         $(".inp_brim_width").val(config.brim_width);
         $(".inp_raft_layers").val(config.raft_layers);
 
@@ -159,6 +190,12 @@ jQuery(document).ready(function($) {
             config.show_help = 1;
         } else {
             config.show_help = 0;
+        }
+
+        if($(".sw_backdrop_blur .btn-toggle").hasClass("active")){
+            config.blur_background = 1;
+        } else {
+            config.blur_background = 0;
         }
 
         config.brim_width = $(".inp_brim_width").val();

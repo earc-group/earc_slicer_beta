@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css?family=Lato:100')
+//@import url('https://fonts.googleapis.com/css?family=Lato:100')
 @import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400')
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600|Source+Sans+Pro:200,300,400')
+//@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600|Source+Sans+Pro:200,300,400')
 
 //@font-face    font-family: 'Roboto'    font-style: normal    font-weight: 100    src: local('Roboto Thin'), local('Roboto-Thin'), url('../assets/fonts/Roboto-Thin.ttf') format('ttf')@font-face    font-family: 'Roboto'    font-style: normal    font-weight: 300    src: local('Roboto Light'), local('Roboto-Light'), url('../assets/fonts/Roboto-Light.ttf') format('ttf')@font-face    font-family: 'Roboto'    font-style: normal    font-weight: 400    src: local('Roboto Regular'), local('Roboto-Regular'), url('../assets/fonts/Roboto-Regular.ttf') format('ttf')
 
@@ -9,17 +9,14 @@ $main_color: #00BAFF
 $second_color: #56e1fa
 $dark_color: #555555
 
-html
-    -webkit-app-region: drag
-
-*
-    -webkit-app-region: drag
-
 canvas
     -webkit-app-region: no-drag
+    top: 47px
+    position: absolute
+    right: 0px
 
 body
-    -webkit-app-region: drag
+    //-webkit-app-region: drag
     font-family: Monospace
     //background-color: #fff
     margin: 0px
@@ -28,10 +25,6 @@ body
     color: #00BAFF
     -webkit-font-smoothing: subpixel-antialiased
     text-rendering: optimizeSpeed
-
-canvas
-    position: absolute
-    right: 0px
 
 button:focus
     outline: 0
@@ -175,6 +168,9 @@ span
     transition: all .4s
     visibility: hidden
 
+#top_bar
+    -webkit-app-region: drag
+
 .side_bar
     width: 22vw
     height: 100vw
@@ -189,6 +185,18 @@ span
     border-right: 2px solid
     background-color: rgba(#fff, 1)
     box-shadow: 0px 0px 24px rgba(#000, .14)
+
+.top_bar
+    width: 75vw
+    height: 1vh
+    top: 0px
+    right: 0px
+    position: fixed
+    z-index: 90
+    padding: 20px
+    background-color: #fff
+    border-bottom: 1px solid rgba(#00ABFF, .4)
+    //box-shadow: 0px 0px 24px rgba(#000, .14)
 
 .side_bar_hr
     width: 90%
@@ -212,17 +220,13 @@ span
     left: 50%
     transform: translateX(-50%)
 
-.top_bar
-    width: 75vw
-    height: 1vh
+.top_drag_windows
+    -webkit-app-region: drag
+    position: absolute
     top: 0px
-    right: 0px
-    position: fixed
-    z-index: 90
-    padding: 20px
-    background-color: #fff
-    border-bottom: 1px solid rgba(#00ABFF, .4)
-    //box-shadow: 0px 0px 24px rgba(#000, .14)
+    left: 0px
+    width: 100%
+    height: 50px
 
 .icon_btn
     height: 25px
@@ -469,7 +473,7 @@ span
 .loading_screen_slice
   //background-image: radial-gradient(circle farthest-corner at center, #00BAFF 0%, #00BAFF 100%)
   background: linear-gradient(45deg, #00BAFF, #00F0FF)
-  width: 74.2vw
+  width: 75vw
   height: calc(100vh - 30px)
   position: absolute
   bottom: 0px
@@ -549,7 +553,7 @@ span
   top: 0px
   left: 0px
   z-index: 999
-  transition: all .6s
+  transition: all .5s
   &.hide
       opacity: 0
 
@@ -759,12 +763,15 @@ span
     //top: calc(100vh - 20px)
     bottom: 54px
 
+.sw_backdrop_blur_help
+    display: none
+
 .pref_win_app
     position: absolute
     width: 100vw
     height: 100vh
     left: 0px
-    top: 0px
+    top: 10px
     padding: 20px
     transition: filter .4s
 
@@ -792,7 +799,7 @@ span
     margin-top: 4px
     display: block
     position: relative
-    left: 50% !important
+    //left: 50% !important
     text-align: center
     margin-bottom: 6px
     z-index: 99
@@ -1053,6 +1060,20 @@ span
     position: relative
     z-index: 10
 
+.sw_label_set_pref
+    margin-top: 10px
+    left: 3px
+    position: relative
+    z-index: 10
+
+.input_filament_cost,.input_filament_density
+    width: 64px
+    position: relative
+    left: 12em
+    top: -16px
+    display: inline-block
+    z-index: 20
+
 //  ----- switch btn -----
 .btn-toggle
     z-index: 40
@@ -1149,6 +1170,25 @@ span
     z-index: 999
 
 .done_screen_app
+    width: 100vw
+    height: 100vh
+    position: fixed
+    background-color: #fff
+    z-index: 990
+    display: none
+    & h2
+        position: absolute
+        top: 22vh
+        left: 0px
+        width: 100%
+        text-align: center
+        z-index: 999
+        font-family: Roboto, sans-serif
+        font-weight: 300
+        color: #00BAFF
+        font-size: 2em
+
+.shure_screen_app
     width: 100vw
     height: 100vh
     position: fixed
@@ -1447,6 +1487,14 @@ span
                 -webkit-focus-ring-color: none 0px
 
 .filter_pref
+    width: 100vw
+    height: 100vh
+    z-index: 790
+    background: rgba(#fff, .2)
+    position: fixed
+    display: none
+
+.filter_pref_shure
     width: 100vw
     height: 100vh
     z-index: 790

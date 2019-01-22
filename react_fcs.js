@@ -206,6 +206,14 @@ var ManualSettings = React.createClass({
                     <p className="sw_label_set" id="help_info" data="raft">raft</p>
                     <br />
 
+                    <p className="sw_label_set" id="help_info" data="filament_cost">filament cost</p>
+                    <input type="text" id="filament_cost" className="input_filament_cost" placeholder=""/>
+                    <br />
+
+                    <p className="sw_label_set" id="help_info" data="filament_density">fil. density</p>
+                    <input type="text" id="fill_density" className="input_filament_density" placeholder="1.24"/>
+                    <br />
+
                 </div>
             </div>
         </div>

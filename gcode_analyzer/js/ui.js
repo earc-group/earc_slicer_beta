@@ -20,15 +20,23 @@ function load_data_gcode_fc(){
     setTimeout(function(){
         console.log("gcode_load_print_time");
         console.log(gcode_load_print_time);
-        document.getElementById('p_print_time').innerHTML = gcode_load_print_time;
-        ipc.send("print_time_send", gcode_load_print_time);
 
-        setTimeout(function(){  // cloase windows after job
-            var window = remote.getCurrentWindow();
-            window.close();
-        }, 3000);
+        if(gcode_load_print_time == null || gcode_load_print_time == 0 || isNaN( gcode_load_print_time )){
+            console.log(">> error -> reloading");
+            //alert(">> error -> reloading");
+            location.reload();
+        } else {
+            //alert(gcode_load_print_time);
+            document.getElementById('p_print_time').innerHTML = gcode_load_print_time;
+            ipc.send("print_time_send", gcode_load_print_time);
 
-    }, 200);
+            setTimeout(function(){  // cloase windows after job
+                var window = remote.getCurrentWindow();
+                window.close();
+            }, 2000);
+        }
+
+    }, 100);
 }
 
 

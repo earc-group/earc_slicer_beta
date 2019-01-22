@@ -76,6 +76,7 @@ window = new BrowserWindow()
 */
 
     createWindow();
+    //create_anlWindow();
 
     /*
 setTimeout(function(){
