@@ -125,6 +125,14 @@ setTimeout(function(){
                 currentWindow.webContents.send('save_pres_fc_menu')
             }
           },
+          { type: "separator" },
+          {
+            label: "live view (beta)",
+            accelerator: "CmdOrCtrl+alt+s",
+            click: function (menuItem, currentWindow) {
+                currentWindow.webContents.send('live_view_fc_menu')
+            }
+          },
         ]
     },
     {
@@ -145,7 +153,7 @@ setTimeout(function(){
         submenu: [
             { role: 'toggledevtools' },
             { type: 'separator' },
-            { role: 'togglefullscreen' }
+            { role: 'togglefullscreen' },
         ]
     },
     {

@@ -24,6 +24,7 @@ const { Menu, MenuItem } = remote;
 
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
+var xml2js = require('xml2js');
 
 var basepath = remote.app.getAppPath();
 
@@ -34,7 +35,9 @@ var define_inport_click_var;
 var last_save_path;
 var vector_count = 0;
 var volume_obj = 0;
+var first_slice = 1;
 var obj_volume_proc;
+var live_print_view = 0;
 
 var flag=false;
 var layer;
@@ -141,6 +144,158 @@ function init() {
 
 	var light = new THREE.AmbientLight( 0x222222 );
 	scene.add( light );
+
+
+    document.onkeyup = function(e) {
+      if (e.altKey && e.which == 83 && (e.ctrlKey || e.metaKey)) {
+          live_print_show();
+      }
+    };
+
+    ipcRenderer.on('live_view_fc_menu', function () {
+        live_print_show();
+    });
+
+    function live_print_show(){
+        if(live_print_view == 0){
+            live_print_view = 1;
+            camera.lookAt(scene.position);
+
+            var size = 100,
+            steps = 200;
+
+            geometry = new THREE.Geometry();
+            material = new THREE.LineBasicMaterial({
+                color: 0x00FFFF,
+                transparent: true,
+                opacity: .9,
+            });
+
+            for (var i = -size; i <= size; i += steps) {
+                //draw lines one way
+                geometry.vertices.push(new THREE.Vector3(-size, -0.04, i));
+                geometry.vertices.push(new THREE.Vector3(size, -0.04, i));
+
+                //draw lines the other way
+                geometry.vertices.push(new THREE.Vector3(i, -0.04, -size));
+                geometry.vertices.push(new THREE.Vector3(i, -0.04, size));
+            }
+
+
+            var line = new THREE.LineSegments( geometry, material );
+            line.position.set(0, 0, 0);
+            line.name = "axis_plane_lines";
+            scene.add(line);
+
+            var gcode_axis;
+            var gcode_test;
+            fs.readFile("gcode_test.txt", "utf8", function(err, data) {
+                //console.log(data);
+                gcode_test = data;
+            });
+
+            setTimeout(function(){
+                console.log(gcode_test);
+                gcode_axis = gcode_test.split("\n");
+
+                for(var i = 0; i < gcode_axis.length; i++){
+                    if(!gcode_axis[i].includes('X') && !gcode_axis[i].includes('Y') && !gcode_axis[i].includes('G1')){
+                        if (i > -1) {
+                          gcode_axis.splice(i, 1);
+                          console.log("--removed from array");
+                        }
+                    }
+                    //console.log("--");
+                }
+
+                setTimeout(function(){
+                    move_axis_loop(1);
+                    console.log(gcode_axis.length);
+                }, 1000);
+
+            }, 3000);
+
+            var z_height = 0;
+
+            function move_axis_loop(i) {
+                //if (i < 0) return;
+                //var i = 0;
+                if (i > (gcode_axis.length - 2)) return;
+
+                setTimeout(function () {
+
+                    var line_axis = scene.getObjectByName("line_axis");
+                    scene.remove( line_axis );
+
+                    geometry = new THREE.Geometry();
+                    material = new THREE.LineBasicMaterial({
+                        color: 0x00FFFF,
+                        transparent: true,
+                        opacity: 1,
+                    });
+
+                    var axis = gcode_axis[i].split(" ");
+                    //console.log(axis[1]);
+                    var x = axis[1].replace("X","");
+                    var y = axis[2].replace("Y","");
+                    //var y = 100;
+                    //var z = axis[3].toString().replace("Z","");
+                    console.log(x);
+                    console.log(y);
+
+                    geometry.vertices.push(new THREE.Vector3(-100, -0.04, -100 + Math.round(x)));
+                    geometry.vertices.push(new THREE.Vector3(100, -0.04, -100 + Math.round(x)));
+
+                    geometry.vertices.push(new THREE.Vector3(-100 + Math.round(y), -0.04, -100));
+                    geometry.vertices.push(new THREE.Vector3(-100 + Math.round(y), -0.04, 100));
+                    //var speed = Date.now() * 0.0005;
+
+                    var line_axis = new THREE.LineSegments( geometry, material );
+                    line_axis.position.set(0, z_height + 1, 0);
+                    line_axis.name = ("line_axis");
+                    scene.add(line_axis);
+
+                    console.log("pos: " + i);
+                    z_height = z_height + 0.5;
+
+                    var axis_plane_lines = scene.getObjectByName("axis_plane_lines");
+                    axis_plane_lines.position.set(0, z_height, 0);
+
+                    var line_axis_plane = scene.getObjectByName("line_axis_plane");
+                    line_axis_plane.position.set(0, z_height, 0);
+
+                    move_axis_loop(++i);
+
+                }, 100);
+            }
+
+            var geometry = new THREE.PlaneGeometry( 200, 200, 200 );
+            var material = new THREE.MeshBasicMaterial( { color: 0xCFFAFA, transparent: true, opacity: 0.5, side: THREE.DoubleSide } );
+
+            var plane = new THREE.Mesh( geometry, material );
+            plane.rotation.set(Math.PI/2, 0 ,0);
+            plane.position.set(0, 0, 0);
+            plane.name = "line_axis_plane";
+            scene.add( plane );
+
+            function animate(){
+                requestAnimationFrame(animate);
+                render();
+            }
+        }
+    }
+
+    //resize viewport
+    window.addEventListener('resize', function(){
+    	var width = window.innerWidth;
+    	var height = window.innerHeight;
+    	renderer.setSize( width, height);
+
+    	camera.aspect = width / height;
+    	camera.updateProjectionMatrix();
+    });
+
+
 
 	//var Texture = new THREE.ImageUtils.loadTexture( 'assets/img/grid.png' );
 	//var Texture = new THREE.TextureLoader( 'assets/img/grid.png' );
@@ -934,7 +1089,12 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                 fs.writeFileSync('./app_settings/slice_history.ini', ini.stringify(slice_history));
             }, 100);
 
-            $(".rating_message").fadeIn("slow");
+            var config = ini.parse(fs.readFileSync("app_settings/app_config.ini", 'utf-8'))
+
+            if(config.print_rate == 1 && first_slice == 1){
+                $(".rating_message").fadeIn("slow");
+                first_slice = 0;
+            }
 
         }
 
@@ -1513,14 +1673,25 @@ function animate() {
 
 function render() {
 
-	ObjectControl1.update();
+
+    ObjectControl1.update();
 	ObjectControl2.update();
 	//ObjectControl3.update();
 	//ObjectControl4.update();
 	ObjectControl5.update();
 
 	control.update();
-	renderer.render(scene, camera);
+	//renderer.render(scene, camera);
+
+    if(live_print_view == 1){
+        //using timer as animation
+        var speed = Date.now() * 0.0005;
+        camera.position.x = Math.cos(speed) * 380;
+        camera.position.z = Math.sin(speed) * 380;
+    }
+
+    camera.lookAt(scene.position); //0,0,0
+    renderer.render(scene, camera);
 
 }
 
@@ -1894,7 +2065,7 @@ $("#temp_bed_slider")       // define slider
 
 $("#ext_mpt_slider")       // define slider
     .slider({
-        max: 10,
+        max: 20,
         min: 0,
         //range: "min",
         value: 5,
@@ -1921,7 +2092,7 @@ $("#gcode_slider")       // define slider
     .slider("float");
 
 
-var ext_mpt_array = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
+var ext_mpt_array = [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150];
 var speed_array = [15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 80];
 var temp_end_array = [170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240];
 var temp_bed_array = [0, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110];
@@ -2307,7 +2478,7 @@ function load_preset(pres_name){
 
     $("#ext_mpt_slider")       // define slider
         .slider({
-            max: 10,
+            max: 20,
             min: 0,
             //range: "min",
             value: ext_mpt_index,

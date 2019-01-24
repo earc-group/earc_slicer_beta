@@ -186,7 +186,7 @@ var ManualSettings = React.createClass({
 
                     <p className="sw_label_set" id="help_info" data="retration">retration[mm]</p>
                     <br />
-                    <input type="number" className="inp_retraction"></input>
+                    <input type="number" className="inp_retraction" step="0.1"></input>
 
                     <div className="switch_set sw_brim">
                       <button type="button" className="btn btn-toggle focus active" data-toggle="button" aria-pressed="false">

@@ -150,6 +150,19 @@ jQuery(document).ready(function($) {
             $(".sw_show_help .btn-toggle").attr("pressed","true")
         }
 
+        if(config.print_rate == 0){
+            $(".sw_rate_slice .btn-toggle").removeClass("active");
+            $(".sw_rate_slice .btn-toggle").removeClass("focus");
+            $(".sw_rate_slice .btn-toggle").attr("pressed","false");
+        } else {
+
+            if(!$(".sw_rate_slice .btn-toggle").hasClass("active")){
+                $(".sw_rate_slice .btn-toggle").addClass("active");
+                $(".sw_rate_slice .btn-toggle").addClass("focus");
+            }
+            $(".sw_rate_slice .btn-toggle").attr("pressed","true")
+        }
+
         if(config.blur_background == 0){
             $(".sw_backdrop_blur .btn-toggle").removeClass("active");
             $(".sw_backdrop_blur .btn-toggle").removeClass("focus");
@@ -196,6 +209,12 @@ jQuery(document).ready(function($) {
             config.blur_background = 1;
         } else {
             config.blur_background = 0;
+        }
+
+        if($(".sw_rate_slice .btn-toggle").hasClass("active")){
+            config.print_rate = 1;
+        } else {
+            config.print_rate = 0;
         }
 
         config.brim_width = $(".inp_brim_width").val();
