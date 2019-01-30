@@ -51,6 +51,7 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 	var state = { x: 0, y: 0, z: 0, e: 0, f: 0, extruding: false, relative: false };
 	var layers = [];
+    var points = [];
 
 	var currentLayer = undefined;
 
@@ -80,6 +81,9 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 			currentLayer.vertex.push( p1.x, p1.y, p1.z );
 			currentLayer.vertex.push( p2.x, p2.y, p2.z );
+
+            points.push( v( p1.x, p1.y, p1.z ) );
+            points.push( v( p2.x, p2.y, p2.z ) );
 
 		} else {
 
@@ -185,7 +189,8 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 	}
 
-	function addObject( vertex, extruding ) {
+	/*
+function addObject( vertex, extruding ) {
 
 		var geometry = new THREE.BufferGeometry();
 		geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertex, 3 ) );
@@ -196,9 +201,10 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 		segments.name = 'layer' + i;
 		object.add( segments );
 
-	}
+	}*/
 
-	var object = new THREE.Group();
+	/*
+var object = new THREE.Group();
 	object.name = 'gcode';
 
     //var gcode_start = Math.round((layers.length/100)*global_var_gcode_start);
@@ -235,8 +241,67 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 	}
 
-	object.quaternion.setFromEuler( new THREE.Euler( - Math.PI / 2, 0, 0 ) );
+	object.quaternion.setFromEuler( new THREE.Euler( - Math.PI / 2, 0, 0 ) );*/
 
-	return object;
+
+    display_gcode_3Dlines(points);
+
+    function display_gcode_3Dlines(get_points){
+        var points = get_points;
+
+        var radius = 0.23;    // nozzle diameter /2 + 0.03
+        var radius_sp = radius;
+        var faces = 4;
+        var faces_sp = 4;
+
+        var length;
+        var combined = new THREE.Geometry();
+
+        console.log(points.length/4);
+        console.log("loading ...");
+
+        for ( var i = 0; i < (points.length/4)-1; i++ ) {
+
+            if(points[i].x == points[i+1].x && points[i].y == points[i+1].y && points[i].z == points[i+1].z){
+                //console.log("--");
+            } else {
+
+                var geometry_sph = new THREE.SphereGeometry( radius_sp, faces_sp, faces_sp );
+                mesh = new THREE.Mesh( geometry_sph );
+                mesh.position.set(points[i].x, points[i].y, points[i].z);
+
+                mesh.updateMatrix();
+                combined.merge( mesh.geometry, mesh.matrix );
+
+                length = points[i].distanceTo( points[1+i] );
+                var geometry = new THREE.CylinderGeometry(radius, radius, length, faces, faces);
+                geometry.translate( 0, length / 2, 0 );
+                geometry.rotateX( Math.PI / 2 );
+
+                var mesh = new THREE.Mesh(geometry);
+                mesh.lookAt(points[i+1].x - points[i].x, points[i+1].y - points[i].y, points[i+1].z - points[i].z );
+                mesh.position.set(points[i].x, points[i].y, points[i].z);
+
+                mesh.updateMatrix();
+                combined.merge( mesh.geometry, mesh.matrix );
+            }
+
+        }
+
+        var material = new THREE.MeshPhongMaterial( { color: 0x008CC1, shininess: 10 } );
+        var mesh = new THREE.Mesh( combined, material );
+        mesh.rotateX( -Math.PI / 2 );
+        mesh.position.set( -100,0,100 );
+        scene.add( mesh );
+
+        //function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
+    }
+
+    function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
+
+    //get_points = points;
+	//return object;
+	//return points;
+	return ">> loaded";
 
 };

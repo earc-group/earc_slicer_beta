@@ -38,6 +38,8 @@ var volume_obj = 0;
 var first_slice = 1;
 var obj_volume_proc;
 var live_print_view = 0;
+var last_ml_uq_id = 0;
+var last_ml_config;
 
 var flag=false;
 var layer;
@@ -151,6 +153,18 @@ function init() {
           live_print_show();
       }
     };
+
+    stats = new Stats();
+    stats.domElement.style.cssText = 'position: fixed; top: 5px; right: 5px; z-index: 1000; ';
+    document.body.appendChild( stats.domElement );
+
+// axes
+    /*
+    scene.add( new THREE.ArrowHelper( v(1, 0, 0), v(0, 0, 0), 30, 0xcc0000) );
+    scene.add( new THREE.ArrowHelper( v(0, 1, 0), v(0, 0, 0), 30, 0x00cc00) );
+    scene.add( new THREE.ArrowHelper( v(0, 0, 1), v(0, 0, 0), 30, 0x0000cc) );
+    function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
+    */
 
     ipcRenderer.on('live_view_fc_menu', function () {
         live_print_show();
@@ -296,7 +310,6 @@ function init() {
     });
 
 
-
 	//var Texture = new THREE.ImageUtils.loadTexture( 'assets/img/grid.png' );
 	//var Texture = new THREE.TextureLoader( 'assets/img/grid.png' );
     if(config.blur_background == 1){
@@ -381,8 +394,48 @@ function init() {
 
 // axis helper
     var axesHelper = new THREE.AxesHelper( 40 );
-    axesHelper.position.set(-100,0,-100);
+    axesHelper.position.set(-100,0,100);
+    axesHelper.rotation.set(0,Math.PI,0);
+    axesHelper.scale.x = -1;
     scene.add( axesHelper );
+
+
+    function display_gcode_3Dlines(){
+        var points = [];
+		// points = [ v(-100, 0, 0), v(0, 50, 0), v( 100, 0, 0), v( 200, 50, 0), v( 300, 0, 0 ) ];
+
+		for (var i = 0; i < 10; i++) {
+			points.push( v( Math.random() * 200 - 100, Math.random() * 200, Math.random() * 200 - 100 ) );
+		}
+
+		var radius = 1;
+		var faces = 12;
+
+		var length;
+        material = new THREE.MeshPhongMaterial( { color: 0x00FFFF, specular: 0x111111, shininess: 200 } );
+
+		for (var i = 0, len = points.length; i < len; i++) {
+			geometry = new THREE.SphereGeometry( radius, faces, faces );
+			mesh = new THREE.Mesh( geometry, material );
+			mesh.position = points[i];
+			scene.add( mesh );
+
+			if ( i + 1 === len ) return;
+			geometry = new THREE.CylinderGeometry( radius, radius, 1, faces );
+			geometry.applyMatrix( new THREE.Matrix4().makeRotationX( Math.PI / -2 ) );
+			mesh = new THREE.Mesh( geometry, material );
+			mesh.position = points[i].clone();
+			mesh.lookAt( points[ 1 + i ] );
+			length = points[i].distanceTo( points[1 + i] );
+			mesh.scale.set( 1, 1, length);
+			mesh.translateZ( 0.5 * length );
+			scene.add( mesh );
+		}
+		function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
+    }
+
+    //display_gcode_3Dlines();
+
 
     var h;
 	var mesh_pos, mesh_box;
@@ -496,10 +549,16 @@ function init() {
 			mesh.castShadow = true;
 			mesh.receiveShadow = true;
 
-			var box = new THREE.Box3().setFromObject( mesh );
+            geometry.computeBoundingBox();  // set object zero point to center of object
+            var centroid = new THREE.Vector3();
+            centroid.addVectors(geometry.boundingBox.min, geometry.boundingBox.max).divideScalar(2);
+            geometry.center();
 
-            //console.log("---> - height: " + box.min.y);
-            //console.log("---> + height: " + box.max.y);
+            mesh.position.copy(centroid);   // set center point
+
+            // --- center 00 floor ---
+            mesh.position.set( 0, 0, 0 );
+            var box = new THREE.Box3().setFromObject( mesh );
 
             if(box.min.y < 0){
                 mesh.position.set( 0, -(box.min.y), 0 );
@@ -509,13 +568,12 @@ function init() {
                 mesh.position.set( 0, 0, 0 );
             }
 
-            //console.log("---> pos: " + mesh.position.y);
-
             var box = new THREE.Box3().setFromObject( mesh );
-
             var helper = new THREE.Box3Helper( box, 0xffff00 );
             //scene.add( helper );
             //console.log(helper.position);
+            animate();
+            // --- center 00 floor - END ---
 
 			scene.add( mesh ); ObjectControl1.attach( mesh );
 
@@ -619,7 +677,7 @@ function init() {
     	});
     }
 
-    function load_obj_model(model_file_path, model_file_name){      // EXPERIMENTAL --> disabled
+    function load_obj_model(model_file_path, model_file_name){
 
         var file_path = model_file_path;
 
@@ -673,6 +731,13 @@ function init() {
                 //scene.add( helper );
                 //console.log(helper.position);
 
+                geometry.computeBoundingBox();  // set object zero point to center of object
+                var centroid = new THREE.Vector3();
+                centroid.addVectors(geometry.boundingBox.min, geometry.boundingBox.max).divideScalar(2);
+                geometry.center();
+
+                mesh.position.copy(centroid);   // set center point
+
     			scene.add( mesh ); ObjectControl1.attach( mesh );
 
     			if ( mesh instanceof THREE.Mesh ) {
@@ -684,7 +749,6 @@ function init() {
         } );
 
     }
-
 
     // --------- DRAG AND DROP FILE ----------- //
 
@@ -773,6 +837,9 @@ function init() {
 
     // --------- END OF DRAG AND DROP ----------- //
 
+    setTimeout(function(){
+        show_gcode();
+    }, 2000);
     //show_gcode();
     //show_gcode_ui();
 
@@ -805,19 +872,70 @@ function init() {
           });
         });
 
+        var get_points;
+
         setTimeout(function(){
             var loader = new THREE.GCodeLoader();
         	loader.load( 'output/output.gcode', function ( gcode_view_mesh ) {
 
-        		gcode_view_mesh.position.set( -100, 0, 100 );
-                gcode_view_mesh.name = "gcode_view";
-        		scene.add( gcode_view_mesh );
+                console.log(gcode_view_mesh);
+                console.log(">> vectors");
+                //display_gcode_3Dlines(gcode_view_mesh);
 
-                if ( gcode_view_mesh instanceof THREE.Mesh ) {
-                   gcode_view = gcode_view_mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
-            	}
+                function display_gcode_3Dlines(get_points){
+                    var points = get_points;
+
+            		var radius = 0.23;    // nozzle diameter /2 + 0.03
+            		var radius_sp = radius;
+            		var faces = 4;
+            		var faces_sp = 4;
+
+            		var length;
+                    var combined = new THREE.Geometry();
+
+                    console.log(points.length/4);
+                    console.log("loading ...");
+
+                    for ( var i = 0; i < (points.length/4)-1; i++ ) {
+
+                        if(points[i].x == points[i+1].x && points[i].y == points[i+1].y && points[i].z == points[i+1].z){
+                            //console.log("--");
+                        } else {
+
+                            var geometry_sph = new THREE.SphereGeometry( radius_sp, faces_sp, faces_sp );
+                			mesh = new THREE.Mesh( geometry_sph );
+                            mesh.position.set(points[i].x, points[i].y, points[i].z);
+
+                            mesh.updateMatrix();
+                            combined.merge( mesh.geometry, mesh.matrix );
+
+                            length = points[i].distanceTo( points[1+i] );
+                            var geometry = new THREE.CylinderGeometry(radius, radius, length, faces, faces);
+                            geometry.translate( 0, length / 2, 0 );
+                            geometry.rotateX( Math.PI / 2 );
+
+                            var mesh = new THREE.Mesh(geometry);
+                            mesh.lookAt(points[i+1].x - points[i].x, points[i+1].y - points[i].y, points[i+1].z - points[i].z );
+                            mesh.position.set(points[i].x, points[i].y, points[i].z);
+
+                            mesh.updateMatrix();
+                            combined.merge( mesh.geometry, mesh.matrix );
+                        }
+
+                    }
+
+                    material = new THREE.MeshPhongMaterial( { color: 0x008CC1, shininess: 10 } );
+                    var mesh = new THREE.Mesh( combined, material );
+                    mesh.rotateX( -Math.PI / 2 );
+                    mesh.position.set( -100,0,100 );
+                    scene.add( mesh );
+
+            		function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
+                }
 
         	} );
+
+
 
             ipc.send("open_window_analyzer", "open");
         }, 100);
@@ -865,6 +983,13 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
             $("#gcode_ui_side_bar").fadeIn("slow");
         }, 200);
 
+        var config = ini.parse(fs.readFileSync("app_settings/app_config.ini", 'utf-8'))
+        var config_last = ini.parse(fs.readFileSync("app_settings/last_config.ini", 'utf-8'))
+        var last_ml_config_ini = ini.parse(fs.readFileSync("app_settings/ml_last_config.ini", 'utf-8'))
+
+        last_ml_uq_id = config.last_ml_uq_id;
+        last_ml_config = last_ml_config_ini;
+
         // ML blueprint -> start
         var obj_id_blueprint = vector_count * (1 - (obj_volume_proc / 100)); // vectors - vol_proc %
         var obj_id_blueprint_ml = 1 / obj_id_blueprint;
@@ -882,11 +1007,13 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         console.log("--------");
         // ML blueprint -> end
 
+        config.last_ml_uq_id = obj_id_blueprint_ml;
+
+        fs.writeFileSync('./app_settings/app_config.ini', ini.stringify(config));
+        fs.writeFileSync('./app_settings/ml_last_config.ini', ini.stringify(config_last));
+
         var feedback_slicer_array = feedback_slicer.split(" ");
         var fil_required = "";
-
-        var config = ini.parse(fs.readFileSync("app_settings/app_config.ini", 'utf-8'))
-        var config_last = ini.parse(fs.readFileSync("app_settings/last_config.ini", 'utf-8'))
 
         for(var i = 0; i < feedback_slicer_array.length; i++){
             if(feedback_slicer_array[i] == "required:"){
@@ -1060,6 +1187,8 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
         $(".thx_rate_message").fadeIn("slow");
         setTimeout(function(){
             console.log("rating: " + $('#rating').val() + "/5");
+            console.log("uq_id: " + last_ml_uq_id);
+            console.log("config: " + last_ml_config);
             $(".rating_message").fadeOut("slow");
             $(".thx_rate_message").fadeIn("slow");
         }, 1000);
@@ -1665,6 +1794,10 @@ function set_floor(objName){
 }
 
 function animate() {
+
+    stats.begin();
+	// monitored code goes here
+	stats.end();
 
 	requestAnimationFrame(animate);
 	render();
@@ -2858,6 +2991,14 @@ function save_last_preset_name(){
     fs.writeFileSync('./app_settings/app_config.ini', ini.stringify(config_app))
 }
 
+function reload_model_list_view(){
+
+    for(var i = 0; i < loaded_models.model.length; i++){
+        $("#model_list_div").append("<li id='model_li' class='model_menu_li'><p id='model_li_p'>" + loaded_models.model[i].name + "</p><div class='cross_icon del_model_btn' id='" + loaded_models.model[i].name + "'></div></li>");
+    }
+
+}
+
 // ----- gcode analyzer ----
 ipc.on('print_time_send_render', function (event, arg) {  // get select preset name from save_pres js file
     console.log("print time: ");
@@ -2868,11 +3009,8 @@ ipc.on('print_time_send_render', function (event, arg) {  // get select preset n
     $(".gcode_print_time").text("print time: " + parseInt(parseFloat(gcode_print_time)/60/60) + ":" + parseInt((parseFloat(gcode_print_time)/60)%60) + ":" + parseInt(parseFloat(gcode_print_time)%60));
 })
 
+// ---- switch easy/manual settings -----
 $(document).on('click','#manual_btn', function(){
-    /*
-    for(var i = 0; i < scene.children.length; i++ ){
-        console.log(scene.children[i]);
-    }*/
     load_manual_settings();
     $("#easy_s_btn").show();
     $("#manual_btn").hide();
@@ -2880,23 +3018,13 @@ $(document).on('click','#manual_btn', function(){
 
 $(document).on('click','#easy_s_btn', function(){
     load_easy_settings();
+    reload_model_list_view();	// reload model li view
     $("#easy_s_btn").hide();
     $("#manual_btn").show();
 })
 
 
-/*
-var clear = drag_window('.top_bar');
 
-// Call the returned function to make the element undraggable again.
-clear();*/
-
-
-
-/*
-if(!drag.supported) {
-	document.querySelector('.top_bar').style['-webkit-app-region'] = 'drag';
-}*/
 
 
 
