@@ -35297,10 +35297,10 @@
 
 		this.type = 'CatmullRomCurve3';
 
-		this.points = points || [];
+		this.points = points || [];		// earc edited
 		this.closed = closed || false;
-		this.curveType = curveType || 'centripetal';
-		this.tension = tension || 0.5;
+		this.curveType = curveType || 'catmullrom';
+		this.tension = tension || 0;
 
 	}
 

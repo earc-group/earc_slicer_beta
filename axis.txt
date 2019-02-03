@@ -90,3 +90,57 @@ main_script.js:2543 LineSegments {uuid: "BF4AFA45-BD45-4B60-8C79-35D133FA1970",
 
 Mesh {uuid: "8BEBA026-668C-4FE1-9658-72CB6E41ED9E", name: "earc_logo_stl_on_printer.stl", type: "Mesh", parent: Scene, children: Array(0), …}
 Mesh {uuid: "8BEBA026-668C-4FE1-9658-72CB6E41ED9E", name: "earc_logo_stl_on_printer.stl", type: "Mesh", parent: null, children: Array(0), …}
+
+
+
+//array_of_arrays.map((num, i) => {
+for(var i = 0; i < 6; i++){
+
+    if(array_of_arrays[i].length > 0){
+        //console.log(array_of_arrays[i]);
+        console.log(">>");
+
+        /*
+var curve = new THREE.SplineCurve( array_of_arrays[i] );
+
+        var points = curve.getPoints( array_of_arrays[i].length );
+        var geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+        var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+
+        // Create the final object to add to the scene
+        var splineObject = new THREE.Line( geometry, material );
+*/
+
+
+
+
+        extrudePath = new THREE.CatmullRomCurve3( array_of_arrays[i] );
+        geometry = new THREE.TubeBufferGeometry( extrudePath, array_of_arrays[i].length, 0.21, 4, false );
+        //geometry = new THREE.TubeGeometry( extrudePath, array_of_arrays[i].length, 0.21, 4, false );
+
+        mesh = new THREE.Mesh( geometry );
+
+        //mesh.updateMatrix();
+        //combined.merge( mesh.geometry, mesh.matrix );
+
+        group.add(mesh);
+
+    }
+
+}
+
+
+var material = new THREE.MeshLambertMaterial( { color: 0x008CC1 } );
+group.position.set( -100, 0, 100 );
+group.rotateX( -Math.PI / 2 );
+scene.add(group);
+
+/*
+
+var material = new THREE.MeshLambertMaterial( { color: 0x008CC1 } );
+var mesh = new THREE.Mesh( combined, material );
+mesh.rotateX( -Math.PI / 2 );
+mesh.position.set( -100,0,100 );
+scene.add( mesh );
+*/

@@ -838,7 +838,7 @@ function init() {
     // --------- END OF DRAG AND DROP ----------- //
 
     setTimeout(function(){
-        show_gcode();
+        //show_gcode();
     }, 2000);
     //show_gcode();
     //show_gcode_ui();
@@ -878,67 +878,37 @@ function init() {
             var loader = new THREE.GCodeLoader();
         	loader.load( 'output/output.gcode', function ( gcode_view_mesh ) {
 
-                console.log(gcode_view_mesh);
-                console.log(">> vectors");
+                //console.log(gcode_view_mesh);
+                console.log(">> procesed");
                 //display_gcode_3Dlines(gcode_view_mesh);
 
-                function display_gcode_3Dlines(get_points){
-                    var points = get_points;
+                //mesh.rotateX( -Math.PI / 2 );
+                //mesh.position.set( -100,0,100 );
 
-            		var radius = 0.23;    // nozzle diameter /2 + 0.03
-            		var radius_sp = radius;
-            		var faces = 4;
-            		var faces_sp = 4;
+                gcode_view_mesh.position.set( -100, 0, 100 );
+                gcode_view_mesh.name = "gcode_view";
+        		scene.add( gcode_view_mesh );
 
-            		var length;
-                    var combined = new THREE.Geometry();
+                if ( gcode_view_mesh instanceof THREE.Mesh ) {
+                   gcode_view = gcode_view_mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
+            	}
 
-                    console.log(points.length/4);
-                    console.log("loading ...");
+                /*
+gcode_view_mesh.position.set( -100, 0, 100 );
+                gcode_view_mesh.rotateX( -Math.PI / 2 );
+                gcode_view_mesh.name = "gcode_view";
+        		scene.add( gcode_view_mesh );*/
 
-                    for ( var i = 0; i < (points.length/4)-1; i++ ) {
 
-                        if(points[i].x == points[i+1].x && points[i].y == points[i+1].y && points[i].z == points[i+1].z){
-                            //console.log("--");
-                        } else {
+                //render();
 
-                            var geometry_sph = new THREE.SphereGeometry( radius_sp, faces_sp, faces_sp );
-                			mesh = new THREE.Mesh( geometry_sph );
-                            mesh.position.set(points[i].x, points[i].y, points[i].z);
+                console.log(">> complete");
 
-                            mesh.updateMatrix();
-                            combined.merge( mesh.geometry, mesh.matrix );
-
-                            length = points[i].distanceTo( points[1+i] );
-                            var geometry = new THREE.CylinderGeometry(radius, radius, length, faces, faces);
-                            geometry.translate( 0, length / 2, 0 );
-                            geometry.rotateX( Math.PI / 2 );
-
-                            var mesh = new THREE.Mesh(geometry);
-                            mesh.lookAt(points[i+1].x - points[i].x, points[i+1].y - points[i].y, points[i+1].z - points[i].z );
-                            mesh.position.set(points[i].x, points[i].y, points[i].z);
-
-                            mesh.updateMatrix();
-                            combined.merge( mesh.geometry, mesh.matrix );
-                        }
-
-                    }
-
-                    material = new THREE.MeshPhongMaterial( { color: 0x008CC1, shininess: 10 } );
-                    var mesh = new THREE.Mesh( combined, material );
-                    mesh.rotateX( -Math.PI / 2 );
-                    mesh.position.set( -100,0,100 );
-                    scene.add( mesh );
-
-            		function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
-                }
 
         	} );
 
-
-
-            ipc.send("open_window_analyzer", "open");
-        }, 100);
+            //ipc.send("open_window_analyzer", "open");
+        }, 50);
 
     }
 
