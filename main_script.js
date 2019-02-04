@@ -26,6 +26,8 @@ const electron = require('electron');
 const ipc = electron.ipcRenderer;
 var xml2js = require('xml2js');
 
+//var SerialPort = require('serialport');
+
 var basepath = remote.app.getAppPath();
 
 var loaded_models = {};
@@ -155,8 +157,8 @@ function init() {
     };
 
     stats = new Stats();
-    stats.domElement.style.cssText = 'position: fixed; top: 5px; right: 5px; z-index: 1000; ';
-    document.body.appendChild( stats.domElement );
+    //stats.domElement.style.cssText = 'position: fixed; top: 5px; right: 5px; z-index: 1000; ';
+    //document.body.appendChild( stats.domElement );
 
 // axes
     /*
@@ -165,6 +167,42 @@ function init() {
     scene.add( new THREE.ArrowHelper( v(0, 0, 1), v(0, 0, 0), 30, 0x0000cc) );
     function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
     */
+
+    /*
+    var serialPort = new SerialPort('/dev/tty.usbserial-1410', {
+        baudrate: 250000
+    });    */
+
+
+
+    //const SerialPort = require('serialport')
+    /*
+    const Readline = require('@serialport/parser-readline')
+    const port = new SerialPort(path, { baudRate: 250000 })
+
+    const parser = new Readline()
+    port.pipe(parser)
+
+    parser.on('data', line => console.log(`> ${line}`))
+    port.write('ROBOT POWER ON\n')    */
+
+
+    //> ROBOT ONLINE
+
+    /*
+    // Switches the port into "flowing mode"
+    serialPort.on('data', function (data) {
+        console.log('Data:', data);
+    });
+
+    // Read data that is available but keep the stream from entering //"flowing mode"
+    serialPort.on('readable', function () {
+        console.log('Data:', port.read());
+    });    */
+
+
+
+
 
     ipcRenderer.on('live_view_fc_menu', function () {
         live_print_show();
