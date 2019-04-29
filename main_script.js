@@ -42,6 +42,8 @@ var obj_volume_proc;
 var live_print_view = 0;
 var last_ml_uq_id = 0;
 var last_ml_config;
+var mouse_pos = {};
+mouse_pos.stat = 1;
 
 var flag=false;
 var layer;
@@ -157,8 +159,8 @@ function init() {
     };
 
     stats = new Stats();
-    //stats.domElement.style.cssText = 'position: fixed; top: 5px; right: 5px; z-index: 1000; ';
-    //document.body.appendChild( stats.domElement );
+    stats.domElement.style.cssText = 'position: fixed; top: 5px; right: 5px; z-index: 1000; ';
+    document.body.appendChild( stats.domElement );
 
 // axes
     /*
@@ -1808,13 +1810,26 @@ function animate() {
 	// monitored code goes here
 	stats.end();
 
-	requestAnimationFrame(animate);
-	render();
+	//requestAnimationFrame(animate);
+	//render();
+
+    if(mouse_pos.stat == 0){            // if user is inactive set framerate to 1FPS
+        setTimeout( function() {
+            requestAnimationFrame( animate );
+        }, 1000 / 1 );
+        render();
+    } else if(mouse_pos.stat == 1){
+        requestAnimationFrame( animate );
+        render();
+    }
+
+
 
 }
 
 function render() {
 
+    //console.log(">> render reload");
 
     ObjectControl1.update();
 	ObjectControl2.update();
@@ -1835,6 +1850,97 @@ function render() {
     camera.lookAt(scene.position); //0,0,0
     renderer.render(scene, camera);
 
+}
+
+// ----- check user activity -> set framerate limit while user is inactiv -----
+
+mouse_pos.x_prev = 0;
+mouse_pos.y_prev = 0;
+
+// onmousemove="showCoords(event)" onmouseout="clearCoor()"
+
+/*
+$("canvas").on( "onmousemove", function() {
+    read_mouse_pos(event);
+});
+*/
+
+var mouse_hover_canvas = true;
+
+
+$(document).on('mousemove', function (event) {
+
+    //console.log(">>move");
+
+    /*
+$("canvas").hover(function(){
+        mouse_hover_canvas = true;
+    });*/
+    console.log($("canvas").on( "mouseover" ));
+
+
+    if($("canvas").on( "mouseover" ) == true){
+        mouse_hover_canvas = true;
+    } else {
+        mouse_hover_canvas = false;
+    }
+
+    if(mouse_hover_canvas == true){
+        console.log(">>move");
+    }
+
+});
+
+
+$( "canvas" ).mousemove(function( event ) {
+  console.log(">>move");
+});
+
+/*
+$("canvas").on('mousemove', function (event) {
+    read_mouse_pos(event);
+    console.log(">>move");
+});
+*/
+
+
+/*
+$("canvas").on( "onmouseout", function() {
+    clear_mouse_pos();
+});*/
+
+
+
+
+function read_mouse_pos(event) {
+    mouse_pos.x = event.clientX;
+    mouse_pos.y = event.clientY;
+    //console.log("pos: " + mouse_pos.x + " / " + mouse_pos.y);
+}
+
+function clear_mouse_pos() {
+    mouse_pos.x = -1;
+    mouse_pos.y = -1;
+    //console.log("pos: " + mouse_pos.x + " / " + mouse_pos.y);
+}
+
+window.setInterval(function(){
+    check_user_activity();
+}, 1000);
+
+function check_user_activity(){
+    //console.log(">> check_user_activity()");
+
+    if(mouse_pos.x_prev == mouse_pos.x && mouse_pos.y_prev == mouse_pos.y){
+        console.log(">> inactive");
+        mouse_pos.stat = 0;
+    } else {
+        console.log(">> active");
+        mouse_pos.stat = 1;
+    }
+
+    mouse_pos.x_prev = mouse_pos.x;
+    mouse_pos.y_prev = mouse_pos.y;
 }
 
 var hover_over_element = "";
