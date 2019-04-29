@@ -83,6 +83,8 @@ function init() {
 	//renderer.setSize( 800, 500 );
 	//renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.setSize( Math.round((window.innerWidth/100)*78) - 36, window.innerHeight - 47 );
+    renderer.setPixelRatio(window.devicePixelRatio);    // retina supprot
+
 	document.body.appendChild( renderer.domElement );
 
     setTimeout(function(){
@@ -201,9 +203,6 @@ function init() {
     serialPort.on('readable', function () {
         console.log('Data:', port.read());
     });    */
-
-
-
 
 
     ipcRenderer.on('live_view_fc_menu', function () {
@@ -1806,12 +1805,7 @@ function set_floor(objName){
 
 function animate() {
 
-    stats.begin();
-	// monitored code goes here
-	stats.end();
-
-	//requestAnimationFrame(animate);
-	//render();
+    stats.begin();  // monitored code goes here
 
     if(mouse_pos.stat == 0){            // if user is inactive set framerate to 1FPS
         setTimeout( function() {
@@ -1823,13 +1817,11 @@ function animate() {
         render();
     }
 
-
+    stats.end();
 
 }
 
 function render() {
-
-    //console.log(">> render reload");
 
     ObjectControl1.update();
 	ObjectControl2.update();
@@ -1856,61 +1848,26 @@ function render() {
 
 mouse_pos.x_prev = 0;
 mouse_pos.y_prev = 0;
+hover_over_element = "canvas";
 
-// onmousemove="showCoords(event)" onmouseout="clearCoor()"
-
-/*
-$("canvas").on( "onmousemove", function() {
-    read_mouse_pos(event);
-});
-*/
-
-var mouse_hover_canvas = true;
-
+setTimeout(function(){   // get zoom change data
+    mouse_pos.cam_prev = camera.position.z;
+}, 1000);
 
 $(document).on('mousemove', function (event) {
 
-    //console.log(">>move");
+    $("canvas").hover(function() {
+        hover_over_element = "canvas";
+    }, function() {
+        hover_over_element = "";
+    });
 
-    /*
-$("canvas").hover(function(){
-        mouse_hover_canvas = true;
-    });*/
-    console.log($("canvas").on( "mouseover" ));
-
-
-    if($("canvas").on( "mouseover" ) == true){
-        mouse_hover_canvas = true;
-    } else {
-        mouse_hover_canvas = false;
-    }
-
-    if(mouse_hover_canvas == true){
-        console.log(">>move");
+    //console.log(">> " + hover_over_element);
+    if(hover_over_element == "canvas"){
+        read_mouse_pos(event);
     }
 
 });
-
-
-$( "canvas" ).mousemove(function( event ) {
-  console.log(">>move");
-});
-
-/*
-$("canvas").on('mousemove', function (event) {
-    read_mouse_pos(event);
-    console.log(">>move");
-});
-*/
-
-
-/*
-$("canvas").on( "onmouseout", function() {
-    clear_mouse_pos();
-});*/
-
-
-
 
 function read_mouse_pos(event) {
     mouse_pos.x = event.clientX;
@@ -1918,30 +1875,35 @@ function read_mouse_pos(event) {
     //console.log("pos: " + mouse_pos.x + " / " + mouse_pos.y);
 }
 
-function clear_mouse_pos() {
-    mouse_pos.x = -1;
-    mouse_pos.y = -1;
-    //console.log("pos: " + mouse_pos.x + " / " + mouse_pos.y);
-}
+mouse_pos.stat = 1;
 
-window.setInterval(function(){
-    check_user_activity();
-}, 1000);
+setTimeout(function(){
+    window.setInterval(function(){
+        check_user_activity();
+    }, 1000);
+}, 3000);
 
 function check_user_activity(){
-    //console.log(">> check_user_activity()");
 
-    if(mouse_pos.x_prev == mouse_pos.x && mouse_pos.y_prev == mouse_pos.y){
-        console.log(">> inactive");
+    mouse_pos.cam = camera.position.z;
+    //console.log("pos: " + mouse_pos.cam);
+
+    if(mouse_pos.x_prev == mouse_pos.x && mouse_pos.y_prev == mouse_pos.y && mouse_pos.cam_prev == mouse_pos.cam){
+        //console.log(">> inactive");
         mouse_pos.stat = 0;
     } else {
-        console.log(">> active");
+        //console.log(">> active");
         mouse_pos.stat = 1;
     }
 
+    mouse_pos.cam_prev = camera.position.z;
     mouse_pos.x_prev = mouse_pos.x;
     mouse_pos.y_prev = mouse_pos.y;
 }
+
+mouse_pos.stat = 1;
+
+// ----- check user activity -> END -----
 
 var hover_over_element = "";
 

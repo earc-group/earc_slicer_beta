@@ -26,12 +26,17 @@ body
     -webkit-font-smoothing: subpixel-antialiased
     text-rendering: optimizeSpeed
 
-button:focus
-    outline: 0
+button
+    -webkit-touch-callout: none
+    user-select: none
+    &:focus
+        outline: 0
 
 p
     -webkit-margin-after: 0em
     -webkit-margin-before: 0em
+    -webkit-touch-callout: none
+    user-select: none
 
 hr
     color: #ccc
