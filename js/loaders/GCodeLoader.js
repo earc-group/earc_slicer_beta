@@ -10,6 +10,16 @@
  * @author tentone
  * @author joewalnes
  */
+
+
+/*
+
+console.log(global_var_gcode_start);
+console.log(global_var_gcode_end);
+
+*/
+
+
 THREE.GCodeLoader = function ( manager ) {
 
 	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
@@ -49,7 +59,7 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 	var pathMaterial = new THREE.LineBasicMaterial( { color: 0xE89C2A } );
 	pathMaterial.name = 'path';
 
-	var extrudingMaterial = new THREE.LineBasicMaterial( { color: 0x00D8ED } );
+	var extrudingMaterial = new THREE.LineBasicMaterial( { color: 0x00E9E9 } );
 	extrudingMaterial.name = 'extruded';
 
 	function newLayer( line ) {
@@ -189,6 +199,15 @@ THREE.GCodeLoader.prototype.parse = function ( data ) {
 
 	var object = new THREE.Group();
 	object.name = 'gcode';
+
+    global_var_gcode_start = 0;
+    global_var_gcode_end = 50;
+
+    var gcode_start = Math.round((layers.length/100)*global_var_gcode_start);
+    var gcode_end = Math.round((layers.length/100)*global_var_gcode_end);
+
+    console.log(gcode_start);
+    console.log(gcode_end);
 
 	if ( this.splitLayer ) {
 

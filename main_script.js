@@ -437,8 +437,8 @@ function init() {
     axesHelper.scale.x = -1;
     scene.add( axesHelper );
 
-
-    function display_gcode_3Dlines(){
+    /*
+function display_gcode_3Dlines(){
         var points = [];
 		// points = [ v(-100, 0, 0), v(0, 50, 0), v( 100, 0, 0), v( 200, 50, 0), v( 300, 0, 0 ) ];
 
@@ -470,7 +470,8 @@ function init() {
 			scene.add( mesh );
 		}
 		function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
-    }
+    }*/
+
 
     //display_gcode_3Dlines();
 
