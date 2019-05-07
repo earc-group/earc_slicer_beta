@@ -1,12 +1,13 @@
-// earc slicer - Vue.js - three.js app by earc - (core: Jan Kovar) - 2018
+// earc slicer - three.js app by earc - Jan Kovar - 2018
 
-var camera, scene, renderer, control; var model;
+var camera, scene, scene2, renderer, control; var model;
 var cameraTarget, selected_object, exporter, container, stats;
 var selected_object_obj, saveString, gcode_view;
 
 var hover_over_element = "";
 var hover_over_element_text = "";
 var gcode_print_time;
+var actual_scene = 1;
 
 let mainWindow = null;
 const Electron = require('electron');
@@ -133,8 +134,9 @@ function init() {
 	//control.maxPolarAngle = Math.PI / 3;
 
 	scene = new THREE.Scene();
+	scene2 = new THREE.Scene();
 
-	var light = new THREE.DirectionalLight( 0xffffff, 1 );
+	var light = new THREE.DirectionalLight( 0xffffff, 1 );     // I know that is terrible but it works.
 	light.position.set( 0, 800, 1000 );
 	scene.add( light );
 
@@ -152,6 +154,25 @@ function init() {
 
 	var light = new THREE.AmbientLight( 0x222222 );
 	scene.add( light );
+
+	var light = new THREE.DirectionalLight( 0xffffff, 1 );
+	light.position.set( 0, 800, 1000 );
+	scene2.add( light );
+
+	var light = new THREE.DirectionalLight( 0xffffff, 1 );
+	light.position.set( 0, 800, -1000 );
+	scene2.add( light );
+
+	var light = new THREE.DirectionalLight( 0xffffff, 1 );
+	light.position.set( 550, 800, 0 );
+	scene2.add( light );
+
+	var light = new THREE.DirectionalLight( 0xffffff, 1 );
+	light.position.set( -550, 800, 0 );
+	scene2.add( light );
+
+	var light = new THREE.AmbientLight( 0x222222 );
+	scene2.add( light );
 
 
     document.onkeyup = function(e) {
@@ -331,6 +352,15 @@ function init() {
             plane.name = "line_axis_plane";
             scene.add( plane );
 
+            var geometry = new THREE.PlaneGeometry( 200, 200, 200 );
+            var material = new THREE.MeshBasicMaterial( { color: 0xCFFAFA, transparent: true, opacity: 0.5, side: THREE.DoubleSide } );
+
+            var plane = new THREE.Mesh( geometry, material );
+            plane.rotation.set(Math.PI/2, 0 ,0);
+            plane.position.set(0, 0, 0);
+            plane.name = "line_axis_plane";
+            scene2.add( plane );
+
             function animate(){
                 requestAnimationFrame(animate);
                 render();
@@ -348,38 +378,51 @@ function init() {
     	camera.updateProjectionMatrix();
     });
 
-
-	//var Texture = new THREE.ImageUtils.loadTexture( 'assets/img/grid.png' );
-	//var Texture = new THREE.TextureLoader( 'assets/img/grid.png' );
-    if(config.blur_background == 1){
+    /*
+if(config.blur_background == 1){
         var Texture = new THREE.TextureLoader().load( 'assets/img/grid_light.png' );
     } else {
         var Texture = new THREE.TextureLoader().load( 'assets/img/grid.png' );
-    }
-	//Texture.wrapS = Texture.wrapT = THREE.RepeatWrapping;
-	//Texture.repeat.set( 1, 1 );	Texture.offset.set( 0, 0 );
+    }*/
 
-	var Material = new THREE.MeshBasicMaterial( { map: Texture, side: THREE.DoubleSide } );
+    var Texture;
+	var Material = new THREE.MeshBasicMaterial( { map: Texture, side: THREE.BackSide } );
 	var Geometry = new THREE.PlaneGeometry( space_x, space_y, 1, 1 );
+
+    Material.color.set(0xf5f5f5);
 
 	var checkerboard = new THREE.Mesh( Geometry, Material );
 	checkerboard.position.y = - 0.1;
 	checkerboard.rotation.x =  Math.PI / 2;
-	//checkerboard.position.x =  -x_plate / 2;
 	//checkerboard.position.z =  y_plate / 2;
 	scene.add( checkerboard );
+
+	var checkerboard = new THREE.Mesh( Geometry, Material );
+	checkerboard.position.y = - 0.1;
+	checkerboard.rotation.x =  Math.PI / 2;
+	//checkerboard.position.z =  y_plate / 2;
+	scene2.add( checkerboard );
+
+    var size = 200;
+    var divisions = 8;
+
+    var gridHelper = new THREE.GridHelper( size, divisions, 0x00BAFF, 0x00BAFF );
+    scene.add( gridHelper );
+
+    var gridHelper = new THREE.GridHelper( size, divisions, 0x00BAFF, 0x00BAFF );
+    scene2.add( gridHelper );
 
     var material = new THREE.LineBasicMaterial( { color: 0xD2D2D2 } );
     var geometry = new THREE.Geometry();
                                         //     x  z   y
-    geometry.vertices.push(new THREE.Vector3( space_x/2, 0, space_y/2) );
+    geometry.vertices.push(new THREE.Vector3( space_x/2, -0.1, space_y/2) );
     geometry.vertices.push(new THREE.Vector3( space_x/2, space_height, space_y/2) );
     geometry.vertices.push(new THREE.Vector3( space_x/2, space_height, -space_y/2) );
-    geometry.vertices.push(new THREE.Vector3( space_x/2, 0, -space_y/2) );
-    geometry.vertices.push(new THREE.Vector3( -space_x/2, 0, -space_y/2) );
+    geometry.vertices.push(new THREE.Vector3( space_x/2, -0.1, -space_y/2) );
+    geometry.vertices.push(new THREE.Vector3( -space_x/2, -0.1, -space_y/2) );
     geometry.vertices.push(new THREE.Vector3( -space_x/2, space_height, -space_y/2) );
     geometry.vertices.push(new THREE.Vector3( -space_x/2, space_height, space_y/2) );
-    geometry.vertices.push(new THREE.Vector3( -space_x/2, 0, space_y/2) );
+    geometry.vertices.push(new THREE.Vector3( -space_x/2, -0.1, space_y/2) );
     geometry.vertices.push(new THREE.Vector3( -space_x/2, space_height, space_y/2) );
     geometry.vertices.push(new THREE.Vector3( space_x/2, space_height, space_y/2) );
     geometry.vertices.push(new THREE.Vector3( space_x/2, space_height, -space_y/2) );
@@ -388,6 +431,9 @@ function init() {
 
     var line = new THREE.Line( geometry, material );
     scene.add( line );
+
+    var line2 = new THREE.Line( geometry, material );
+    scene2.add( line2 );
 
 	ObjectControl1 = new ObjectControls( camera, renderer.domElement );
 	ObjectControl1.projectionMap = checkerboard; ObjectControl1.fixed.y = true;
@@ -400,7 +446,6 @@ function init() {
 	object3D.add( mesh );
 	object3D.position.set( 25, h / 2, 175 );
 	scene.add( object3D );  ObjectControl1.attach( object3D );
-
 
 	ObjectControl2 = new ObjectControls( camera, renderer.domElement );
 	ObjectControl2.projectionMap = checkerboard; ObjectControl2.fixed.y = true;
@@ -616,6 +661,14 @@ function display_gcode_3Dlines(){
             // --- center 00 floor - END ---
 
 			scene.add( mesh ); ObjectControl1.attach( mesh );
+
+            /*
+var axesHelper2 = new THREE.AxesHelper( 40 );
+            axesHelper2.position.set(mesh.position.x,mesh.position.y,mesh.position.z);
+            //axesHelper2.rotation.set(0,Math.PI,0);
+            axesHelper2.scale.x = -1;
+            scene.add( axesHelper2 );
+*/
 
 			if ( mesh instanceof THREE.Mesh ) {
                mesh_pos = mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
@@ -891,13 +944,15 @@ function display_gcode_3Dlines(){
 
         console.log("load_gcode_view");
 
+        actual_scene = 2;
+
         $(".gcode_view_info_msg").text("analyzing gcode ...");
 
         var gcode_view = scene.getObjectByName( "gcode_view", true );
         if(gcode_view == null){
             console.log("no old gcode view");
         } else {
-            scene.remove( gcode_view );
+            scene2.remove( gcode_view );
             animate();
         }
 
@@ -927,7 +982,7 @@ function display_gcode_3Dlines(){
 
                 gcode_view_mesh.position.set( -100, 0, 100 );
                 gcode_view_mesh.name = "gcode_view";
-        		scene.add( gcode_view_mesh );
+        		scene2.add( gcode_view_mesh );
 
                 if ( gcode_view_mesh instanceof THREE.Mesh ) {
                    gcode_view = gcode_view_mesh; // set value to the global variable, applicable, if the objMesh has one child of THREE.Mesh()
@@ -947,7 +1002,7 @@ gcode_view_mesh.position.set( -100, 0, 100 );
 
         	} );
 
-            //ipc.send("open_window_analyzer", "open");
+            ipc.send("open_window_analyzer", "open");
         }, 50);
 
     }
@@ -1124,7 +1179,7 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
             global_var_gcode_end = 5 * $("#gcode_slider .ui-slider-tip").html();
             $(".slider_value_gc").text($("#gcode_slider .ui-slider-tip").html() * 5 + "%");
 
-            re_show_gcode();
+            //re_show_gcode();  --> disabled
 
         });
 
@@ -1134,10 +1189,11 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
 
         var gcode_view = scene.getObjectByName( "gcode_view", true );
         //gcode_view.visible = false;
-        scene.remove( gcode_view ); // remove gcode view from scene
+        scene2.remove( gcode_view ); // remove gcode view from scene
         animate();
 
-        var object = scene.getObjectByName(loaded_models.model[0].name);
+        /*
+var object = scene.getObjectByName(loaded_models.model[0].name);
 
         setTimeout(function(){
             for(var i = 0; i < loaded_models.model.length; i++){    // get name from object array to hide them
@@ -1147,7 +1203,9 @@ var gcode_view = scene.getObjectByName( "gcode_view", true );
                     ObjectControl1.attach( object );
                 }
             }
-        }, 100);
+        }, 100);*/
+
+        actual_scene = 1;
 
         //init();
 
@@ -1538,7 +1596,11 @@ setTimeout(function(){      // export objects to one stl output
 	ObjectControl5.mouseover = function () {
 		control.enabled = true;		///------>> zoom pad disable
 
+        //console.log(this.focused.name);
+
 		ObjectControl1.onclick = function() {
+
+            console.log("click");
 
 			//console.log("mouse_click --> drag");
 			control.enabled = false;
@@ -1564,6 +1626,38 @@ setTimeout(function(){      // export objects to one stl output
 			}
 		}
 	}
+
+    function ondblclick(event) {
+
+/*
+ObjectControl5.mouseover = function() {
+            selected_object = this.focused.name;
+            selected_object_obj = this.focused;
+            console.log( "selected: " + selected_object );
+
+            alert("hit");
+        }*/
+
+        //mesh_pos.material.color.setHex( 0x008EB4 );
+        /*
+x = (event.clientX / window.innerWidth) * 2 - 1;
+        y = -(event.clientY / window.innerHeight) * 2 + 1;
+        dir = new THREE.Vector3(x, y, -1)
+        dir.unproject(camera)
+
+        ray = new THREE.Raycaster(camera.position, dir.sub(camera.position).normalize())
+        var intersects = ray.intersectObject(sphere);
+        if ( intersects.length > 0 )
+        {
+            alert("hit");
+        }*/
+
+    }
+
+    // events
+    window.addEventListener('resize', onWindowResize, false);
+    renderer.domElement.addEventListener("dblclick", ondblclick, false)
+
 
     $("#rot_x").val(0);
     $("#rot_y").val(0);
@@ -1839,8 +1933,16 @@ function render() {
         camera.position.z = Math.sin(speed) * 380;
     }
 
-    camera.lookAt(scene.position); //0,0,0
-    renderer.render(scene, camera);
+
+    if(actual_scene == 1){
+        camera.lookAt(scene.position); //0,0,0
+        renderer.render(scene, camera);
+    } else if(actual_scene == 2){
+        camera.lookAt(scene2.position); //0,0,0
+        renderer.render(scene2, camera);
+    } else {
+        console.warn("error: weird scene set...");
+    }
 
 }
 

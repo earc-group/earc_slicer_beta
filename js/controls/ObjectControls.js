@@ -11,14 +11,14 @@ ObjectControls = function ( camera, domElement ) {
 	this.container = ( domElement !== undefined ) ? domElement : document;
 	this.fixed = new THREE.Vector3( 0, 0, 0 );
 	this.displacing = true;
-	
-	var _DisplaceFocused = null; // выделенный мэш
-	this.focused = null; // выделенный мэш
-	this.focusedpart = null; // выделенная часть 3D объекта	
-	var _DisplaceMouseOvered = null; // выделенный мэш	
-	this.mouseovered = null; // наведенный мэш
-	this.mouseoveredpart = null; // наведенная часть 3D объекта	
-	
+
+	var _DisplaceFocused = null; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+	this.focused = null; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+	this.focusedpart = null; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 3D пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	var _DisplaceMouseOvered = null; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+	this.mouseovered = null; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+	this.mouseoveredpart = null; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 3D пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+
 	this.projectionMap = null;
 	this._mouse = new THREE.Vector2();
 	this._projector = new THREE.Projector();
@@ -30,10 +30,10 @@ ObjectControls = function ( camera, domElement ) {
 
 	this.objects = [];
 	this._intersects = [];
-	this.intersectsMap;	
+	this.intersectsMap;
 	this.previous = new THREE.Vector3( 0, 0, 0 );
 
-	this.update = function () { 
+	this.update = function () {
 		onContainerMouseMove();
 	}
 
@@ -50,7 +50,7 @@ ObjectControls = function ( camera, domElement ) {
 	}
 	this.attach = function ( object ) {
 
-		if ( object instanceof THREE.Mesh ) { 
+		if ( object instanceof THREE.Mesh ) {
 			this.objects.push( object );
 		}
 		else {
@@ -58,7 +58,7 @@ ObjectControls = function ( camera, domElement ) {
 			this.objects.push( object );
 
 			for ( var i = 0; i < object.children.length; i++ ) {
-				object.children[i].userData.parent = object;		
+				object.children[i].userData.parent = object;
 			}
 		}
 
@@ -74,7 +74,7 @@ ObjectControls = function ( camera, domElement ) {
 	this.setfocus = function ( object ) {
 
 		_DisplaceFocused = object;
-		_this.item = _this.objects.indexOf( object );		
+		_this.item = _this.objects.indexOf( object );
 		if ( object.userData.parent ) { // console.log( ' select object3D ' );
 			this.focused = object.userData.parent;
 			this.focusedpart = _DisplaceFocused;
@@ -86,14 +86,14 @@ ObjectControls = function ( camera, domElement ) {
 		}
 
 	}
-	
+
 	this._setFocusNull = function () {
 		_DisplaceFocused = null;
 		this.focused = null;
 		this.focusedpart = null;
 		this.item = null;
 	}
-	
+
 	this.select = function ( object ) {
 
 		_DisplaceMouseOvered = object;
@@ -106,7 +106,7 @@ ObjectControls = function ( camera, domElement ) {
 		}
 
 	}
-	
+
 	this._setSelectNull = function () {
 		_DisplaceMouseOvered = null;
 		this.mouseovered =  null;
@@ -129,8 +129,11 @@ ObjectControls = function ( camera, domElement ) {
 
 	function getMousePos( event ) {
 
-		var x = event.offsetX == undefined ? event.layerX : event.offsetX;
-		var y = event.offsetY == undefined ? event.layerY : event.offsetY;
+		var x = (event.offsetX == undefined ? event.layerX : event.offsetX) * window.devicePixelRatio;	// retina edit
+		var y = (event.offsetY == undefined ? event.layerY : event.offsetY) * window.devicePixelRatio;
+
+		//var x = event.offsetX == undefined ? event.layerX : event.offsetX;	// original
+		//var y = event.offsetY == undefined ? event.layerY : event.offsetY;
 
 		_this._mouse.x = ( ( x ) / _this.container.width ) * 2 - 1;
 		_this._mouse.y = - ( ( y ) / _this.container.height ) * 2 + 1;
@@ -167,10 +170,10 @@ ObjectControls = function ( camera, domElement ) {
 			_this.intersectsMap = raycaster.intersectObject( _this.projectionMap );
 
 			try {
-				var pos = new THREE.Vector3().copy( _this.intersectsMap[ 0 ].point );				
+				var pos = new THREE.Vector3().copy( _this.intersectsMap[ 0 ].point );
 				if ( _this.fixed.x == 1 ) { pos.x = _this.previous.x };
 				if ( _this.fixed.y == 1 ) { pos.y = _this.previous.y };
-				if ( _this.fixed.z == 1 ) { pos.z = _this.previous.z };				
+				if ( _this.fixed.z == 1 ) { pos.z = _this.previous.z };
 				_this._selGetPos( pos );
 			}
 			catch( err ) {}
@@ -181,8 +184,8 @@ ObjectControls = function ( camera, domElement ) {
 		else {
 
 			_this._intersects = raycaster.intersectObjects( _this.objects, true );
-			if ( _this._intersects.length > 0 ) {			
-				if ( _this.mouseovered ) {  // какая-то клавиша уже была наведена
+			if ( _this._intersects.length > 0 ) {
+				if ( _this.mouseovered ) {  // пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 					if ( _DisplaceMouseOvered != _this._intersects[ 0 ].object ) {
 						_this.mouseout();
 						_this.select( _this._intersects[ 0 ].object );
@@ -212,15 +215,15 @@ ObjectControls = function ( camera, domElement ) {
 
 				_this.mouseup();
                 _DisplaceFocused = null;
-				_this.focused = null; 
+				_this.focused = null;
 
 			}
 
 	}
 
-	this.container.addEventListener( 'mousedown', onContainerMouseDown, false );	// мышка нажата
-	this.container.addEventListener( 'mousemove', getMousePos, false );   // получение координат мыши
-	this.container.addEventListener( 'mouseup', onContainerMouseUp, false );       // мышка отпущена
+	this.container.addEventListener( 'mousedown', onContainerMouseDown, false );	// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	this.container.addEventListener( 'mousemove', getMousePos, false );   // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+	this.container.addEventListener( 'mouseup', onContainerMouseUp, false );       // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 };
 
